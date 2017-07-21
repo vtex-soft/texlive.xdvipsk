@@ -20,7 +20,7 @@ Developers and maintainers:
 
 More info:
 
-- [Overview](README.overview)
-- [Usage](README.usage)
-- [DeveloperNotes](README.developing)
-- [Building](README.building)
+- [Overview](README.overview.md)
+- [Usage](README.usage.md)
+- [DeveloperNotes](README.developing.md)
+- [Building](README.building.md)
