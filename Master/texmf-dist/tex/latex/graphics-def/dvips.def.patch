@@ -1,0 +1,12 @@
+--- dvips.def	2017-06-23 01:35:35.000000000 +0300
++++ dvips.def.patched	2019-03-20 16:41:59.000000000 +0200
+@@ -184,4 +184,9 @@
+ \@namedef{Gin@rule@.msp}#1{{bmp}{}{#1}}
+ \@namedef{Gin@rule@.pict}#1{{pict}{}{#1}}
+ \@namedef{Gin@rule@.pntg}#1{{pntg}{}{#1}}
++\@namedef{Gin@rule@.tif}#1{{bmp}{.tif.bb}{#1}}
++\@namedef{Gin@rule@.tiff}#1{{bmp}{.tiff.bb}{#1}}
++\@namedef{Gin@rule@.jpeg}#1{{bmp}{.jpeg.bb}{#1}}
++\@namedef{Gin@rule@.jpg}#1{{bmp}{.jpg.bb}{#1}}
++\@namedef{Gin@rule@.png}#1{{bmp}{.png.bb}{#1}}
+ \endinput
