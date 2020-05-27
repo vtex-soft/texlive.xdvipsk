@@ -177,7 +177,7 @@ void
 resetcolorstack(char * p, int outtops)
 {
 //AP--begin
-	char buf[1024];
+   char buf[1024];
 //AP--end
    char *q = csp - 1;
 
@@ -189,16 +189,16 @@ resetcolorstack(char * p, int outtops)
      fprintf(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %ld. Will try to recover.\n", pagenum);
 //AP--begin
-	 sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
-	 writelogrecord(buf);
+     sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
+     writelogrecord(buf);
 //AP--end
 #else   /* ~SHORTINT */
      fprintf(stderr, "You've mistakenly made a global color change ");
      fprintf(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %d. Will try to recover.\n", pagenum);
 //AP--begin
-	 sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
-	 writelogrecord(buf);
+     sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
+     writelogrecord(buf);
 //AP--end
 #endif  /* ~SHORTINT */
    }

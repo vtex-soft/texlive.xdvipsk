@@ -16,19 +16,19 @@ chardesctype *add_chardesc(fontdesctype *f, int charcode)
 {
     chardesctype *s;
 
-	HASH_FIND_INT(f->chardesc_hh, &charcode, s);  /* id already in the hash? */
+    HASH_FIND_INT(f->chardesc_hh, &charcode, s);  /* id already in the hash? */
     if (s==NULL) {
         s = (chardesctype*)malloc(sizeof(chardesctype));
-		s->charcode = charcode;
+        s->charcode = charcode;
         s->TFMwidth = 0;
         s->packptr = NULL;
         s->pixelwidth = 0;
         s->flags = 0;
-		s->flags2 = 0;
-		s->cid = 0;
+        s->flags2 = 0;
+        s->cid = 0;
         HASH_ADD_INT( f->chardesc_hh, charcode, s );  /* id: name of key field */
     }
-	return s;
+    return s;
 }
 
 chardesctype *find_chardesc(fontdesctype *f, int charcode)
@@ -43,11 +43,11 @@ void delete_chardesc(fontdesctype *f, int charcode)
 {
     chardesctype *s;
 
-	HASH_FIND_INT(f->chardesc_hh, &charcode, s);  /* id already in the hash? */
+    HASH_FIND_INT(f->chardesc_hh, &charcode, s);  /* id already in the hash? */
     if (s!=NULL) {
-		HASH_DEL( f->chardesc_hh, s);  /* user: pointer to deletee */
-		free(s);
-	}
+        HASH_DEL( f->chardesc_hh, s);  /* user: pointer to deletee */
+        free(s);
+    }
 }
 
 void delete_all_chardesc(fontdesctype *f)
@@ -62,7 +62,7 @@ void delete_all_chardesc(fontdesctype *f)
 
 static int charcode_sort(chardesctype *a, chardesctype *b)
 {
-	return (a->charcode - b->charcode);
+    return (a->charcode - b->charcode);
 }
 
 void sort_by_charcode(fontdesctype *f)

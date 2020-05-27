@@ -140,6 +140,59 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
 //AP--end
    reshash[h] = p;
 }
+
+//AP--begin
+/*
+ *   This routine adds(replaces) an entry from SPECIAL.
+ */
+void
+add_entry_spec(char *TeXname, char *PSname, char *Fontfile,
+char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, boolean replace)
+{
+   struct resfont *p;
+   int h, found = 0;
+
+   if (PSname == NULL)
+      PSname = TeXname;
+   if (p = lookup(TeXname)) {
+	   if (!replace) {
+		   char s[256];
+		   sprintf(s,"Resident font %s allready found in map",TeXname);
+		   error(s);
+		   return;
+	   }
+	   found = 1;
+   }
+   else {
+	  p = (struct resfont *)mymalloc((integer)sizeof(struct resfont));
+      p->Keyname = TeXname;
+   }
+   p->PSname = PSname;
+   p->Fontfile = Fontfile;
+   p->Vectfile = Vectfile;
+   p->TeXname = TeXname;
+   p->specialinstructions = specinfo;
+   if (downloadinfo && *downloadinfo)
+      p->downloadheader = downloadinfo;
+   else
+      p->downloadheader = 0;
+   p->sent = 0;
+   p->partialdownload = partial;
+   if (isOTF)
+	   p->otftype = 100;
+   else
+	   p->otftype = 0;
+   p->index = 0;
+   p->cmap_fmt = 0;
+   p->luamap_idx = -1;
+   if (!found) {
+      h = hash(TeXname);
+      p->next = reshash[h];
+      reshash[h] = p;
+   }
+}
+//AP--end
+
 /*
  *   Now our residentfont routine.  Returns the number of characters in
  *   this font, based on the TFM file.
@@ -986,13 +1039,148 @@ getpsinfo(const char *name)
 //                         specinfo, downloadinfo);
 //AP--end
             }
-   	 }
+         }
       }
       fclose(deffile);
    }
    checkstrings();
 }
 //AP--begin
+/*
+*   Read fonts map file suplied via /special{mapfile: xxxx.map}
+*   Replaces or not duplicating entries
+*/
+void
+getpsinfo_spec(const char *name, boolean replace)
+{
+   FILE *deffile;
+   register char *p;
+   char *specinfo, *downloadinfo;
+   char downbuf[500];
+   char specbuf[500];
+   int slen;
+
+   if (name == 0)
+      return;
+   if ((deffile=search(mappath, name, READ))!=NULL) {
+      if (dvips_debug_flag && !quiet) {
+         if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
+            fprintf(stderr, "\n");
+            prettycolumn = 0;
+         }
+         fprintf(stderr, "{%s}", realnameoffile);
+         prettycolumn += strlen(realnameoffile) + 2;
+      }
+      while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
+         p = was_inline;
+         if (*p > ' ' && *p != '*' && *p != '#' && *p != ';' && *p != '%') {
+            char *TeXname = NULL;
+            char *PSname = NULL;
+            char *Fontfile = NULL;
+            char *Vectfile = NULL;
+            char *hdr_name = NULL;
+            boolean nopartial_p = false;
+            boolean encoding_p = false;
+            specinfo = NULL;
+            downloadinfo = NULL;
+            downbuf[0] = 0;
+            specbuf[0] = 0;
+            while (*p) {
+               encoding_p = false;
+               while (*p && *p <= ' ')
+                  p++;
+               if (*p) {
+                  if (*p == '"') {             /* PostScript instructions? */
+                     if (specinfo) {
+                        strcat(specbuf, specinfo);
+                        strcat(specbuf, " ");
+                     }
+                     specinfo = p + 1;
+
+                  } else if (*p == '<') {    /* Header to download? */
+                     /* If had previous downloadinfo, save it.  */
+                     if (downloadinfo) {
+                        strcat(downbuf, downloadinfo);
+                        strcat(downbuf, " ");
+                        downloadinfo = NULL;
+                     }
+                     if (p[1] == '<') {     /* << means always full download */
+                       p++;
+                       nopartial_p = true;
+                     } else if (p[1] == '[') { /* <[ means an encoding */
+                       p++;
+                       encoding_p = true;
+                     }
+                     p++;
+                     /* skip whitespace after < */
+                     while (*p && *p <= ' ')
+                       p++;
+
+                     /* save start of header name */
+                     hdr_name = p;
+
+                  } else if (TeXname) /* second regular word on line? */
+                     PSname = p;
+
+                  else                /* first regular word? */
+                     TeXname = p;
+
+                  if (*p == '"') {
+                     p++;            /* find end of "..." word */
+                     while (*p != '"' && *p)
+                        p++;
+                  } else
+                     while (*p > ' ') /* find end of anything else */
+                        p++;
+                  if (*p)
+                     *p++ = 0;
+
+                  /* If we had a header we were downloading, figure
+                     out what to do; couldn't do this above since we
+                     want to check the suffix.  */
+                  if (hdr_name) {
+                     const char *suffix = find_suffix (hdr_name);
+                     if (encoding_p || STREQ (suffix, "enc")) {
+                        /* (SPQR) if it is a reencoding, pass on to
+                           FontPart, and download as usual */
+                        Vectfile = downloadinfo = hdr_name;
+                     } else if (nopartial_p) {
+                        downloadinfo = hdr_name;
+		     } else if 	(FILESTRCASEEQ (suffix, "pfa")
+				 || FILESTRCASEEQ (suffix, "pfb")
+				 || STREQ (suffix, "PFA")
+				 || STREQ (suffix, "PFB")) {
+			Fontfile = hdr_name;
+		     } else {
+                        downloadinfo = hdr_name;
+                     }
+                  }
+               }
+            }
+            if (specinfo)
+               strcat(specbuf, specinfo);
+            if (downloadinfo)
+               strcat(downbuf, downloadinfo);
+            slen = strlen(downbuf) - 1;
+            if (slen > 0 && downbuf[slen] == ' ') {
+              downbuf[slen] = 0;
+            }
+            if (TeXname) {
+               TeXname = newstring(TeXname);
+               PSname = newstring(PSname);
+               Fontfile = newstring(Fontfile);
+               Vectfile = newstring(Vectfile);
+               specinfo = newstring(specbuf);
+               downloadinfo = newstring(downbuf);
+               add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
+				   specinfo, downloadinfo, !nopartial_p, 0, replace);
+			}
+         }
+      }
+      fclose(deffile);
+   }
+   checkstrings();
+}
 /*
 Map file (dvi_name.opentype.map) record structure:
 - LuaTex font name ("xxxx")
@@ -1121,6 +1309,19 @@ getotfinfo(const char *dviname)
 								|| STREQ(suffix, "OTF")
 								|| STREQ(suffix, "DFONT")) {
 								Fontfile = hdr_name;
+							}
+						}
+						if (TeXname) {
+							if (specinfo = strchr(TeXname, '(')) {
+								specinfo++;
+								strcat(specbuf, "index=");
+								while (*specinfo != ')') {
+									int x = strlen(specbuf);
+									specbuf[x] = *specinfo;
+									specbuf[x + 1] = 0;
+									specinfo++;
+								}
+								specinfo = NULL;
 							}
 						}
 					}

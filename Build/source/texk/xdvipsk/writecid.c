@@ -530,9 +530,9 @@ static ULONG *makeglyphslocation(sfnt *sfont, SHORT indexToLocFormat, halfword n
 	if ( idx >= td->num_tables )
 		return NULL;
 
-	loca = NEW(num_glyphs,ULONG);
+	loca = NEW(num_glyphs+1,ULONG);
 	if (!td->tables[idx].data) {
-		sfnt_seek_set(sfont, td->tables[idx].offset); 
+		sfnt_seek_set(sfont, td->tables[idx].offset);
 		if (indexToLocFormat == 0) {
 			for (i = 0; i <= num_glyphs; i++)
 				loca[i] = 2*((ULONG) sfnt_get_ushort(sfont));
@@ -554,7 +554,7 @@ static ULONG *makeglyphslocation(sfnt *sfont, SHORT indexToLocFormat, halfword n
 			for (i = 0; i <= num_glyphs; i++) {
 				loca[i] = 0;
 				for (j=i * 4; j<i * 4 + 4; j++) {
-					loca[i] = (loca[i] << 8) | td->tables[idx].data[j];
+					loca[i] = (loca[i] << 8) | (unsigned char)td->tables[idx].data[j];
 				}
 			}
 		} else {
@@ -708,15 +708,31 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
 			if ( (memcmp(td->tables[i].tag,"glyf",4) == 0) && (td->tables[i].length > 65534) ) {
 				ULONG *loca = makeglyphslocation(sfont,head->indexToLocFormat,maxcid+1);
 				ULONG last = 0;
+				if (!td->tables[i].data) {
+					if (!sfont->stream)	{
+						ERROR("Font file not opened or already closed...");
+						return;
+					}
+					length = td->tables[i].length;
+					td->tables[i].data = NEW(length + len_pad,BYTE);
+					sfnt_seek_set(sfont, td->tables[i].offset);
+					nb_read = sfnt_read(td->tables[i].data, td->tables[i].length, sfont);
+					if (nb_read < 0) {
+						if ( td->tables[i].data )
+							RELEASE(td->tables[i].data);
+						ERROR("Reading file failed...");
+						return;
+					}
+				}
 				length = 0;
 				wbuf = NEW(65534,BYTE);
 				for ( j=0; j<maxcid+1; ++j ) {
-					if ( loca[j+1]-last > 65534 ) {
-						dumpsfnt(wbuf,loca[j]-last);
-						last = loca[j];
-						length = 0;
-					}
-					else {
+					if (loca[j + 1] - loca[j] > 0) {
+						if ( loca[j+1]-last > 65534 ) {
+							dumpsfnt(wbuf,loca[j]-last);
+							last = loca[j];
+							length = 0;
+						}
 						memcpy(wbuf + length, td->tables[i].data + loca[j], loca[j + 1] - loca[j]);
 						length += loca[j + 1] - loca[j];
 					}
@@ -878,8 +894,11 @@ int writecid(charusetype *p)
 			if ( cid_partialdownload ) {
 				CIDFont_type2_dofont(rf->PSname,sfont,rf->index,(char *)p->bitmap,&maxcid);
 			}
-			else 
+			else {
+				for (n = 1; n < num_glyphs; n++)
+					add_to_used_chars2((char *)p->bitmap, n);
 				maxcid = num_glyphs - 1;
+			}
 			CIDFont_type2_checktables(sfont);
 			writecidtype2(sfont,head,hhea,&csi,(char *)p->bitmap,rf->PSname,maxcid);
 			RELEASE(head);

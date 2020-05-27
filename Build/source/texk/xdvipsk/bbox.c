@@ -181,7 +181,7 @@ bbtfmload(register fontdesctype *curfnt)
 
    if (id == 9 || id == 11) {
 //AP--begin
-	   chardesc = find_chardesc(curfnt, 0);
+      chardesc = find_chardesc(curfnt, 0);
 //AP--end
       for (i=0; i<MAX_2BYTES_CODE+1; i++) {
          cc = &(bbcurfnt->bbchardesc[i]);
@@ -191,7 +191,7 @@ bbtfmload(register fontdesctype *curfnt)
             cc->llx = 0;
 //AP--begin
 //            cc->urx = curfnt->chardesc[0].TFMwidth;
-			cc->urx = chardesc->TFMwidth;
+            cc->urx = chardesc->TFMwidth;
 //AP--end
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
@@ -199,7 +199,7 @@ bbtfmload(register fontdesctype *curfnt)
       }
       for (i=1; i<nt; i++) {
 //AP--begin
-		 chardesc = find_chardesc(curfnt, index[i]);
+         chardesc = find_chardesc(curfnt, index[i]);
 //AP--end
          cc = &(bbcurfnt->bbchardesc[index[i]]);
          if (chardat[chartype[i]] != -1) {
@@ -208,7 +208,7 @@ bbtfmload(register fontdesctype *curfnt)
             cc->llx = 0;
 //AP--begin
 //            cc->urx = curfnt->chardesc[index[i]].TFMwidth;
-			cc->urx = chardesc->TFMwidth;
+            cc->urx = chardesc->TFMwidth;
 //AP--end
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
@@ -219,7 +219,7 @@ bbtfmload(register fontdesctype *curfnt)
    } else {
       for (i=0; i<pretend_no_chars; i++) {
 //AP--begin
-		 chardesc = find_chardesc(curfnt, i);
+         chardesc = find_chardesc(curfnt, i);
 //AP--end
          cc = &(bbcurfnt->bbchardesc[i]);
          if (chardat[i] != -1) {
@@ -240,7 +240,7 @@ bbtfmload(register fontdesctype *curfnt)
             cc->llx = 0;
 //AP--begin
 //            cc->urx = curfnt->chardesc[i].TFMwidth;
-			cc->urx = chardesc->TFMwidth;
+            cc->urx = chardesc->TFMwidth;
 //AP--end
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
@@ -344,7 +344,7 @@ case 130: /* set3 */
 case 134: /* put2 */
 //AP--begin
 //         if (noomega && noptex) error("! synch");
-		 if (noomega && noptex && noluatex) error("! synch");
+         if (noomega && noptex && noluatex) error("! synch");
 //AP--end
          mychar = dvibyte();
          mychar = (mychar << 8) + dvibyte();
@@ -353,7 +353,7 @@ case 134: /* put2 */
 case 129: /* set2 */
 //AP--begin
 //         if (noomega && noptex) error("! synch");
-		 if (noomega && noptex && noluatex) error("! synch");
+         if (noomega && noptex && noluatex) error("! synch");
 //AP--end
          mychar = dvibyte();
          mychar = (mychar << 8) + dvibyte();
@@ -370,7 +370,7 @@ default: /* these are commands 0 (setchar0) thru 127 (setchar127) */
 dochar:
 //AP--begin
 //         cd = &(curfnt->chardesc[mychar]);
-		 cd = find_chardesc(curfnt, mychar);
+         cd = find_chardesc(curfnt, mychar);
 //AP--end
          bcd = &(bbcurfnt->bbchardesc[CD_IDX(mychar)]);
          if (!dir) {

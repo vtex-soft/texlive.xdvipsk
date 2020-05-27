@@ -16,7 +16,7 @@
 
 //AP--begin
 #define BANNER \
-"This is xdvips(k) 1.0.4 Copyright 2019 VTeX Ltd."
+"This is xdvips(k) 1.1 Copyright 2019 VTeX Ltd."
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
 "Based on dvips(k) 5.999 Copyright 2019 Radical Eye Software"

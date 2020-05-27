@@ -144,8 +144,8 @@ dochar:
 //   cd = &(curfnt->chardesc[mychar]);
    cd = find_chardesc(curfnt, mychar);
    if (cd == NULL) {
-	   mychar = '?';
-	   cd = find_chardesc(curfnt, mychar);
+      mychar = '?';
+      cd = find_chardesc(curfnt, mychar);
    }
 //AP--end
    if (cd->flags & EXISTS) {

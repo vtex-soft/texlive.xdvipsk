@@ -75,7 +75,7 @@ static struct
 } required_table[] = {
   {"OS/2", 0}, {"head", 1}, {"hhea", 1}, {"loca", 1}, {"maxp", 1},
   {"name", 1}, {"glyf", 1}, {"hmtx", 1}, {"fpgm", 0}, {"cvt ", 0},
-  {"prep", 0}, {NULL, 0}
+  {"prep", 0}, {"vhea", 0}, {"vmtx", 0}, {NULL, 0}
 };
 
 

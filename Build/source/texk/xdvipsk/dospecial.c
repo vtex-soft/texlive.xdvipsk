@@ -585,6 +585,139 @@ case '!':
       return;
    }
    break;
+//AP--begin
+case 'm':
+   if (strncmp(p, "mapline", 7)==0) {
+		 char *specinfo, *downloadinfo;
+		 char downbuf[500];
+		 char specbuf[500];
+		 int slen;
+         char *TeXname = NULL;
+         char *PSname = NULL;
+         char *Fontfile = NULL;
+         char *Vectfile = NULL;
+         char *hdr_name = NULL;
+         boolean nopartial_p = false;
+         boolean encoding_p = false;
+         boolean repl = 1;
+         p += 7;
+		 if ((*p == ':') || (*p == '='))
+			 p++;
+		 if ((*p == ' ') || (*p == '\t'))
+			 p++;
+		 if (*p == '+') {
+			 repl = 0;
+			 p++;
+		 }
+         specinfo = NULL;
+         downloadinfo = NULL;
+         downbuf[0] = 0;
+         specbuf[0] = 0;
+         while (*p) {
+            encoding_p = false;
+            while (*p && *p <= ' ')
+               p++;
+            if (*p) {
+               if (*p == '"') {             /* PostScript instructions? */
+                  if (specinfo) {
+                     strcat(specbuf, specinfo);
+                     strcat(specbuf, " ");
+                  }
+                  specinfo = p + 1;
+
+               } else if (*p == '<') {    /* Header to download? */
+                  /* If had previous downloadinfo, save it.  */
+                  if (downloadinfo) {
+                     strcat(downbuf, downloadinfo);
+                     strcat(downbuf, " ");
+                     downloadinfo = NULL;
+                  }
+                  if (p[1] == '<') {     /* << means always full download */
+                    p++;
+                    nopartial_p = true;
+                  } else if (p[1] == '[') { /* <[ means an encoding */
+                    p++;
+                    encoding_p = true;
+                  }
+                  p++;
+                  /* skip whitespace after < */
+                  while (*p && *p <= ' ')
+                    p++;
+				                     /* save start of header name */
+                  hdr_name = p;
+				} else if (TeXname) /* second regular word on line? */
+                  PSname = p;
+
+                else                /* first regular word? */
+                  TeXname = p;
+
+                if (*p == '"') {
+                     p++;            /* find end of "..." word */
+                     while (*p != '"' && *p)
+                        p++;
+                  } else
+                     while (*p > ' ') /* find end of anything else */
+                        p++;
+                  if (*p)
+                     *p++ = 0;
+
+                  /* If we had a header we were downloading, figure
+                     out what to do; couldn't do this above since we
+                     want to check the suffix.  */
+                  if (hdr_name) {
+                     const char *suffix = find_suffix (hdr_name);
+                     if (encoding_p || STREQ (suffix, "enc")) {
+                        /* (SPQR) if it is a reencoding, pass on to
+                           FontPart, and download as usual */
+                        Vectfile = downloadinfo = hdr_name;
+                     } else if (nopartial_p) {
+                        downloadinfo = hdr_name;
+		             } else if	(FILESTRCASEEQ (suffix, "pfa")
+				             || FILESTRCASEEQ (suffix, "pfb")
+				             || STREQ (suffix, "PFA")
+				             || STREQ (suffix, "PFB")) {
+			           Fontfile = hdr_name;
+		             } else {
+                        downloadinfo = hdr_name;
+                     }
+					 hdr_name = NULL;
+                 }
+             }
+         }
+         if (specinfo)
+            strcat(specbuf, specinfo);
+         if (downloadinfo)
+            strcat(downbuf, downloadinfo);
+         slen = strlen(downbuf) - 1;
+         if (slen > 0 && downbuf[slen] == ' ') {
+            downbuf[slen] = 0;
+         }
+         if (TeXname) {
+            TeXname = newstring(TeXname);
+            PSname = newstring(PSname);
+            Vectfile = newstring(Vectfile);
+            Fontfile = newstring(Fontfile);
+            specinfo = newstring(specbuf);
+            downloadinfo = newstring(downbuf);
+            add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
+				   specinfo, downloadinfo, !nopartial_p, 0, repl);
+		}
+   }
+   else if (strncmp(p, "mapfile", 7)==0) {
+		 boolean repl = 1;
+         p += 7;
+		 if ((*p == ':') || (*p == '='))
+			 p++;
+		 if ((*p == ' ') || (*p == '\t'))
+			 p++;
+		 if (*p == '+') {
+			 repl = 0;
+			 p++;
+		 }
+		 getpsinfo_spec(p, repl);
+   }
+   break;
+//AP--end
 default:
    break;
    }
@@ -965,6 +1098,12 @@ case '"':
    cmdout("\n@endspecial");
    return;
    break;
+//AP--begin
+case 'm':
+   if (strncmp(p, "mapline", 7)==0) return;
+   else if (strncmp(p, "mapfile", 7)==0) return;
+   break;
+//AP--end
 default:
    break;
    }
