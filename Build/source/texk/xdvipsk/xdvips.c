@@ -35,8 +35,8 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #ifdef VMS
 #define GLOBAL globaldef
 #ifdef __GNUC__
-#include "climsgdef.h" /* created by hand, extracted from STARLET.MLB */
-                       /* and put in GNU_CC:[INCLUDE.LOCAL]           */
+#include "climsgdef.h"    /* created by hand, extracted from STARLET.MLB */
+            /* and put in GNU_CC:[INCLUDE.LOCAL]           */
 #include "ctype.h"
 #include "descrip.h"
 #else
@@ -52,8 +52,23 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #endif
 
 #if defined(WIN32) && defined(KPATHSEA)
+FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
+{
+   FILE *f;
+ 
+   f = fsyscp_fopen (filename, mode);
+ 
+   if (f == NULL && file_system_codepage != win32_codepage) {
+      int tmpcp = file_system_codepage;
+      file_system_codepage = win32_codepage;
+      f = fsyscp_fopen (filename, mode);
+      file_system_codepage = tmpcp;
+   }
+ 
+   return f;
+}
 #undef fopen
-#define fopen(file, fmode)  fsyscp_fopen(file, fmode)
+#define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #endif
 
 #ifndef DEFRES
@@ -76,7 +91,7 @@ extern char *strtok(); /* some systems don't have this in strings.h */
  *   First we define some globals.
  */
 #ifdef VMS
-    static char ofnme[252],infnme[252],pap[40],thh[20];
+   static char ofnme[252],infnme[252],pap[40],thh[20];
 #endif
 
 /* PS fonts fully downloaded as headers */
@@ -177,11 +192,11 @@ char RESIZE_FILTER_GrayName[128];
 char RESIZE_FILTER_RGBName[128];
 char RESIZE_FILTER_CMYKName[128];
 Boolean EMSEARCH_MODE = 0;   /* Enable emTeX graphics to be searched for alternatives */
-char *Exe_Log_Name = NULL;   /* Program logfile name (dvi_name.xdvips.log) */
-FILE *Exe_Log = NULL;        /* Program logfile*/
-int log_records_count = 0;   /* Log records count */
-Boolean Exe_Log_Mode = 1;    /* Log records writing mode */
-Boolean VTEX_SPEC_MODE = 0;  /* Skip specials with prefixes mt:, vtex:, MC:, BMC: and EMC: */
+char *Exe_Log_Name = NULL;      /* Program logfile name (dvi_name.xdvips.log) */
+FILE *Exe_Log = NULL;          /* Program logfile*/
+int log_records_count = 0;      /* Log records count */
+Boolean Exe_Log_Mode = 1;      /* Log records writing mode */
+Boolean VTEX_SPEC_MODE = 0;      /* Skip specials with prefixes mt:, vtex:, MC:, BMC: and EMC: */
 //AP--end
 
 /*-----------------------------------------------------------------------*
@@ -323,6 +338,7 @@ static const char *helparr[] = {
 "Options:",
 "-a*  Conserve memory, not time       -A   Print only odd (TeX) pages",
 "-b # Page copies, for posters e.g.   -B   Print only even (TeX) pages",
+"-bitmapfontenc [on,off,strict] control bitmap font encoding",
 "-c # Uncollated copies               -C # Collated copies",
 "-d # Debugging                       -D # Resolution",
 "-e # Maxdrift value                  -E*  Try to create EPSF",
@@ -489,14 +505,14 @@ void
 error_with_perror(const char *s, const char *fname)
 {
    if (prettycolumn > 0)
-        fprintf(stderr,"\n");
+      fprintf(stderr,"\n");
    prettycolumn = 0;
    fprintf(stderr, "%s: %s", progname, s);
    if (fname) {
-     putc (' ', stderr);
-     perror (fname);
+      putc (' ', stderr);
+      perror (fname);
    } else {
-     putc ('\n', stderr);
+      putc ('\n', stderr);
    }
 //AP--begin
    writelogrecord(s);
@@ -508,10 +524,10 @@ error_with_perror(const char *s, const char *fname)
          cleanprinter();
       }
 //AP--begin
-   (void)printf("\nRemoving output file...");
-   if (remove(oname) != 0)
-      (void)printf("unable to remove unfinished output file!");
-   dvips_exit(1);
+      (void)printf("\nRemoving output file...");
+      if (remove(oname) != 0)
+         (void)printf("unable to remove unfinished output file!");
+      dvips_exit(1);
 //      exit(1); /* fatal */
 //AP--end
    }
@@ -531,14 +547,14 @@ error(const char *s)
 char *
 concat(char *s1, char *s2)
 {
-  char *s = malloc(strlen(s1)+strlen(s2)+1);
-  if (s == NULL) {
-    fprintf(stderr, "Malloc failed to give %d bytes.\nAborting\n",
-    strlen(s1)+strlen(s2)+1);
+   char *s = malloc(strlen(s1)+strlen(s2)+1);
+   if (s == NULL) {
+      fprintf(stderr, "Malloc failed to give %d bytes.\nAborting\n",
+         strlen(s1)+strlen(s2)+1);
     exit(1);
-  }
-  strcpy(s, s1);
-  strcat(s, s2);
+   }
+   strcpy(s, s1);
+   strcat(s, s2);
 }
 #endif
 
@@ -548,17 +564,17 @@ concat(char *s1, char *s2)
 void
 check_checksum(unsigned c1, unsigned c2, const char *name)
 {
-  if (c1 && c2 && c1 != c2
+   if (c1 && c2 && c1 != c2
 #ifdef KPATHSEA
       && !kpse_tex_hush ("checksum")
 #endif
       ) {
 //AP--begin
 //     char *msg = concat ("Checksum mismatch in %s", name);
-     char *msg = concat("Checksum mismatch in ", name);
+      char *msg = concat("Checksum mismatch in ", name);
 //AP--end
-     error (msg);
-     free (msg);
+      error (msg);
+      free (msg);
    }
 }
 
@@ -758,64 +774,64 @@ int CompareUpperCase(char *x, char *y)
 void queryresizefilter(char *filter, char *result, char *displayname, int *gdimode)
 {
    switch (*filter) {
-   case 'b':            //Box filter
-      *result = 'b';
-      strcpy(displayname, "Box filter");
-      break;
-   case 't':            //Bilinear filter
-      *result = 't';
-      strcpy(displayname, "Bilinear filter");
-      break;
-   case 'B':            //B-spline filter
-      *result = 'B';
-      strcpy(displayname, "B-spline filter");
-      break;
-   case 'm':            //Mitchell and Netravali's two-param bicubic filter
-      *result = 'm';
-      strcpy(displayname, "Mitchell and Netravali's two-param bicubic filter");
-      break;
-   case 'l':            //Lanczos-windowed sinc filter
-      *result = 'l';
-      strcpy(displayname, "Lanczos-windowed sinc filter");
-      break;
-   case 'c':            //Catmull-Rom spline, Overhauser spline
-      *result = 'c';
-      strcpy(displayname, "Catmull-Rom spline, Overhauser spline filter");
-      break;
-   case 'r':            //Resample mode
-      *result = 'r';
-      strcpy(displayname, "Resample filter");
-      break;
-   case 'w':            //Windows GDI filter
+   case 'b':        //Box filter
+       *result = 'b';
+       strcpy(displayname, "Box filter");
+       break;
+   case 't':        //Bilinear filter
+       *result = 't';
+       strcpy(displayname, "Bilinear filter");
+       break;
+   case 'B':        //B-spline filter
+       *result = 'B';
+       strcpy(displayname, "B-spline filter");
+       break;
+   case 'm':        //Mitchell and Netravali's two-param bicubic filter
+       *result = 'm';
+       strcpy(displayname, "Mitchell and Netravali's two-param bicubic filter");
+       break;
+   case 'l':        //Lanczos-windowed sinc filter
+       *result = 'l';
+       strcpy(displayname, "Lanczos-windowed sinc filter");
+       break;
+   case 'c':        //Catmull-Rom spline, Overhauser spline
+       *result = 'c';
+       strcpy(displayname, "Catmull-Rom spline, Overhauser spline filter");
+       break;
+   case 'r':        //Resample mode
+       *result = 'r';
+       strcpy(displayname, "Resample filter");
+       break;
+   case 'w':        //Windows GDI filter
 #if defined(WIN32)
-      *result = 'w';
-      filter++;
-      switch (*filter) {
-      case '1':         //BLACKONWHITE
-         *gdimode = 1;
-         strcpy(displayname, "WinGDI filter with mode BLACKONWHITE");
-         break;
-      case '2':         //WHITEONBLACK
-         *gdimode = 2;
-         strcpy(displayname, "WinGDI filter with mode WHITEONBLACK");
-         break;
-      case '3':         //COLORONCOLOR
-         *gdimode = 3;
-         strcpy(displayname, "WinGDI filter with mode COLORONCOLOR");
-         break;
-      case '4':         //HALFTONE
-         *gdimode = 4;
-         strcpy(displayname, "WinGDI filter with mode HALFTONE");
-         break;
-      default:
-         *gdimode = 1;
-         strcpy(displayname, "WinGDI filter with mode BLACKONWHITE");
-      }
+       *result = 'w';
+       filter++;
+       switch (*filter) {
+       case '1':        //BLACKONWHITE
+           *gdimode = 1;
+           strcpy(displayname, "WinGDI filter with mode BLACKONWHITE");
+           break;
+       case '2':        //WHITEONBLACK
+           *gdimode = 2;
+           strcpy(displayname, "WinGDI filter with mode WHITEONBLACK");
+           break;
+       case '3':        //COLORONCOLOR
+           *gdimode = 3;
+           strcpy(displayname, "WinGDI filter with mode COLORONCOLOR");
+           break;
+       case '4':        //HALFTONE
+           *gdimode = 4;
+           strcpy(displayname, "WinGDI filter with mode HALFTONE");
+           break;
+       default:
+           *gdimode = 1;
+           strcpy(displayname, "WinGDI filter with mode BLACKONWHITE");
+       }
 #else
-      *result = 'r';
-      strcpy(displayname, "Resample filter");
+       *result = 'r';
+       strcpy(displayname, "Resample filter");
 #endif
-      break;
+       break;
    }
 }
 
@@ -902,20 +918,20 @@ main(int argc, char **argv)
 #ifdef __THINK__
    argc = dcommand(&argv); /* do I/O stream redirection */
 #endif
-#ifdef VMS                 /* Grab the command-line buffer */
+#ifdef VMS        /* Grab the command-line buffer */
    short len_arg;
-   $DESCRIPTOR( verb_dsc, "DVIPS "); /* assume the verb is always DVIPS */
+   $DESCRIPTOR( verb_dsc, "DVIPS ");    /* assume the verb is always DVIPS */
    struct dsc$descriptor_d temp_dsc = { 0, DSC$K_DTYPE_T, DSC$K_CLASS_D, 0};
 
    progname = &thh[0];
    strcpy(progname,"DVIPS%ERROR");
 
-   lib$get_foreign( &temp_dsc, 0, &len_arg, 0); /* Get the command line */
-   str$prefix(&temp_dsc, &verb_dsc);            /* prepend the VERB     */
-   len_arg += verb_dsc.dsc$w_length;            /* update the length    */
-   temp_dsc.dsc$a_pointer[len_arg] = '\0';      /* terminate the string */
-   gargv = &temp_dsc.dsc$a_pointer;             /* point to the buffer  */
-   gargc = 1;                                   /* only one big argv    */
+   lib$get_foreign( &temp_dsc, 0, &len_arg, 0);    /* Get the command line */
+   str$prefix(&temp_dsc, &verb_dsc);        /* prepend the VERB     */
+   len_arg += verb_dsc.dsc$w_length;        /* update the length    */
+   temp_dsc.dsc$a_pointer[len_arg] = '\0';    /* terminate the string */
+   gargv = &temp_dsc.dsc$a_pointer;        /* point to the buffer  */
+   gargc = 1;                    /* only one big argv    */
 #else
    progname = argv[0];
    gargv = argv;
@@ -1008,11 +1024,11 @@ main(int argc, char **argv)
                 strcmp (argv[i] + 1, "-version") == 0) {
                puts (BANNER);
 //AP--begin
-               puts(BANNER3);
+        puts(BANNER3);
 //AP--end
                puts (kpathsea_version_string);
 //AP--begin
-        puts ("Copyright 2019 VTeX Ltd.\n\
+        puts ("Copyright 2020 VTeX Ltd.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the xdvips copyright.\n\
@@ -1038,7 +1054,7 @@ case 'H':
 case 'I':
                RESIZE_MODE = (*p != '0');
                if (RESIZE_MODE)
-                  queryresizeargs(p);
+                   queryresizeargs(p);
                break;
 case 'W':
                EMSEARCH_MODE = (*p != '0');
@@ -1051,6 +1067,20 @@ case 'a':
                dopprescan = (*p != '0');
                break;
 case 'b':
+               if (strcmp(p, "itmapfontenc") == 0) {
+                  p = argv[++i] ;
+                  if (strcmp(p, "off") == 0) {
+                     bitmapencopt(0) ; // disable bitmap font enc feature
+                  } else if (strcmp(p, "on") == 0) {
+                     bitmapencopt(1) ; // try to include bitmap font encs
+                  } else if (strcmp(p, "strict") == 0) {
+                     bitmapencopt(2) ; // issue warnings for missing encs
+                  } else {
+                     error(
+               "! -bitmapfontenc option only supports off, on, and strict") ;
+                  }
+                  break ;
+               }
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
                if (sscanf(p, "%d", &pagecopies)==0)
@@ -1115,7 +1145,7 @@ case 'u' :
                }
                break;
 //AP--begin
-//case 'h': case 'H':
+    //case 'h': case 'H':
 case 'h':
 //AP--end
                if (*p == 0 && argv[i+1])
@@ -1175,10 +1205,10 @@ case 'n' :
 //AP--begin
                }
                else if (STREQ(p, "oluatex")) {
-                  noluatex = 1;
+                   noluatex = 1;
                }
                else if (STREQ(p, "oToUnicode")) {
-                  noToUnicode = 1;
+                   noToUnicode = 1;
 //AP--end
                } else {
                if (*p == 0 && argv[i+1])
@@ -1316,7 +1346,7 @@ case 't' :
 case 'v':
 //AP--begin
 //                printf ("%s %s\n", banner, banner2);
-                printf("%s %s\n%s\n", banner, banner2, banner3);
+               printf("%s %s\n%s\n", banner, banner2, banner3);
 //AP--end
                 exit (0);
                 break;
@@ -1381,7 +1411,7 @@ case 'F' :
                break;
 case 'G' :
                shiftlowchars = (*p != '0');
-               break;
+           break;
 case 'M':
                dontmakefont = (*p != '0');
 #ifdef KPATHSEA
@@ -1482,7 +1512,7 @@ default:
          register char *p;
          struct papsiz *opapsiz = papsizes;
          papsizes = 0;
-      if (0 != (p = getenv("PRINTER"))) {
+         if (0 != (p = getenv("PRINTER"))) {
 #if defined(MSDOS) || defined(OS2)
             strcpy(nextstring, p);
             strcat(nextstring, ".cfg");
@@ -1511,11 +1541,11 @@ default:
          help(1);
          queryargs();
          if (qargc == 1)
-           queryoptions = 0;
+            queryoptions = 0;
          else {
-           qargv[0] = argv[0];
-           argc=qargc;
-           argv=qargv;
+            qargv[0] = argv[0];
+            argc=qargc;
+            argv=qargv;
          }
       }
    } while (queryoptions != 0);
@@ -1611,16 +1641,16 @@ default:
 #ifdef MVSXA /* IBM: MVS/XA */
       if (strchr(iname, '(') != NULL  &&
           strchr(iname, ')') != NULL) {
-      firstext = strchr(iname, '(') - iname + 1;
-      lastext = strrchr(iname, ')') - iname - 1;
-         }
+         firstext = strchr(iname, '(') - iname + 1;
+         lastext = strrchr(iname, ')') - iname - 1;
+      }
       else {
-      if (strrchr(iname, '.') != NULL) {
-      lastext = strrchr(iname, '.') - iname - 1;
-           }
+         if (strrchr(iname, '.') != NULL) {
+            lastext = strrchr(iname, '.') - iname - 1;
+         }
          else lastext = strlen(iname) - 1;
-      if (strchr(iname, '\'') != NULL)
-         firstext = strchr(iname, '.') - iname + 1;
+         if (strchr(iname, '\'') != NULL)
+            firstext = strchr(iname, '.') - iname + 1;
          else firstext = 0;
       }
 #endif  /* IBM: MVS/XA */
@@ -1702,12 +1732,12 @@ default:
       fulliname = nextstring;
 #ifndef IGNORE_CWD
       if (!IS_DIR_SEP(*iname) && !NAME_BEGINS_WITH_DEVICE(iname)) {
-        getcwd(nextstring, MAXPATHLEN + 2);
-        while (*nextstring++);
-#ifdef VMS            /* VMS doesn't need the '/' character appended */
-        nextstring--; /* so just back up one byte. */
+         getcwd(nextstring, MAXPATHLEN + 2);
+         while (*nextstring++);
+#ifdef VMS        /* VMS doesn't need the '/' character appended */
+            nextstring--;    /* so just back up one byte. */
 #else
-        *(nextstring-1) = '/';
+         *(nextstring-1) = '/';
 #endif
       }
 #endif
@@ -1745,9 +1775,9 @@ default:
 #endif
 //AP--begin
    if (!noluatex) {
-      getotfinfo(fulliname);
-      LuaMap_cache_init();
-      srand(time(NULL));
+       getotfinfo(fulliname);
+       LuaMap_cache_init();
+       srand(time(NULL));
    }
    usesPSfonts = 0;
    usesOTFfonts = 0;
@@ -1777,19 +1807,19 @@ default:
    prescanpages();
 #if defined MSDOS || defined OS2 || defined(ATARIST)
    if (mfjobfile != (FILE*)NULL) {
-     char answer[5];
-     fputs("}\n",mfjobfile);
-     fclose(mfjobfile);
-     fputs("Exit to make missing fonts now (y/n)? ",stdout);
-     fgets(answer,4,stdin);
-     if (*answer=='y' || *answer=='Y')
-       exit(8); /* exit with errorlevel 8 for emTeX dvidrv */
+      char answer[5];
+      fputs("}\n",mfjobfile);
+      fclose(mfjobfile);
+      fputs("Exit to make missing fonts now (y/n)? ",stdout);
+      fgets(answer,4,stdin);
+      if (*answer=='y' || *answer=='Y')
+         exit(8); /* exit with errorlevel 8 for emTeX dvidrv */
    }
 #endif
    if (includesfonts)
-      add_header(IFONTHEADER);
+       add_header(IFONTHEADER);
    if (usesPSfonts)
-      add_header(PSFONTHEADER);
+       add_header(PSFONTHEADER);
 //AP--begin
    if (usesOTFfonts)
       add_header(CIDFONTHEADER);
@@ -1866,7 +1896,7 @@ default:
                finish_hps();
 #endif
             cleanprinter();
-         }
+     }
       }
    }
    freememforpsnames();

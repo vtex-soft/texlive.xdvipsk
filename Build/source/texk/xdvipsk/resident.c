@@ -131,9 +131,9 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
 //AP--begin
    p->partialdownload = partial;
    if (isOTF)
-	   p->otftype = 100;
+       p->otftype = 100;
    else
-	   p->otftype = 0;
+       p->otftype = 0;
    p->index = 0;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
@@ -155,16 +155,16 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    if (PSname == NULL)
       PSname = TeXname;
    if (p = lookup(TeXname)) {
-	   if (!replace) {
-		   char s[256];
-		   sprintf(s,"Resident font %s allready found in map",TeXname);
-		   error(s);
-		   return;
-	   }
-	   found = 1;
+      if (!replace) {
+         char s[256];
+         sprintf(s,"Resident font %s allready found in map",TeXname);
+         error(s);
+         return;
+      }
+      found = 1;
    }
    else {
-	  p = (struct resfont *)mymalloc((integer)sizeof(struct resfont));
+      p = (struct resfont *)mymalloc((integer)sizeof(struct resfont));
       p->Keyname = TeXname;
    }
    p->PSname = PSname;
@@ -179,9 +179,9 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    p->sent = 0;
    p->partialdownload = partial;
    if (isOTF)
-	   p->otftype = 100;
+       p->otftype = 100;
    else
-	   p->otftype = 0;
+       p->otftype = 0;
    p->index = 0;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
@@ -222,39 +222,39 @@ residentfont(register fontdesctype *curfnt)
  *   short headers that are innocuous.
  */
 //AP--begin
-	   //   if (p->Fontfile && downloadpspk) {
-	   if (p->Fontfile && (!p->otftype) && downloadpspk) {
+//   if (p->Fontfile && downloadpspk) {
+   if (p->Fontfile && (!p->otftype) && downloadpspk) {
 //AP--end
 #ifdef DEBUG
-      if (dd(D_FONTS))
-         fprintf(stderr,"Using PK font %s for <%s>.\n",
-                                     curfnt->name, p->PSname);
+   if (dd(D_FONTS))
+      fprintf(stderr,"Using PK font %s for <%s>.\n",
+                                  curfnt->name, p->PSname);
 #endif  /* DEBUG */
-      return 0;
+   return 0;
    }
 /*
  *   We clear out some pointers:
  */
 #ifdef DEBUG
    if (dd(D_FONTS))
-        fprintf(stderr,"Font %s <%s> is resident.\n",
-                                     curfnt->name, p->PSname);
+      fprintf(stderr,"Font %s <%s> is resident.\n",
+                                  curfnt->name, p->PSname);
 #endif  /* DEBUG */
    curfnt->resfont = p;
    curfnt->name = p->TeXname;
 //AP--begin
    if (p->otftype) {
-	   curfnt->maxchars = MAX_CODE;
-	   curfnt->iswide = 1;
-	   curfnt->codewidth = 2;
-	   if (curfnt->chardesc_hh) {
-		   delete_all_chardesc(curfnt);
-		   curfnt->chardesc_hh = NULL;
-	   }
-	   i = sfntload(curfnt);
-	   add_name(p->PSname, &ps_fonts_used);
-	   usesOTFfonts = 1;
-	   return(i);
+      curfnt->maxchars = MAX_CODE;
+      curfnt->iswide = 1;
+      curfnt->codewidth = 2;
+      if (curfnt->chardesc_hh) {
+         delete_all_chardesc(curfnt);
+         curfnt->chardesc_hh = NULL;
+      }
+      i = sfntload(curfnt);
+      add_name(p->PSname, &ps_fonts_used);
+      usesOTFfonts = 1;
+      return(i);
    }
    for (i = 0; i<256; i++) {
 //      curfnt->chardesc[i].TFMwidth = 0;
@@ -262,7 +262,7 @@ residentfont(register fontdesctype *curfnt)
 //      curfnt->chardesc[i].pixelwidth = 0;
 //      curfnt->chardesc[i].flags = 0;
 //      curfnt->chardesc[i].flags2 = 0;
-	   cd = add_chardesc(curfnt, i);
+      cd = add_chardesc(curfnt, i);
    }
 //AP--end
    add_name(p->PSname, &ps_fonts_used);
@@ -411,44 +411,44 @@ getdefaults(const char *s)
 #ifdef KPATHSEA
          char *dvipsrc = kpse_var_value ("DVIPSRC");
 #ifdef WIN32
-	 if (dvipsrc && *dvipsrc) {
-	   /* $DVIPSRC was set by user */
-	   strcpy(PSname, dvipsrc);
-	 }
-	 else
-	   /* No env var, looking into some kind of standard path. */
-	   if (SearchPath(".;%HOME%;c:\\", ".dvipsrc", NULL,
-			  INLINE_SIZE, PSname,
-			  &dvipsrc) == 0) {
-	     /* search failed, we must put something into PSname. */
-	     dvipsrc = kpse_var_expand(DVIPSRC);
-	     if (dvipsrc) {
-	       strcpy(PSname, dvipsrc);
-	       free(dvipsrc);
-	     }
-	     /* Else SearchPath has filled PSname with something */
-	   }
-	 /* remove any redundant path separators. Many configurations
-	    can show  up: c:\/.dvipsrc and so on ... */
-	 {
-	   char *p, *q;
-	   for (p = q = PSname; *p && (p - PSname < INLINE_SIZE);
-		p++, q++) {
-	     if (IS_DIR_SEP(*p)) {
-	       *q = DIR_SEP; p++; q++;
-	       while (*p && IS_DIR_SEP(*p)) p++;
-	     }
-	     else if (IS_KANJI(p)) {
-	       *q++ = *p++;
-	     }
-	     *q = *p;
-	   }
-	   *q = '\0';
-	 }
+         if (dvipsrc && *dvipsrc) {
+            /* $DVIPSRC was set by user */
+            strcpy(PSname, dvipsrc);
+         }
+         else
+            /* No env var, looking into some kind of standard path. */
+            if (SearchPath(".;%HOME%;c:\\", ".dvipsrc", NULL,
+                 INLINE_SIZE, PSname,
+                 &dvipsrc) == 0) {
+            /* search failed, we must put something into PSname. */
+            dvipsrc = kpse_var_expand(DVIPSRC);
+            if (dvipsrc) {
+               strcpy(PSname, dvipsrc);
+               free(dvipsrc);
+            }
+            /* Else SearchPath has filled PSname with something */
+            }
+         /* remove any redundant path separators. Many configurations
+            can show  up: c:\/.dvipsrc and so on ... */
+         {
+          char *p, *q;
+          for (p = q = PSname; *p && (p - PSname < INLINE_SIZE);
+           p++, q++) {
+             if (IS_DIR_SEP(*p)) {
+                *q = DIR_SEP; p++; q++;
+                while (*p && IS_DIR_SEP(*p)) p++;
+             }
+             else if (IS_KANJI(p)) {
+                *q++ = *p++;
+             }
+             *q = *p;
+           }
+          *q = '\0';
+         }
 #else
-         if(!dvipsrc) dvipsrc = kpse_var_expand(DVIPSRC);
+         if (!dvipsrc) dvipsrc = kpse_var_expand(DVIPSRC);
          strcpy(PSname, dvipsrc ? dvipsrc : "~/.dvipsrc");
-         if(dvipsrc) free(dvipsrc);
+         if (dvipsrc) free(dvipsrc);
 #endif /* WIN32 */
 
 #else /* ! KPATHSEA */
@@ -474,37 +474,37 @@ getdefaults(const char *s)
 #else
    if ((deffile=search(d,PSname,READ))!=NULL) {
 #endif
-   if (dvips_debug_flag && !quiet) {
-      if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
-         fprintf(stderr, "\n");
-         prettycolumn = 0;
+      if (dvips_debug_flag && !quiet) {
+         if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
+            fprintf(stderr, "\n");
+            prettycolumn = 0;
+         }
+         fprintf(stderr, "{%s}", realnameoffile);
+         prettycolumn += strlen(realnameoffile) + 2;
       }
-      fprintf(stderr, "{%s}", realnameoffile);
-      prettycolumn += strlen(realnameoffile) + 2;
-   }
 #ifdef DEBUG
-     if (dd (D_CONFIG)) {
-       fprintf (stderr, "Reading dvips config file `%s':\n", realnameoffile);
-     }
+      if (dd (D_CONFIG)) {
+         fprintf (stderr, "Reading dvips config file `%s':\n", realnameoffile);
+      }
 #endif
-     c_lineno = 0;
-     while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
-       c_lineno++;
+      c_lineno = 0;
+      while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
+         c_lineno++;
 #ifdef DEBUG
-       if (dd (D_CONFIG)) {
-         fprintf (stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
-       }
+         if (dd (D_CONFIG)) {
+            fprintf (stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
+         }
 #endif
 /*
  *   We need to get rid of the newline.
  */
-       for (p=was_inline; *p; p++);
-       while (p > was_inline && (*(p-1) == '\n' || *(p-1) == '\r')) {
-          *--p = '\0';
-       }
-       if (was_inline[0] != '@')
-          canaddtopaper = 0;
-       switch (was_inline[0]) {
+         for (p=was_inline; *p; p++);
+         while (p > was_inline && (*(p-1) == '\n' || *(p-1) == '\r')) {
+            *--p = '\0';
+         }
+         if (was_inline[0] != '@')
+            canaddtopaper = 0;
+         switch (was_inline[0]) {
 /*
  *   Handling paper size information:
  *
@@ -523,7 +523,7 @@ case '@' :
          } else if (*p == '+') {
             if (canaddtopaper == 0)
                error(
-      " @+ in config files must immediately following a @ lines");
+                  " @+ in config files must immediately following a @ lines");
             else {
                *(nextstring-1) = '\n';/* IBM: VM/CMS - changed 10 to "\n" */
                p++;
@@ -555,12 +555,28 @@ case 'a' :
          dopprescan = (was_inline[1] != '0');
          break;
 case 'b':
+         if (strncmp(was_inline, "bitmapfontenc", 13) == 0) {
+            char *p = was_inline + 13 ;
+            while (*p && *p <= ' ')
+               p++ ;
+            if (strncmp(p, "off", 3) == 0) {
+               bitmapencopt(0) ; // disable bitmap font enc feature
+            } else if (strncmp(p, "on", 2) == 0) {
+               bitmapencopt(1) ; // try to include bitmap font encs
+            } else if (strncmp(p, "strict", 6) == 0) {
+               bitmapencopt(2) ; // issue warnings for missing encs
+            } else {
+               error(
+                  "! bitmapfontenc config file option only supports on, off, and strict") ;
+            }
+            break ;
+         }
 #ifdef SHORTINT
          if (sscanf(was_inline+1, "%ld", &pagecopies) != 1)
-	   bad_config("missing pagecopies to b");
+            bad_config("missing pagecopies to b");
 #else
          if (sscanf(was_inline+1, "%d", &pagecopies) != 1)
-	   bad_config("missing pagecopies to b");
+            bad_config("missing pagecopies to b");
 #endif
          if (pagecopies < 1 || pagecopies > 1000)
             bad_config("pagecopies not between 1 and 1000");
@@ -568,10 +584,10 @@ case 'b':
 case 'm' :
 #ifdef SHORTINT
          if (sscanf(was_inline+1, "%ld", &swmem) != 1)
-	   bad_config("missing swmem to m");
+            bad_config("missing swmem to m");
 #else   /* ~SHORTINT */
          if (sscanf(was_inline+1, "%d", &swmem) != 1)
-	   bad_config("missing swmem to m");
+            bad_config("missing swmem to m");
 #endif  /* ~SHORTINT */
          if (swmem > 0) {
            swmem += fontmem; /* grab headers we've seen already */
@@ -582,7 +598,7 @@ case 'm' :
 case 'M' :
          /* If the user specified a -mode, don't replace it.  */
          if (!mfmode_option)
-	   mfmode = configstring(was_inline+1, 0);
+            mfmode = configstring(was_inline+1, 0);
          mflandmode = 0;
          {
             char *pp;
@@ -597,19 +613,19 @@ case 'M' :
          }
          break;
 case 'o' :
-	 if (!oname_option) {
-           struct stat st_buf;
-           char *tmp_oname;
-           tmp_oname = configstring(was_inline+1, 1);
-           if ((*tmp_oname && tmp_oname[strlen(tmp_oname)-1] == ':')
+         if (!oname_option) {
+            struct stat st_buf;
+            char *tmp_oname;
+            tmp_oname = configstring(was_inline+1, 1);
+            if ((*tmp_oname && tmp_oname[strlen(tmp_oname)-1] == ':')
                || (stat(tmp_oname, &st_buf) == 0 && S_ISCHR(st_buf.st_mode))) {
               sendcontrolD = 1; /* if we send to a device, *we* are spooler */
 #if defined(MSDOS) || defined(OS2)
-              tmp_oname[strlen(tmp_oname)-1] = 0;
+               tmp_oname[strlen(tmp_oname)-1] = 0;
 #endif
-           }
-           oname = tmp_oname;
-	 }
+            }
+            oname = tmp_oname;
+         }
          break;
 case 'F' :
          sendcontrolD = (was_inline[1] != '0');
@@ -627,26 +643,26 @@ case 'L' :
                flipath = getpath(fliparse(PSname,tempname), flipath);
                fliname = newstring(tempname);
             }
-	 }
+         }
          break;
 #endif
 case 'T' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
-	   bad_config("missing arg to T");
+            bad_config("missing arg to T");
          else
 #ifdef KPATHSEA
-	   SET_CLIENT_PATH (kpse_tfm_format, PSname);
+            SET_CLIENT_PATH (kpse_tfm_format, PSname);
 #else
-	   tfmpath = getpath(PSname, tfmpath);
+            tfmpath = getpath(PSname, tfmpath);
 #endif
          break;
 case 'P' :
          if (sscanf(was_inline+1, "%s", PSname) != 1) bad_config("missing arg to P");
          else
 #ifdef KPATHSEA
-	   SET_CLIENT_PATH (kpse_pk_format, PSname);
+            SET_CLIENT_PATH (kpse_pk_format, PSname);
 #else
-	   pkpath = getpath(PSname, pkpath);
+            pkpath = getpath(PSname, pkpath);
 #endif
          break;
 case 'p' :
@@ -663,12 +679,12 @@ case 'p' :
          break;
 case 'v' : case 'V' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
-	   bad_config("missing arg to V");
+            bad_config("missing arg to V");
          else
 #ifdef KPATHSEA
-	   SET_CLIENT_PATH (kpse_vf_format, PSname);
+            SET_CLIENT_PATH (kpse_vf_format, PSname);
 #else
-	   vfpath = getpath(PSname, vfpath);
+            vfpath = getpath(PSname, vfpath);
 #endif
          break;
 case 'S' :
@@ -676,9 +692,9 @@ case 'S' :
            bad_config("missing arg to S");
          else
 #ifdef KPATHSEA
-	   SET_CLIENT_PATH (kpse_pict_format, PSname);
+            SET_CLIENT_PATH (kpse_pict_format, PSname);
 #else
-	   figpath = getpath(PSname, figpath);
+            figpath = getpath(PSname, figpath);
 #endif
          break;
 case 's':
@@ -686,12 +702,12 @@ case 's':
          break;
 case 'H' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
-	   bad_config("missing arg to H");
+            bad_config("missing arg to H");
          else
 #ifdef KPATHSEA
-	   SET_CLIENT_PATH (headerpath, PSname);
+       SET_CLIENT_PATH (headerpath, PSname);
 #else
-	   headerpath = getpath(PSname, headerpath);
+       headerpath = getpath(PSname, headerpath);
 #endif
          break;
 case '%': case ' ' : case '*' : case '#' : case ';' :
@@ -736,20 +752,20 @@ case 'R':
          }
          lastresortsizes[i] = 32000;
 #else /* KPATHSEA */
-	 for (p = was_inline + 1; *p; p++) {
-	   if (isblank ((unsigned char)*p)) {
-	     *p = ':';
-	   }
-	 }
+         for (p = was_inline + 1; *p; p++) {
+            if (isblank ((unsigned char)*p)) {
+               *p = ':';
+            }
+         }
          kpse_fallback_resolutions_string = xstrdup (was_inline + 1);
 #endif
          break;
 case 'D' :
          if (sscanf(was_inline+1, "%d", &actualdpi) != 1)
-           bad_config("missing arg to D");
+            bad_config("missing arg to D");
          if (actualdpi < 10 || actualdpi > 10000)
-           bad_config("dpi must be between 10 and 10000");
-	 vactualdpi = actualdpi;
+            bad_config("dpi must be between 10 and 10000");
+            vactualdpi = actualdpi;
          break;
 /*
  *   Execute a command.  This can be dangerous, but can also be very useful.
@@ -783,37 +799,37 @@ case 'W':
          break;
 case 'X' :
          if (sscanf(was_inline+1, "%d", &actualdpi) != 1)
-           bad_config("missing numeric arg to X");
+            bad_config("missing numeric arg to X");
          if (actualdpi < 10 || actualdpi > 10000)
-           bad_config("X arg must be between 10 and 10000");
+            bad_config("X arg must be between 10 and 10000");
          break;
 case 'Y' :
          if (sscanf(was_inline+1, "%d", &vactualdpi) != 1)
-           bad_config("missing numeric arg to Y");
+            bad_config("missing numeric arg to Y");
          if (vactualdpi < 10 || vactualdpi > 10000)
-           bad_config("Y arg must be between 10 and 10000");
+            bad_config("Y arg must be between 10 and 10000");
          break;
 case 'x': case 'y':
          if (sscanf(was_inline+1, "%lg", &mag) != 1)
-	   bad_config("missing arg to x or y");
+            bad_config("missing arg to x or y");
          overridemag = (was_inline[0] == 'x') ? 1 : -1;
          break;
 case 'e' :
          if (sscanf(was_inline+1, "%d", &maxdrift) != 1)
-           bad_config("missing arg to e");
+            bad_config("missing arg to e");
          if (maxdrift < 0) bad_config("bad argument to e");
-	 vmaxdrift = maxdrift;
+            vmaxdrift = maxdrift;
          break;
 case 'z' :
-	 if (secure_option && secure && was_inline[1] == '0') {
+         if (secure_option && secure && was_inline[1] == '0') {
 //AP--begin
-		 sprintf(buf,
-			 "warning: %s: z0 directive ignored since -R1 given\n",
-			 realnameoffile); /* Never happen */
-		 error(buf);
-//		 fprintf(stderr,
-//	            "warning: %s: z0 directive ignored since -R1 given\n",
-//	            realnameoffile); /* Never happen */
+            sprintf(buf,
+               "warning: %s: z0 directive ignored since -R1 given\n",
+               realnameoffile); /* Never happen */
+            error(buf);
+//         fprintf(stderr,
+//                "warning: %s: z0 directive ignored since -R1 given\n",
+//                realnameoffile); /* Never happen */
 //AP--end
          } else {
             if (was_inline[1] == '0') {
@@ -830,10 +846,10 @@ case 'q' : case 'Q' :
          break;
 case 'f' :
          filter = (was_inline[1] != '0');
-	 if (filter)
-	   oname = "";
-	 /* noenv has already been tested, so no point in setting.  */
-	 sendcontrolD = 0;
+         if (filter)
+            oname = "";
+            /* noenv has already been tested, so no point in setting.  */
+         sendcontrolD = 0;
          break;
 #ifdef SHIFTLOWCHARS
 case 'G':
@@ -862,20 +878,20 @@ case 'Z' :
 case 'j':
 //AP--begin
 //         partialdownload = (was_inline[1] != '0');
-		 t1_partialdownload = (was_inline[1] != '0');
-		 break;
+         t1_partialdownload = (was_inline[1] != '0');
+         break;
 case 'J':
-		 cid_partialdownload = (was_inline[1] != '0');
-		 break;
+         cid_partialdownload = (was_inline[1] != '0');
+         break;
 //AP--end
 case 't' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
-           bad_config("missing arg to t");
+            bad_config("missing arg to t");
          else {
            if (strcmp(PSname, "landscape") == 0) {
-               if (hpapersize || vpapersize)
-                  error(
-            "both landscape and papersize specified; ignoring landscape");
+              if (hpapersize || vpapersize)
+                 error(
+                    "both landscape and papersize specified; ignoring landscape");
                else
                   landscape = 1;
             } else
@@ -884,21 +900,21 @@ case 't' :
          break;
 case 'c' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
-           bad_config("missing arg to c");
+            bad_config("missing arg to c");
          else
-           getdefaults(PSname);
+            getdefaults(PSname);
          break;
 default:
          bad_config("strange line");
+         }
       }
-     }
-     fclose(deffile);
+      fclose(deffile);
    } else {
       if (printer)
         {
           char msg[1000];
           snprintf (msg, sizeof(msg), "warning: no config file for `%s'",
-          	    printer);
+                  printer);
           error(msg);
           return 0;
         }
@@ -1007,12 +1023,12 @@ getpsinfo(const char *name)
                         Vectfile = downloadinfo = hdr_name;
                      } else if (nopartial_p) {
                         downloadinfo = hdr_name;
-		     } else if 	(FILESTRCASEEQ (suffix, "pfa")
-				 || FILESTRCASEEQ (suffix, "pfb")
-				 || STREQ (suffix, "PFA")
-				 || STREQ (suffix, "PFB")) {
-			Fontfile = hdr_name;
-		     } else {
+             } else if     (FILESTRCASEEQ (suffix, "pfa")
+                 || FILESTRCASEEQ (suffix, "pfb")
+                 || STREQ (suffix, "PFA")
+                 || STREQ (suffix, "PFB")) {
+            Fontfile = hdr_name;
+             } else {
                         downloadinfo = hdr_name;
                      }
                   }
@@ -1035,7 +1051,7 @@ getpsinfo(const char *name)
                downloadinfo = newstring(downbuf);
                add_entry(TeXname, PSname, Fontfile, Vectfile,
 //AP--begin
-				   specinfo, downloadinfo, !nopartial_p, 0);
+                   specinfo, downloadinfo, !nopartial_p, 0);
 //                         specinfo, downloadinfo);
 //AP--end
             }
@@ -1146,12 +1162,12 @@ getpsinfo_spec(const char *name, boolean replace)
                         Vectfile = downloadinfo = hdr_name;
                      } else if (nopartial_p) {
                         downloadinfo = hdr_name;
-		     } else if 	(FILESTRCASEEQ (suffix, "pfa")
-				 || FILESTRCASEEQ (suffix, "pfb")
-				 || STREQ (suffix, "PFA")
-				 || STREQ (suffix, "PFB")) {
-			Fontfile = hdr_name;
-		     } else {
+             } else if     (FILESTRCASEEQ (suffix, "pfa")
+                 || FILESTRCASEEQ (suffix, "pfb")
+                 || STREQ (suffix, "PFA")
+                 || STREQ (suffix, "PFB")) {
+            Fontfile = hdr_name;
+             } else {
                         downloadinfo = hdr_name;
                      }
                   }
@@ -1173,8 +1189,8 @@ getpsinfo_spec(const char *name, boolean replace)
                specinfo = newstring(specbuf);
                downloadinfo = newstring(downbuf);
                add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
-				   specinfo, downloadinfo, !nopartial_p, 0, replace);
-			}
+                   specinfo, downloadinfo, !nopartial_p, 0, replace);
+            }
          }
       }
       fclose(deffile);
@@ -1191,157 +1207,157 @@ Map file (dvi_name.opentype.map) record structure:
 void
 getotfinfo(const char *dviname)
 {
-	FILE *deffile;
-	register char *p, *p1;
-	char *specinfo;
-	char strbuf[500], map_name[260];
-	char specbuf[500];
+   FILE *deffile;
+   register char *p, *p1;
+   char *specinfo;
+   char strbuf[500], map_name[260];
+   char specbuf[500];
 
-	if ((dviname == 0) || (strlen(dviname) == 0))
-		return;
-	strcpy(strbuf, dviname);
-	p = strrchr(strbuf, '.');
-	if (p)
-		*p = 0;
-	p1 = p - 1;
-	while (p1 > strbuf) {
-		if ((*p1 == '\\') || (*p1 == '/')) {
-			strcpy(map_name, p1 + 1);
-			*(p1 + 1) = 0;
-			break;
-		}
-		p1--;
-	}
-	if (p1 == strbuf) {
-		strcpy(map_name, p1);
-		*p1 = 0;
-	}
-	strcat(strbuf, OTFMAPFILEDIR);
-	strcat(strbuf, map_name);
-	strcat(strbuf, OTFMAPFILEEXT);
-	if ((deffile = search(mappath, strbuf, READ)) != NULL) {
-		if (dvips_debug_flag && !quiet) {
-			if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
-				fprintf(stderr, "\n");
-				prettycolumn = 0;
-			}
-			fprintf(stderr, "{%s}", realnameoffile);
-			prettycolumn += strlen(realnameoffile) + 2;
-		}
-		while (fgets(was_inline, INLINE_SIZE, deffile) != NULL) {
-			p = was_inline;
-			if (*p > '\t' && *p != '*' && *p != '#' && *p != ';' && *p != '%') {
-				char *TeXname = NULL;
-				char *PSname = NULL;
-				char *Vectfile = NULL;
-				char *Fontfile = NULL;
-				char *hdr_name = NULL;
-				specinfo = NULL;
-				specbuf[0] = 0;
-				while (*p) {
-					while (*p && *p <= '\t')
-						p++;
-					if (*p) {
-						if (*p == '{') {             /* PostScript instructions? */
-							if (specinfo) {
-								strcat(specbuf, specinfo);
-								strcat(specbuf, " ");
-							}
-							specinfo = p + 1;
+   if ((dviname == 0) || (strlen(dviname) == 0))
+      return;
+   strcpy(strbuf, dviname);
+   p = strrchr(strbuf, '.');
+   if (p)
+      *p = 0;
+   p1 = p - 1;
+   while (p1 > strbuf) {
+      if ((*p1 == '\\') || (*p1 == '/')) {
+         strcpy(map_name, p1 + 1);
+         *(p1 + 1) = 0;
+         break;
+      }
+      p1--;
+   }
+   if (p1 == strbuf) {
+      strcpy(map_name, p1);
+      *p1 = 0;
+   }
+   strcat(strbuf, OTFMAPFILEDIR);
+   strcat(strbuf, map_name);
+   strcat(strbuf, OTFMAPFILEEXT);
+   if ((deffile = search(mappath, strbuf, READ)) != NULL) {
+      if (dvips_debug_flag && !quiet) {
+         if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
+            fprintf(stderr, "\n");
+            prettycolumn = 0;
+         }
+         fprintf(stderr, "{%s}", realnameoffile);
+         prettycolumn += strlen(realnameoffile) + 2;
+      }
+      while (fgets(was_inline, INLINE_SIZE, deffile) != NULL) {
+         p = was_inline;
+         if (*p > '\t' && *p != '*' && *p != '#' && *p != ';' && *p != '%') {
+            char *TeXname = NULL;
+            char *PSname = NULL;
+            char *Vectfile = NULL;
+            char *Fontfile = NULL;
+            char *hdr_name = NULL;
+            specinfo = NULL;
+            specbuf[0] = 0;
+            while (*p) {
+               while (*p && *p <= '\t')
+                  p++;
+               if (*p) {
+                  if (*p == '{') {             /* PostScript instructions? */
+                     if (specinfo) {
+                        strcat(specbuf, specinfo);
+                        strcat(specbuf, " ");
+                     }
+                     specinfo = p + 1;
 
-						}
-						else if (*p == '>') {    /* Header to download? */
-							p++;
-							/* skip whitespace after < */
-							while (*p && *p <= ' ')
-								p++;
+                  }
+                  else if (*p == '>') {    /* Header to download? */
+                     p++;
+                     /* skip whitespace after < */
+                     while (*p && *p <= ' ')
+                        p++;
 
-							/* save start of header name */
-							hdr_name = p;
+                     /* save start of header name */
+                     hdr_name = p;
 
-						}
-						else if (TeXname && PSname) /* third regular word on line? */
-							Vectfile = p;
+                  }
+                  else if (TeXname && PSname) /* third regular word on line? */
+                     Vectfile = p;
 
-						else if (TeXname) /* second regular word on line? */
-							PSname = p;
+                  else if (TeXname) /* second regular word on line? */
+                     PSname = p;
 
-						else                /* first regular word? */
-							TeXname = p;
+                  else                /* first regular word? */
+                     TeXname = p;
 
-						if (*p == '{') {
-							p++;            /* find end of "..." word */
-							while (*p != '}' && *p)
-								p++;
-						}
-						else
-							while (*p > '\t') /* find end of anything else */
-								p++;
-						if (*p)
-							*p++ = 0;
+                  if (*p == '{') {
+                     p++;            /* find end of "..." word */
+                     while (*p != '}' && *p)
+                        p++;
+                  }
+                  else
+                     while (*p > '\t') /* find end of anything else */
+                        p++;
+                  if (*p)
+                     *p++ = 0;
 
-						/* If we had a header we were downloading, figure
-						out what to do; couldn't do this above since we
-						want to check the suffix.  */
-						if (hdr_name) {
-							const char *suffix;
-							if (specinfo = strchr(hdr_name, '(')) {
-								*specinfo = 0;
-								specinfo++;
-								strcat(specbuf, "index=");
-								while (*specinfo != ')') {
-									int x = strlen(specbuf);
-									specbuf[x] = *specinfo;
-									specbuf[x + 1] = 0;
-									specinfo++;
-								}
-								specinfo = NULL;
-							}
-							suffix = find_suffix(hdr_name);
-							if (hdr_name[strlen(hdr_name) - 1] == '\n')
-								hdr_name[strlen(hdr_name) - 1] = 0;
-							if (FILESTRCASEEQ(suffix, "ttf")
-								|| FILESTRCASEEQ(suffix, "ttc")
-								|| FILESTRCASEEQ(suffix, "otf")
-								|| FILESTRCASEEQ(suffix, "dfont")
-								|| STREQ(suffix, "TTF")
-								|| STREQ(suffix, "TTC")
-								|| STREQ(suffix, "OTF")
-								|| STREQ(suffix, "DFONT")) {
-								Fontfile = hdr_name;
-							}
-						}
-						if (TeXname) {
-							if (specinfo = strchr(TeXname, '(')) {
-								specinfo++;
-								strcat(specbuf, "index=");
-								while (*specinfo != ')') {
-									int x = strlen(specbuf);
-									specbuf[x] = *specinfo;
-									specbuf[x + 1] = 0;
-									specinfo++;
-								}
-								specinfo = NULL;
-							}
-						}
-					}
-				}
-				if (specinfo)
-					strcat(specbuf, specinfo);
-				if (TeXname) {
-					TeXname = newstring(TeXname);
-					PSname = newstring(PSname);
-					Vectfile = newstring(Vectfile);
-					Fontfile = newstring(Fontfile);
-					specinfo = newstring(specbuf);
-					add_entry(TeXname, PSname, Fontfile, Vectfile,
-						specinfo, NULL, 1, 1);
-				}
-			}
-		}
-		fclose(deffile);
-	}
-	checkstrings();
+                  /* If we had a header we were downloading, figure
+                  out what to do; couldn't do this above since we
+                  want to check the suffix.  */
+                  if (hdr_name) {
+                     const char *suffix;
+                     if (specinfo = strchr(hdr_name, '(')) {
+                        *specinfo = 0;
+                        specinfo++;
+                        strcat(specbuf, "index=");
+                        while (*specinfo != ')') {
+                           int x = strlen(specbuf);
+                           specbuf[x] = *specinfo;
+                           specbuf[x + 1] = 0;
+                           specinfo++;
+                        }
+                        specinfo = NULL;
+                     }
+                     suffix = find_suffix(hdr_name);
+                     if (hdr_name[strlen(hdr_name) - 1] == '\n')
+                        hdr_name[strlen(hdr_name) - 1] = 0;
+                     if (FILESTRCASEEQ(suffix, "ttf")
+                        || FILESTRCASEEQ(suffix, "ttc")
+                        || FILESTRCASEEQ(suffix, "otf")
+                        || FILESTRCASEEQ(suffix, "dfont")
+                        || STREQ(suffix, "TTF")
+                        || STREQ(suffix, "TTC")
+                        || STREQ(suffix, "OTF")
+                        || STREQ(suffix, "DFONT")) {
+                        Fontfile = hdr_name;
+                     }
+                  }
+                  if (TeXname) {
+                     if (specinfo = strchr(TeXname, '(')) {
+                        specinfo++;
+                        strcat(specbuf, "index=");
+                        while (*specinfo != ')') {
+                           int x = strlen(specbuf);
+                           specbuf[x] = *specinfo;
+                           specbuf[x + 1] = 0;
+                           specinfo++;
+                        }
+                        specinfo = NULL;
+                     }
+                  }
+               }
+            }
+            if (specinfo)
+               strcat(specbuf, specinfo);
+            if (TeXname) {
+               TeXname = newstring(TeXname);
+               PSname = newstring(PSname);
+               Vectfile = newstring(Vectfile);
+               Fontfile = newstring(Fontfile);
+               specinfo = newstring(specbuf);
+               add_entry(TeXname, PSname, Fontfile, Vectfile,
+                   specinfo, NULL, 1, 1);
+            }
+         }
+      }
+      fclose(deffile);
+   }
+   checkstrings();
 }
 //AP--end
 #ifndef KPATHSEA
@@ -1439,30 +1455,30 @@ extern int chdir();
 char *
 xmalloc(unsigned size)
 {
-  char *mem = malloc (size);
-
-  if (mem == NULL)
-    {
-      fprintf (stderr, "! Cannot allocate %u bytes.\n", size);
-      exit (10);
-    }
-
-  return mem;
+   char *mem = malloc (size);
+ 
+   if (mem == NULL)
+      {
+         fprintf (stderr, "! Cannot allocate %u bytes.\n", size);
+         exit (10);
+      }
+ 
+   return mem;
 }
 
 
 char *
 xrealloc(char *ptr, unsigned size)
 {
-  char *mem = realloc (ptr, size);
+   char *mem = realloc (ptr, size);
 
-  if (mem == NULL)
-    {
-      fprintf (stderr, "! Cannot reallocate %u bytes at %x.\n", size, (int)ptr);
-      exit (10);
-    }
+   if (mem == NULL)
+      {
+         fprintf (stderr, "! Cannot reallocate %u bytes at %x.\n", size, (int)ptr);
+         exit (10);
+      }
 
-  return mem;
+   return mem;
 }
 
 
@@ -1472,17 +1488,17 @@ xrealloc(char *ptr, unsigned size)
 static void
 next_component(char *name, char **path)
 {
-  unsigned count = 0;
+   unsigned count = 0;
 
-  while (**path != 0 && **path != PATHSEP)
-    {
-      name[count++] = **path;
-      (*path)++; /* Move further along, even between calls.  */
-    }
+   while (**path != 0 && **path != PATHSEP)
+      {
+         name[count++] = **path;
+         (*path)++; /* Move further along, even between calls.  */
+      }
 
-  name[count] = 0;
-  if (**path == PATHSEP)
-    (*path)++; /* Move past the delimiter.  */
+   name[count] = 0;
+   if (**path == PATHSEP)
+      (*path)++; /* Move past the delimiter.  */
 }
 
 
@@ -1498,20 +1514,20 @@ next_component(char *name, char **path)
 int
 is_dir(char *fn)
 {
-  struct stat stats;
+   struct stat stats;
 
-  return stat (fn, &stats) == 0 && S_ISDIR (stats.st_mode);
+   return stat (fn, &stats) == 0 && S_ISDIR (stats.st_mode);
 }
 
 
 static char *
 concat3(char *s1, char *s2, char *s3)
 {
-  char *r = xmalloc (strlen (s1) + strlen (s2) + strlen (s3) + 1);
-  strcpy (r, s1);
-  strcat (r, s2);
-  strcat (r, s3);
-  return r;
+   char *r = xmalloc (strlen (s1) + strlen (s2) + strlen (s3) + 1);
+   strcpy (r, s1);
+   strcat (r, s2);
+   strcat (r, s3);
+   return r;
 }
 
 
@@ -1524,86 +1540,86 @@ concat3(char *s1, char *s2, char *s3)
 char *
 do_subdir_path(char *dir_list)
 {
-  char *cwd;
-  unsigned len;
-  char *result = xmalloc ((unsigned)1);
-  char *temp = dir_list;
-  char dirsep[2];
-
-  dirsep[0] = DIRSEP;
-  dirsep[1] = '\0';
-
-  /* Make a copy in writable memory.  */
-  dir_list = xmalloc (strlen (temp) + 1);
-  strcpy (dir_list, temp);
-
-  *result = 0;
-
-  /* Unfortunately, we can't look in the environment for the current
-     directory, because if we are running under a program (let's say
-     Emacs), the PWD variable might have been set by Emacs' parent
-     to the current directory at the time Emacs was invoked.  This
-     is not necessarily the same directory the user expects to be
-     in.  So, we must always call getcwd(3) or getwd(3), even though
-     they are slow and prone to hang in networked installations.  */
-  cwd = getcwd (NULL, MAXPATHLEN + 2);
-  if (cwd == NULL)
-    {
-      perror ("getcwd");
-      exit (errno);
-    }
-
-  do
-    {
-      DIR *dir;
-      directory_entry_type e;
-      char dirname[MAXPATHLEN];
-
-      next_component (dirname, &dir_list);
-
-      /* All the `::'s should be gone by now, but we may as well make
-         sure `chdir' doesn't crash.  */
-      if (*dirname == 0) continue;
-
-      /* By changing directories, we save a bunch of string
-         concatenations (and make the pathnames the kernel looks up
-         shorter).  */
-      if (chdir (dirname) != 0) continue;
-
-      dir = opendir (".");
-      if (dir == NULL) continue;
-
-      while ((e = readdir (dir)) != NULL)
-        {
-          if (is_dir (e->d_name) && strcmp (e->d_name, ".") != 0
-              && strcmp (e->d_name, "..") != 0)
+   char *cwd;
+   unsigned len;
+   char *result = xmalloc ((unsigned)1);
+   char *temp = dir_list;
+   char dirsep[2];
+ 
+   dirsep[0] = DIRSEP;
+   dirsep[1] = '\0';
+ 
+   /* Make a copy in writable memory.  */
+   dir_list = xmalloc (strlen (temp) + 1);
+   strcpy (dir_list, temp);
+ 
+   *result = 0;
+ 
+   /* Unfortunately, we can't look in the environment for the current
+      directory, because if we are running under a program (let's say
+      Emacs), the PWD variable might have been set by Emacs' parent
+      to the current directory at the time Emacs was invoked.  This
+      is not necessarily the same directory the user expects to be
+      in.  So, we must always call getcwd(3) or getwd(3), even though
+      they are slow and prone to hang in networked installations.  */
+   cwd = getcwd (NULL, MAXPATHLEN + 2);
+   if (cwd == NULL)
+      {
+         perror ("getcwd");
+         exit (errno);
+      }
+ 
+   do
+      {
+         DIR *dir;
+         directory_entry_type e;
+         char dirname[MAXPATHLEN];
+ 
+         next_component (dirname, &dir_list);
+ 
+         /* All the `::'s should be gone by now, but we may as well make
+            sure `chdir' doesn't crash.  */
+         if (*dirname == 0) continue;
+ 
+         /* By changing directories, we save a bunch of string
+            concatenations (and make the pathnames the kernel looks up
+            shorter).  */
+         if (chdir (dirname) != 0) continue;
+ 
+         dir = opendir (".");
+         if (dir == NULL) continue;
+ 
+         while ((e = readdir (dir)) != NULL)
             {
-              char *found = concat3 (dirname, dirsep, e->d_name);
-
-              result = xrealloc (result, strlen (result) + strlen (found) + 2);
-
-              len = strlen (result);
-              if (len > 0)
-                {
-                  result[len] = PATHSEP;
-                  result[len + 1] = 0;
-                }
-              strcat (result, found);
-              free (found);
+               if (is_dir (e->d_name) && strcmp (e->d_name, ".") != 0
+                    && strcmp (e->d_name, "..") != 0)
+                  {
+                      char *found = concat3 (dirname, dirsep, e->d_name);
+ 
+                      result = xrealloc (result, strlen (result) + strlen (found) + 2);
+ 
+                      len = strlen (result);
+                      if (len > 0)
+                         {
+                            result[len] = PATHSEP;
+                            result[len + 1] = 0;
+                         }
+                      strcat (result, found);
+                      free (found);
+                  }
             }
-        }
-      closedir (dir);
-
-      /* Change back to the current directory, in case the path
-         contains relative directory names.  */
-      if (chdir (cwd) != 0)
-        {
-          perror (cwd);
-          exit (errno);
-        }
-    }
-  while (*dir_list != 0);
-
-  return result;
+         closedir (dir);
+ 
+         /* Change back to the current directory, in case the path
+            contains relative directory names.  */
+         if (chdir (cwd) != 0)
+            {
+               perror (cwd);
+               exit (errno);
+            }
+      }
+   while (*dir_list != 0);
+ 
+   return result;
 }
 #endif /* SEARCH_SUBDIRECTORIES */

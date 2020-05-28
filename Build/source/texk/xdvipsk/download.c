@@ -25,45 +25,55 @@ static unsigned char dummyend[8] = { 252 };
  *   We have a routine that downloads an individual character.
  */
 static int lastccout;
+quarterword *unpack_bb(chardesctype *c, integer *cwidth, integer *cheight,
+                                        integer *xoff, integer *yoff) {
+   quarterword *p = c->packptr;
+   halfword cmd = *p++;
+   if (cmd & 4) {
+      if ((cmd & 7) == 7) {
+         *cwidth = getlong(p);
+         *cheight = getlong(p + 4);
+         *xoff = getlong(p + 8);
+         *yoff = getlong(p + 12);
+         p += 16;
+      } else {
+         *cwidth = p[0] * 256 + p[1];
+         *cheight = p[2] * 256 + p[3];
+         *xoff = p[4] * 256 + p[5];
+         if (*xoff > 32767)
+            *xoff -= 65536 ;
+         *yoff = p[6] * 256 + p[7];
+         if (*xoff > 32767)
+            *xoff -= 65536 ;
+         p += 8;
+      }
+   } else {
+      *cwidth = *p++;
+      *cheight = *p++;
+      *xoff = *p++;
+      *yoff = *p++;
+      if (*xoff > 127)
+         *xoff -= 256;
+      if (*yoff > 127)
+         *yoff -= 256;
+   }
+   return p ;
+}
 static void
 downchar(chardesctype *c, shalfword cc)
 {
    register long i, j;
-   register halfword cheight, cwidth;
+   integer cheight, cwidth;
    register long k;
    register quarterword *p;
    register halfword cmd;
-   register shalfword xoff, yoff;
+   integer xoff, yoff;
    halfword wwidth = 0;
    register long len;
    int smallchar;
 
-   p = c->packptr;
-   cmd = *p++;
-   if (cmd & 4) {
-      if ((cmd & 7) == 7) {
-         cwidth = getlong(p);
-         cheight = getlong(p + 4);
-         xoff = getlong(p + 8);
-         yoff = getlong(p + 12);
-         p += 16;
-      } else {
-         cwidth = p[0] * 256 + p[1];
-         cheight = p[2] * 256 + p[3];
-         xoff = p[4] * 256 + p[5]; /* N.B.: xoff, yoff are signed halfwords */
-         yoff = p[6] * 256 + p[7];
-         p += 8;
-      }
-   } else {
-      cwidth = *p++;
-      cheight = *p++;
-      xoff = *p++;
-      yoff = *p++;
-      if (xoff > 127)
-         xoff -= 256;
-      if (yoff > 127)
-         yoff -= 256;
-   }
+   cmd = *(c->packptr) ;
+   p = unpack_bb(c, &cwidth, &cheight, &xoff, &yoff) ;
    if (c->flags & BIGCHAR)
       smallchar = 0;
    else
@@ -199,6 +209,8 @@ void
 download(charusetype *p)
 //AP--end
 {
+   double scale;
+   int seq;
    register int b, i;
    register halfword bit;
    register chardesctype *c;
@@ -219,18 +231,18 @@ download(charusetype *p)
       struct resfont *rf = curfnt->resfont;
       int non_empty=0;
 //AP--begin
-	  if (rf->otftype) {
-		  cmdout(name);
-		  fontscale = curfnt->scaledsize * conv;
-		  sprintf(nextstring, "%g", fontscale);
-		  cmdout(nextstring);
-		  strcpy(nextstring, "/");
-		  strcat(nextstring, rf->PSname);
-		  cmdout(nextstring);
-		  cmdout("ct_cid");
-		  rf->sent = 1;
-		  return;
-	  }
+      if (rf->otftype) {
+          cmdout(name);
+          fontscale = curfnt->scaledsize * conv;
+          sprintf(nextstring, "%g", fontscale);
+          cmdout(nextstring);
+          strcpy(nextstring, "/");
+          strcat(nextstring, rf->PSname);
+          cmdout(nextstring);
+          cmdout("ct_cid");
+          rf->sent = 1;
+          return;
+      }
 //AP--end
       for (b=0; b<16; b++)
         if(p->bitmap[b] !=0)
@@ -242,7 +254,7 @@ download(charusetype *p)
 //AP--begin
       cc = 255;
 //      c = curfnt->chardesc + 255;
-	  c = find_chardesc(curfnt, cc);
+      c = find_chardesc(curfnt, cc);
 //AP--end
       numcc = 0;
       i = 0;
@@ -264,7 +276,7 @@ download(charusetype *p)
             cc--;
 //AP--begin
 //            c--;
-			c = find_chardesc(curfnt, cc);
+            c = find_chardesc(curfnt, cc);
 //AP--end
          }
       }
@@ -320,6 +332,10 @@ download(charusetype *p)
    newline();
    fprintf(bitfile, "%%DVIPSBitmapFont: %s %s %g %d\n", name+1, curfnt->name,
                      fontscale, numcc);
+   scale = fontscale * DPI / 72.0 ;
+   seq = -1 ;
+   if (encodetype3)
+      seq = downloadbmencoding(curfnt->name, scale, curfnt) ;
    cmdout(name);
    numout((integer)numcc);
    numout((integer)maxcc + 1);
@@ -337,11 +353,11 @@ download(charusetype *p)
 //         for (b=0, c=curfnt->chardesc; b<256; b++, c++)
 //            c->pixelwidth = (c->pixelwidth * 
 //      (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
-		  for (b = 0; b<256; b++) {
-			  c = find_chardesc(curfnt, b);
-			  c->pixelwidth = (c->pixelwidth *
-				  (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
-		  }
+          for (b = 0; b<256; b++) {
+              c = find_chardesc(curfnt, b);
+              c->pixelwidth = (c->pixelwidth *
+                  (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
+          }
 //AP--end
          curfnt->alreadyscaled = 1;
       }
@@ -355,7 +371,7 @@ download(charusetype *p)
    for (b=0; b<16; b++) {
       for (bit=32768; bit; bit>>=1) {
 //AP--begin
-		  c = find_chardesc(curfnt, cc);
+          c = find_chardesc(curfnt, cc);
 //AP--end
          if (p->bitmap[b] & bit) {
             downchar(c, (shalfword)cc);
@@ -367,7 +383,9 @@ download(charusetype *p)
       }
    }
    cmdout("E");
-   newline();
+   newline() ;
+   if (seq >= 0)
+      finishbitmapencoding(name, scale) ;
    fprintf(bitfile, "%%EndDVIPSBitmapFont\n");
 }
 
@@ -470,10 +488,10 @@ downpsfont(charusetype *p, charusetype *all)
     struct resfont *rf;
     int cc;
     int j;
-	//AP--begin
-	luacharmap *map;
-	charusetype *all_gl = all;
-	//AP--end
+    //AP--begin
+    luacharmap *map;
+    charusetype *all_gl = all;
+    //AP--end
 
     curfnt = p->fd;
     rf = curfnt->resfont;
@@ -494,71 +512,71 @@ downpsfont(charusetype *p, charusetype *all)
     if (all->fd == 0)
        error("! internal error in downpsfont");
 //AP--begin
-	if (rf->otftype) {
-		map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
-		map->luamap_idx = rf->luamap_idx;
-		map->next = NULL;
-		p->map_chain = map;
-		all++;
-		for (; all->fd; all++) {
-			if (all->fd->resfont &&
-				strcmp(rf->PSname, all->fd->resfont->PSname) == 0) {
-				for (j = 0; j < 4096; j++)
-					p->bitmap[j] |= all->bitmap[j];
-				map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
-				map->luamap_idx = all->fd->resfont->luamap_idx;
-				map->next = p->map_chain;
-				p->map_chain = map;
-			}
-		}
-		newline();
-		if (!disablecomments)
-			fprintf(bitfile, "%%%%BeginFont: %s\n", rf->PSname);
-		writecid(p);
-		if (!quiet) {
-			if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
-				fprintf(stderr, "\n");
-				prettycolumn = 0;
-			}
-			fprintf(stderr, "<%s>", realnameoffile);
-			prettycolumn += strlen(realnameoffile) + 2;
-		}
-		if (!disablecomments)
-			fprintf(bitfile, "%%%%EndFont \n");
-		return;
-	}
-	//    if (!partialdownload) {
-	if (!t1_partialdownload || !rf->partialdownload) {
-		/*
-		infont = all->fd->resfont->PSname;
-		copyfile(all->fd->resfont->Fontfile);
-		infont = 0;
-		*/
+    if (rf->otftype) {
+        map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
+        map->luamap_idx = rf->luamap_idx;
+        map->next = NULL;
+        p->map_chain = map;
+        all++;
+        for (; all->fd; all++) {
+            if (all->fd->resfont &&
+                strcmp(rf->PSname, all->fd->resfont->PSname) == 0) {
+                for (j = 0; j < 4096; j++)
+                    p->bitmap[j] |= all->bitmap[j];
+                map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
+                map->luamap_idx = all->fd->resfont->luamap_idx;
+                map->next = p->map_chain;
+                p->map_chain = map;
+            }
+        }
+        newline();
+        if (!disablecomments)
+            fprintf(bitfile, "%%%%BeginFont: %s\n", rf->PSname);
+        writecid(p);
+        if (!quiet) {
+            if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
+                fprintf(stderr, "\n");
+                prettycolumn = 0;
+            }
+            fprintf(stderr, "<%s>", realnameoffile);
+            prettycolumn += strlen(realnameoffile) + 2;
+        }
+        if (!disablecomments)
+            fprintf(bitfile, "%%%%EndFont \n");
+        return;
+    }
+    //    if (!partialdownload) {
+    if (!t1_partialdownload || !rf->partialdownload) {
+        /*
+        infont = all->fd->resfont->PSname;
+        copyfile(all->fd->resfont->Fontfile);
+        infont = 0;
+        */
 #ifdef DOWNLOAD_USING_PDFTEX
-		for (cc = 0; cc<256; cc++)
-			grid[cc] = 1;
-		newline();
-		if (!disablecomments)
-			fprintf(bitfile, "%%%%BeginFont: %s\n", rf->PSname);
-		if (!t1_write_full(rf->Fontfile, grid))
-			dvips_exit(1);
-		//			exit(1);
-		if (!quiet) {
-			if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
-				fprintf(stderr, "\n");
-				prettycolumn = 0;
-			}
-			fprintf(stderr, "<%s>", realnameoffile);
-			prettycolumn += strlen(realnameoffile) + 2;
-		}
-		if (!disablecomments)
-			fprintf(bitfile, "%%%%EndFont \n");
+        for (cc = 0; cc<256; cc++)
+            grid[cc] = 1;
+        newline();
+        if (!disablecomments)
+            fprintf(bitfile, "%%%%BeginFont: %s\n", rf->PSname);
+        if (!t1_write_full(rf->Fontfile, grid))
+            dvips_exit(1);
+        //            exit(1);
+        if (!quiet) {
+            if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
+                fprintf(stderr, "\n");
+                prettycolumn = 0;
+            }
+            fprintf(stderr, "<%s>", realnameoffile);
+            prettycolumn += strlen(realnameoffile) + 2;
+        }
+        if (!disablecomments)
+            fprintf(bitfile, "%%%%EndFont \n");
 #else
-		infont = all->fd->resfont->PSname;
-		copyfile(all->fd->resfont->Fontfile);
-		infont = 0;
+        infont = all->fd->resfont->PSname;
+        copyfile(all->fd->resfont->Fontfile);
+        infont = 0;
 #endif
-		return;
+        return;
 //AP--end
     }
     for (cc=0; cc<256; cc++)
@@ -573,10 +591,10 @@ downpsfont(charusetype *p, charusetype *all)
         curfnt = all->fd;
 #ifdef DOWNLOAD_USING_PDFTEX
         if (curfnt->resfont->Vectfile) {
-	   char **glyphs = getEncoding(curfnt->resfont->Vectfile);
+       char **glyphs = getEncoding(curfnt->resfont->Vectfile);
 //AP--begin
 //           c = curfnt->chardesc + 255;
-		   c = find_chardesc(curfnt, cc);
+           c = find_chardesc(curfnt, cc);
 //AP--end
            cc = 255;
            for (b=15; b>=0; b--) {
@@ -587,7 +605,7 @@ downpsfont(charusetype *p, charusetype *all)
                    cc--;
 //AP--begin
 //                   c--;
-				   c = find_chardesc(curfnt, cc);
+                   c = find_chardesc(curfnt, cc);
 //AP--end
                }
             }
@@ -595,7 +613,7 @@ downpsfont(charusetype *p, charusetype *all)
 #endif
 //AP--begin
 //           c = curfnt->chardesc + 255;
-		   c = find_chardesc(curfnt, cc);
+           c = find_chardesc(curfnt, cc);
 //AP--end
            cc = 255;
            for (b=15; b>=0; b--) {
@@ -606,7 +624,7 @@ downpsfont(charusetype *p, charusetype *all)
                    cc--;
 //AP--begin
 //                   c--;
-				   c = find_chardesc(curfnt, cc);
+                   c = find_chardesc(curfnt, cc);
 //AP--end
                }
             }
@@ -635,7 +653,7 @@ downpsfont(charusetype *p, charusetype *all)
         if(FontPart(bitfile, rf->Fontfile, rf->Vectfile) < 0)
 #endif
 //AP--begin
-			dvips_exit(1);
+            dvips_exit(1);
 //            exit(1);
 //AP--end
         if (!quiet) {
@@ -656,20 +674,20 @@ dopsfont(sectiontype *fs)
 {
     charusetype *cu;
 //AP--begin
-	int psfont;
+    int psfont;
 //AP--end
 
     cu = (charusetype *) (fs + 1);
 //AP--begin
-	psfont = 1;
+    psfont = 1;
 //AP--end
 #ifdef DOWNLOAD_USING_PDFTEX
     while (cu->fd) {
        if (cu->psfused)
           cu->fd->psflag = EXISTS;
 //AP--begin
-	   cu->fd->psname = psfont;
-	   psfont++;
+       cu->fd->psname = psfont;
+       psfont++;
 //AP--end
        downpsfont(cu++, (charusetype *)(fs + 1));
     }
@@ -680,8 +698,8 @@ dopsfont(sectiontype *fs)
        if (cu->psfused)
           cu->fd->psflag = EXISTS;
 //AP--begin
-	   cu->fd->psname = psfont;
-	   psfont++;
+       cu->fd->psname = psfont;
+       psfont++;
 //AP--end
        downpsfont(cu++, (charusetype *)(fs + 1));
     }

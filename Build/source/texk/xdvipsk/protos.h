@@ -23,6 +23,12 @@ extern void delete_all_chardesc(fontdesctype *f);
 extern void sort_by_charcode(fontdesctype *f);
 //AP--end
 
+/* prototypes for functions from bitmapenc.c */
+extern void bmenc_startsection(void) ;
+extern void bitmapencopt(int) ;
+extern int downloadbmencoding(const char *name, double scale, fontdesctype *curfnt) ;
+extern void finishbitmapencoding(const char *name, double scale) ;
+
 /* prototypes for functions from color.c */
 extern void initcolor(void);
 extern void background(char *bkgrnd);
@@ -47,6 +53,8 @@ extern void dospecial(int numbytes);
 extern float *bbdospecial(int nbytes);
 
 /* prototypes for functions from download.c */
+quarterword *unpack_bb(chardesctype *c, integer *cwidth, integer *cheight,
+                                        integer *xoff, integer *yoff) ;
 //AP--begin
 //extern void download(charusetype *p, int psfont);
 extern void download(charusetype *p);
@@ -175,6 +183,8 @@ extern void initprinter(sectiontype *sect);
 extern void setup(void);
 extern void cleanprinter(void);
 extern void psflush(void);
+extern void pslineout(const char *s);
+extern void psnameout(const char *s);
 extern void pageinit(void);
 extern void pageend(void);
 extern void drawrule(int rw, int rh);
@@ -275,6 +285,9 @@ extern boolean t1_write_full(char *, unsigned char *);
 //AP--end
 
 /*********** global variables ***********/
+
+/* global variables from bitmapenc.c */
+extern int encodetype3 ;
 
 /* global variables from dopage.c */
 extern integer dir;
@@ -470,5 +483,8 @@ extern char realnameoffile[];
 
 /* global variables from tfmload.c */
 extern FILE *tfmfile;
+
+/* global variables from loadfont.c */
+extern int bitmapfontseen ;
 
 #endif

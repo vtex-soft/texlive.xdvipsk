@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -115,7 +116,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = c-auto.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(encdir)"
 PROGRAMS = $(bin_PROGRAMS)
 LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
@@ -149,7 +150,8 @@ am_libdvipsgraph_a_OBJECTS =  \
 	graphlib/libdvipsgraph_a-tiffLogLuv.$(OBJEXT) \
 	graphlib/libdvipsgraph_a-toFloat.$(OBJEXT)
 libdvipsgraph_a_OBJECTS = $(am_libdvipsgraph_a_OBJECTS)
-am_xdvipsk_OBJECTS = xdvipsk-bbox.$(OBJEXT) xdvipsk-charcode.$(OBJEXT) \
+am_xdvipsk_OBJECTS = xdvipsk-bbox.$(OBJEXT) \
+	xdvipsk-bitmapenc.$(OBJEXT) xdvipsk-charcode.$(OBJEXT) \
 	xdvipsk-color.$(OBJEXT) xdvipsk-dopage.$(OBJEXT) \
 	xdvipsk-dosection.$(OBJEXT) xdvipsk-dospecial.$(OBJEXT) \
 	xdvipsk-download.$(OBJEXT) xdvipsk-dpicheck.$(OBJEXT) \
@@ -209,6 +211,7 @@ DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/../../build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/xdvipsk-bbox.Po \
+	./$(DEPDIR)/xdvipsk-bitmapenc.Po \
 	./$(DEPDIR)/xdvipsk-charcode.Po ./$(DEPDIR)/xdvipsk-color.Po \
 	./$(DEPDIR)/xdvipsk-dopage.Po ./$(DEPDIR)/xdvipsk-dosection.Po \
 	./$(DEPDIR)/xdvipsk-dospecial.Po \
@@ -314,6 +317,34 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+DATA = $(enc_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)c-auto.in
 # Read a list of newline-separated strings from the standard input,
@@ -481,6 +512,7 @@ datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
+encdir = @encdir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -519,6 +551,7 @@ AM_CFLAGS = $(WARNING_CFLAGS) -D_FORTIFY_SOURCE=1
 xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS  
 xdvipsk_SOURCES = \
 	bbox.c \
+	bitmapenc.c \
 	charcode.c \
 	color.c \
 	config.h \
@@ -530,7 +563,7 @@ xdvipsk_SOURCES = \
 	dpicheck.c \
 	drawPS.c \
 	dviinput.c \
-    emspecialex.c \
+	emspecialex.c \
 	finclude.c \
 	fontdef.c \
 	header.c \
@@ -645,6 +678,7 @@ libdvipsgraph_a_SOURCES = \
 
 libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES)
 libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
+enc_DATA = dvips-all.enc
 NEVER_DIST = `find . $(NEVER_NAMES)`
 NEVER_NAMES = -name .svn
 NEVER_NAMES_SUB = -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'
@@ -864,6 +898,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdvipsk-bbox.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdvipsk-bitmapenc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdvipsk-charcode.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdvipsk-color.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xdvipsk-dopage.Po@am__quote@ # am--include-marker
@@ -982,6 +1017,20 @@ xdvipsk-bbox.obj: bbox.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bbox.c' object='xdvipsk-bbox.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xdvipsk-bbox.obj `if test -f 'bbox.c'; then $(CYGPATH_W) 'bbox.c'; else $(CYGPATH_W) '$(srcdir)/bbox.c'; fi`
+
+xdvipsk-bitmapenc.o: bitmapenc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xdvipsk-bitmapenc.o -MD -MP -MF $(DEPDIR)/xdvipsk-bitmapenc.Tpo -c -o xdvipsk-bitmapenc.o `test -f 'bitmapenc.c' || echo '$(srcdir)/'`bitmapenc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xdvipsk-bitmapenc.Tpo $(DEPDIR)/xdvipsk-bitmapenc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bitmapenc.c' object='xdvipsk-bitmapenc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xdvipsk-bitmapenc.o `test -f 'bitmapenc.c' || echo '$(srcdir)/'`bitmapenc.c
+
+xdvipsk-bitmapenc.obj: bitmapenc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xdvipsk-bitmapenc.obj -MD -MP -MF $(DEPDIR)/xdvipsk-bitmapenc.Tpo -c -o xdvipsk-bitmapenc.obj `if test -f 'bitmapenc.c'; then $(CYGPATH_W) 'bitmapenc.c'; else $(CYGPATH_W) '$(srcdir)/bitmapenc.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xdvipsk-bitmapenc.Tpo $(DEPDIR)/xdvipsk-bitmapenc.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='bitmapenc.c' object='xdvipsk-bitmapenc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o xdvipsk-bitmapenc.obj `if test -f 'bitmapenc.c'; then $(CYGPATH_W) 'bitmapenc.c'; else $(CYGPATH_W) '$(srcdir)/bitmapenc.c'; fi`
 
 xdvipsk-charcode.o: charcode.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdvipsk_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT xdvipsk-charcode.o -MD -MP -MF $(DEPDIR)/xdvipsk-charcode.Tpo -c -o xdvipsk-charcode.o `test -f 'charcode.c' || echo '$(srcdir)/'`charcode.c
@@ -2051,6 +2100,27 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-encDATA: $(enc_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(enc_DATA)'; test -n "$(encdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(encdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(encdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(encdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(encdir)" || exit $$?; \
+	done
+
+uninstall-encDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(enc_DATA)'; test -n "$(encdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(encdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -2282,9 +2352,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(LIBRARIES) c-auto.h
+all-am: Makefile $(PROGRAMS) $(LIBRARIES) $(DATA) c-auto.h
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(encdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -2329,6 +2399,7 @@ clean-am: clean-binPROGRAMS clean-generic clean-libtool \
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 		-rm -f ./$(DEPDIR)/xdvipsk-bbox.Po
+	-rm -f ./$(DEPDIR)/xdvipsk-bitmapenc.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-charcode.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-color.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-dopage.Po
@@ -2419,7 +2490,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-encDATA
 
 install-dvi: install-dvi-am
 
@@ -2451,6 +2522,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 		-rm -f ./$(DEPDIR)/xdvipsk-bbox.Po
+	-rm -f ./$(DEPDIR)/xdvipsk-bitmapenc.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-charcode.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-color.Po
 	-rm -f ./$(DEPDIR)/xdvipsk-dopage.Po
@@ -2541,7 +2613,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-binPROGRAMS uninstall-encDATA
 
 .MAKE: all install-am install-strip
 
@@ -2554,14 +2626,15 @@ uninstall-am: uninstall-binPROGRAMS
 	distclean-libtool distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-exec \
-	install-exec-am install-html install-html-am install-info \
-	install-info-am install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-data-am install-dvi install-dvi-am install-encDATA \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-encDATA
 
 .PRECIOUS: Makefile
 

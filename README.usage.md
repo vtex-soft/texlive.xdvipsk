@@ -9,6 +9,7 @@ Options:
 ```
 -a*  Conserve memory, not time       -A   Print only odd (TeX) pages
 -b # Page copies, for posters e.g.   -B   Print only even (TeX) pages
+-bitmapfontenc [on,off,strict] control bitmap font encoding
 -c # Uncollated copies               -C # Collated copies
 -d # Debugging                       -D # Resolution
 -e # Maxdrift value                  -E*  Try to create EPSF

@@ -243,6 +243,9 @@
     <ClCompile Include="..\xdvips.c">
       <Filter>dvipsk</Filter>
     </ClCompile>
+    <ClCompile Include="..\bitmapenc.c">
+      <Filter>dvipsk</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\config.h">

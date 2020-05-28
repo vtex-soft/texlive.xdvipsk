@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 //AP--begin
-#define BUFFSIZE 10485760		//10MB buffer
+#define BUFFSIZE 10485760        //10MB buffer
 //AP--end
 
 #ifdef OS2
@@ -27,13 +27,14 @@
 #undef fopen
 #undef popen
 #undef pclose
-#define fopen(file, fmode)  fsyscp_fopen(file, fmode)
+extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
+#define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
 #define popen(pcmd, pmode)  fsyscp_popen(pcmd, pmode)
 #define pclose(pstream) _pclose(pstream)
 #endif
 
 #ifdef __DJGPP__
-#include <unistd.h>	/* for `isatty' */
+#include <unistd.h>    /* for `isatty' */
 #endif
 
 /* UCS -> UTF-8 */
@@ -146,54 +147,53 @@ static char possibleDSCLine[81],
 */
 int counter = 0;
 
-
 static void
 syscopyfile(char *s)
 {
-	char *buff;
-	FILE *inhandle;
-	int	inbytes, outbytes;
+   char *buff;
+   FILE *inhandle;
+   int    inbytes, outbytes;
 
-	(void)fprintf(bitfile, "\n%%%%BeginDocument: %s\n", s);
-	/* open .eps input file */
-	inhandle = search(figpath, s, READBIN);
-	if (inhandle == NULL) {
-		(void)sprintf(errbuf, "!Couldn't open %.500s for system I/O!", s);
-		error(errbuf);
-	}
-	else {
-		counter = 0;
-		buff = (char *)mymalloc(BUFFSIZE);
-		if (buff) {
-			if (!quiet)
-				//				(void)fprintf(stderr, "\n<%s: using system I/O! ", s) ;
-				(void)fprintf(stderr, "<%s ", s);
-			/* copy from eps input to dvips output*/
-			while ((inbytes = fread(buff, 1, BUFFSIZE, inhandle)) > 0){
-				outbytes = fwrite(buff, 1, inbytes, bitfile);
-				if (inbytes != outbytes) {
-					(void)sprintf(errbuf, "!Error writing file %.500s with system I/O!", s);
-					error(errbuf);
-					break;
-				}
-				if (!quiet)
-					(void)fprintf(stderr, "\001");
-				counter++;
-			}
-			if (!quiet)
-				fprintf(stderr, " (%d)>", counter);
-			fclose(inhandle); /* close eps input file */
-			free(buff);
-		}
-		else {
-			fclose(inhandle); /* close eps input file */
-			(void)strcpy(errbuf, "!Couldn't alocate memory for system I/O!");
-			error(errbuf);
-		}
-	}
-	if (O_BINARY && !isatty(fileno(bitfile)))
-		SET_BINARY(fileno(bitfile));
-	(void)fprintf(bitfile, "\n%%%%EndDocument\n");
+   (void)fprintf(bitfile, "\n%%%%BeginDocument: %s\n", s);
+   /* open .eps input file */
+   inhandle = search(figpath, s, READBIN);
+   if (inhandle == NULL) {
+      (void)sprintf(errbuf, "!Couldn't open %.500s for system I/O!", s);
+      error(errbuf);
+   }
+   else {
+      counter = 0;
+      buff = (char *)mymalloc(BUFFSIZE);
+      if (buff) {
+         if (!quiet)
+            //                (void)fprintf(stderr, "\n<%s: using system I/O! ", s) ;
+            (void)fprintf(stderr, "<%s ", s);
+         /* copy from eps input to dvips output*/
+         while ((inbytes = fread(buff, 1, BUFFSIZE, inhandle)) > 0){
+            outbytes = fwrite(buff, 1, inbytes, bitfile);
+            if (inbytes != outbytes) {
+               (void)sprintf(errbuf, "!Error writing file %.500s with system I/O!", s);
+               error(errbuf);
+               break;
+            }
+            if (!quiet)
+               (void)fprintf(stderr, "\001");
+            counter++;
+         }
+         if (!quiet)
+            fprintf(stderr, " (%d)>", counter);
+         fclose(inhandle); /* close eps input file */
+         free(buff);
+      }
+      else {
+         fclose(inhandle); /* close eps input file */
+         (void)strcpy(errbuf, "!Couldn't alocate memory for system I/O!");
+         error(errbuf);
+      }
+   }
+   if (O_BINARY && !isatty(fileno(bitfile)))
+      SET_BINARY(fileno(bitfile));
+   (void)fprintf(bitfile, "\n%%%%EndDocument\n");
 }
 //AP--end
 
@@ -225,6 +225,14 @@ copyfile_general(const char *s, struct header_list *cur_header)
  *   or figure files to be installed in the .../ps directory.
  */
       f = search(figpath, s, READBIN);
+#if defined(WIN32)
+      if (f == 0 && file_system_codepage != win32_codepage) {
+         int tmpcp = file_system_codepage;
+         file_system_codepage = win32_codepage;
+         f = search(figpath, s, READBIN);
+         file_system_codepage = tmpcp;
+      }
+#endif
       if (f == 0)
          f = search(headerpath, s, READBIN);
 #if defined(VMCMS) || defined (MVSXA)
@@ -268,11 +276,11 @@ copyfile_general(const char *s, struct header_list *cur_header)
          f = popen(s, "r");
          if (f != 0)
             SET_BINARY(fileno(f));
-	}
-	else {
+    }
+    else {
       sprintf(errbuf,"Secure mode is %d so execute <%.500s> will not run",
               secure, s);
-	}
+    }
 #ifdef OS2
       }
 #endif
@@ -286,9 +294,9 @@ copyfile_general(const char *s, struct header_list *cur_header)
 #endif
    default:
       f = search(headerpath, s, READBIN);
-      if(cur_header && (cur_header->precode || cur_header->postcode)) {
-	 if(f==NULL)
-	    f = search(figpath, s, READBIN);
+      if (cur_header && (cur_header->precode || cur_header->postcode)) {
+         if (f==NULL)
+            f = search(figpath, s, READBIN);
       }
       sprintf(errbuf, "! Could not find header file %.500s.", s);
       if (secure == 2) {
@@ -347,8 +355,8 @@ copyfile_general(const char *s, struct header_list *cur_header)
          while (1) {
             c = getc(f);
             switch(c) {
-case 1:
-case 2:
+            case 1:
+            case 2:
                len = getc(f);
                len += getc(f) * 256L;
                len += getc(f) * 65536L;
@@ -360,13 +368,13 @@ case 2:
                         error("premature EOF in MS-DOS font file");
                         len = 0;
                      } else {
-		        if (c == '\r') { /* Mac- or DOS-style text file */
+                if (c == '\r') { /* Mac- or DOS-style text file */
                            putc('\n', bitfile);
-			   if ((c = getc(f)) == '\n') /* DOS-style text */
-			      len--; /* consume, but don't generate NL */
-			   else
-			      ungetc(c, f);
-			}
+               if ((c = getc(f)) == '\n') /* DOS-style text */
+                  len--; /* consume, but don't generate NL */
+               else
+                  ungetc(c, f);
+            }
                         else
                            putc(c, bitfile);
                         len--;
@@ -393,9 +401,9 @@ case 2:
                   }
                }
                break;
-case 3:
+            case 3:
                goto msdosdone;
-default:
+            default:
                error("saw type other than 1, 2, or 3 in MS-DOS font file");
                break;
             }
@@ -407,13 +415,13 @@ default:
                break;
             }
          }
-msdosdone:
+         msdosdone:
          prevc = 0;
       } else {
 /* begin DOS EPS code */
          if (c == 'E'+0x80) {
             if ((getc(f)=='P'+0x80) && (getc(f)=='S'+0x80)
-	                            && (getc(f)=='F'+0x80)) {
+                                && (getc(f)=='F'+0x80)) {
                doseps = 1;
                dosepsbegin = getc(f);
                dosepsbegin += getc(f) * 256L;
@@ -561,16 +569,16 @@ msdosdone:
                         dosepsend--;
                         if (c == '\n' || c == '\r') {
                            putc(c, bitfile);
-			   if (c == '\r') { /* DOS-style text file? */
-			      c = getc(f);
+               if (c == '\r') { /* DOS-style text file? */
+                  c = getc(f);
                               dosepsend--;
-			      if (c == '\n') {
-			         putc(c, bitfile);
-			         c = getc(f);
+                  if (c == '\n') {
+                     putc(c, bitfile);
+                     c = getc(f);
                                  dosepsend--;
-			      }
-			   } else {
-			      c = getc(f);
+                  }
+               } else {
+                  c = getc(f);
                               dosepsend--;
                            }
                         }
@@ -588,15 +596,15 @@ msdosdone:
                            while (1) {
                               putc(c, bitfile);
                               if (c == '\r' || c == '\n') {
-			         if (c == '\r') { /* DOS-style text file? */
-			            c = getc(f);
-			            if (c != '\n')
-				       ungetc(c, f);
+                                 if (c == '\r') { /* DOS-style text file? */
+                                    c = getc(f);
+                                    if (c != '\n')
+                                       ungetc(c, f);
                                     else
                                        dosepsend--;
-			         }
+                                 }
                                  break;
-			      }
+                              }
                               c = getc(f);
                               dosepsend--;
                               if (c == EOF)
@@ -627,17 +635,17 @@ msdosdone:
                         while (1) {
                            putc(c, bitfile);
                            if (c == '\r' || c == '\n') {
-			      if (c == '\r') { /* DOS-style text file? */
-			         c = getc(f);
-			         if (c != '\n')
-				    ungetc(c, f);
+                              if (c == '\r') { /* DOS-style text file? */
+                                 c = getc(f);
+                                 if (c != '\n')
+                                    ungetc(c, f);
                                  else {
                                     putc(c, bitfile);
                                     dosepsend--;
                                  }
-			      }
+                              }
                               break;
-			   }
+                           }
                            c = getc(f);
                            removingBytes = 0;
                            dosepsend--;
@@ -685,14 +693,14 @@ msdosdone:
                if (c == EOF)
                   break;
                else if (c == '\r' && ! scanningFont) {
-		  c = getc(f);
-		  if (c == '\n') { /* DOS-style text file? */
-		     if (!removingBytes) putc('\r', bitfile);
+          c = getc(f);
+          if (c == '\n') { /* DOS-style text file? */
+             if (!removingBytes) putc('\r', bitfile);
                      dosepsend--;
-		  } else
-		     ungetc(c, f);
+          } else
+             ungetc(c, f);
                   c = '\n';
-	       }
+           }
                if (prevc == '\n')
                   removingBytes = 0;
             }
@@ -900,22 +908,22 @@ jscout(int c, char *fs)   /* string character out */
       if (c<0x80) {
          snprintf(s, sizeof(s), "a<%02x>p", c);
       } else if (c<0x800) {
-	 snprintf(s, sizeof(s), "a<%02x%02x>p", UCStoUTF8B1(c), UCStoUTF8B2(c));
+         snprintf(s, sizeof(s), "a<%02x%02x>p", UCStoUTF8B1(c), UCStoUTF8B2(c));
       } else if (c<0x10000) {
-	 snprintf(s, sizeof(s), "a<%02x%02x%02x>p", UCStoUTF8C1(c),
+         snprintf(s, sizeof(s), "a<%02x%02x%02x>p", UCStoUTF8C1(c),
                  UCStoUTF8C2(c), UCStoUTF8C3(c));
       } else if (c<0x110000) {
-	 snprintf(s, sizeof(s), "a<%02x%02x%02x%02x>p", UCStoUTF8D1(c),
-		 UCStoUTF8D2(c), UCStoUTF8D3(c), UCStoUTF8D4(c));
+         snprintf(s, sizeof(s), "a<%02x%02x%02x%02x>p", UCStoUTF8D1(c),
+         UCStoUTF8D2(c), UCStoUTF8D3(c), UCStoUTF8D4(c));
       } else {
          error("warning: Illegal code value.");
       }
    } else if (c>0xffff && strstr(fs,"-UTF16-")!=NULL) {
       snprintf(s, sizeof(s), "a<%04x%04x>p",
-	       UTF32toUTF16HS(c), UTF32toUTF16LS(c));
+           UTF32toUTF16HS(c), UTF32toUTF16LS(c));
    } else {
       if ((strstr(fs,"-RKSJ-")!=NULL)) c = JIStoSJIS(c);
-      snprintf(s, sizeof(s), "a<%04x>p", c);
+         snprintf(s, sizeof(s), "a<%04x>p", c);
    }
    cmdout(s);
    instring = 0;
@@ -927,7 +935,7 @@ jscout(int c, char *fs)   /* string character out */
 static void
 scout2Octal(unsigned short c)
 {
-    unsigned char a, b;
+   unsigned char a, b;
 
 /*
  *   Is there room in the buffer?  LINELENGTH-6 is used because we
@@ -946,7 +954,7 @@ scout2Octal(unsigned short c)
    a = (unsigned char)(c >> 8);
    b = (unsigned char)(c & 0x00FF);
 #endif
-if (a<0x20 || a >= 0x7F || a == 0x25) {
+   if (a<0x20 || a >= 0x7F || a == 0x25) {
       *strbp++ = '\\';
       *strbp++ = '0' + ((a >> 6) & 3);
       *strbp++ = '0' + ((a >> 3) & 7);
@@ -954,7 +962,7 @@ if (a<0x20 || a >= 0x7F || a == 0x25) {
       instring += 4;
    } else {
 #if defined(VMCMS) || defined (MVSXA)
-     a = ascii2ebcdic[a];
+      a = ascii2ebcdic[a];
 #endif
      if (a == '(' || a == ')' || a == '\\') {
        *strbp++ = '\\';
@@ -994,8 +1002,8 @@ cmdout(const char *s)
 
    /* hack added by dorab */
    if (instring && !jflag) {
-        stringend();
-        chrcmd('p');
+      stringend();
+      chrcmd('p');
    }
    l = strlen(s);
    if ((! lastspecial && linepos >= LINELENGTH - 20) ||
@@ -1011,6 +1019,17 @@ cmdout(const char *s)
    lastspecial = 0;
 }
 
+void psnameout(const char *s) {
+   // we lead with a special, so we don't need the space.
+   lastspecial = 1 ;
+   cmdout(s) ;
+}
+
+void pslineout(const char *s) {
+   fputs(s, bitfile) ;
+   fprintf(bitfile, "\n");
+   linepos = 0;
+}
 
 static void
 chrcmd(char c)
@@ -1427,7 +1446,7 @@ topoints(integer i)
 static double
 topointshires(integer i)
 {
-	return (double)i / 65781.76;
+    return (double)i / 65781.76;
 }
 //AP--end
 /*
@@ -1513,13 +1532,13 @@ open_output(void) {
             && !__dosexec_find_on_path(oname+1, environ, found))
            pf = fopen("PRN", "w");
 #endif
-	 if (pf == NULL && (pf = popen(oname+1, "w")) != NULL) {
-	    popened = 1;
-	    SET_BINARY(fileno(pf));
-	 }
+     if (pf == NULL && (pf = popen(oname+1, "w")) != NULL) {
+        popened = 1;
+        SET_BINARY(fileno(pf));
+     }
          if (pf == NULL)
             error("! couldn't open output pipe");
-	 bitfile = pf;
+     bitfile = pf;
 #ifdef OS2
          }
 #endif
@@ -1571,7 +1590,7 @@ initprinter(sectiontype *sect)
          error("We tried, but couldn't make it EPSF.");
       fprintf(bitfile, "%%%%Creator: %s\n", banner + 8);
 //AP--begin
-	  fprintf(bitfile, "%%%%+        %s\n", banner3);
+      fprintf(bitfile, "%%%%+        %s\n", banner3);
 //AP--end
       if (*iname)
          fprintf(bitfile, "%%%%Title: %s\n", iname);
@@ -1609,11 +1628,11 @@ initprinter(sectiontype *sect)
 //AP--begin
          fprintf(bitfile, "%%%%HiResBoundingBox: 0 0 %.4f %.4f\n",
               topointshires(finpapsiz->xsize), topointshires(finpapsiz->ysize));
-	  }
-	  if (usesOTFfonts) {
+      }
+      if (usesOTFfonts) {
          fprintf(bitfile, "%%%%LanguageLevel: 3\n");
          fprintf(bitfile, "%%%%DocumentNeededResources: procset CIDInit 1.0 0\n");
-	  }
+      }
 //AP--end
       tell_needed_fonts();
       paperspec(finpapsiz->specdat, 1);
@@ -1670,10 +1689,10 @@ initprinter(sectiontype *sect)
    if (! headers_off) {
 //AP--begin
       fprintf(bitfile, "%%%%BeginProlog\n");
-	  if (usesOTFfonts) {
+      if (usesOTFfonts) {
          fprintf(bitfile, "%%%%IncludeResource: procset CIDInit 1.0 0\n");
          fprintf(bitfile, "/pdfmark where {pop} {userdict /pdfmark /cleartomark load put} ifelse\n");
-	  }
+      }
 //AP--end
       send_headers();
    }
@@ -1747,29 +1766,29 @@ cleanprinter(void)
 
    LuaMap_cache_close();
    if (usesOTFfonts && OTF_list) {
-	 for (n = strlen(fulliname); n >= 0; n--) {
-	   if ((fulliname[n] == '\\') || (fulliname[n] == '/'))
-		   break;
-	 }
-	 n++;
-	 strcpy(cmaps_dict_name, "tounc_");
-	 strcat(cmaps_dict_name, &fulliname[n]);
-	 s = strrchr(cmaps_dict_name, '.');
-	 if (s)
-	   *s = 0;
+     for (n = strlen(fulliname); n >= 0; n--) {
+       if ((fulliname[n] == '\\') || (fulliname[n] == '/'))
+           break;
+     }
+     n++;
+     strcpy(cmaps_dict_name, "tounc_");
+     strcat(cmaps_dict_name, &fulliname[n]);
+     s = strrchr(cmaps_dict_name, '.');
+     if (s)
+       *s = 0;
      fprintf(bitfile, "\n");
-	 fprintf(bitfile, "[ /_objdef {tounc_array} /type /array /OBJ pdfmark\n");
-	 fprintf(bitfile, "[ /_objdef {%s} /type /dict /OBJ pdfmark\n", cmaps_dict_name);
+     fprintf(bitfile, "[ /_objdef {tounc_array} /type /array /OBJ pdfmark\n");
+     fprintf(bitfile, "[ /_objdef {%s} /type /dict /OBJ pdfmark\n", cmaps_dict_name);
      HASH_ITER(hh, OTF_list, current, tmp) {
-		fprintf(bitfile, "[ {%s} <</%s (%s.%s) >> /PUT pdfmark\n", cmaps_dict_name, current->fontname, current->cmapname, current->cmapext);
-		free(current->fontname);
-		free(current->cmapname);
-		free(current->cmapext);
-		HASH_DEL(OTF_list, current);  /* delete it (users advances to next) */
+        fprintf(bitfile, "[ {%s} <</%s (%s.%s) >> /PUT pdfmark\n", cmaps_dict_name, current->fontname, current->cmapname, current->cmapext);
+        free(current->fontname);
+        free(current->cmapname);
+        free(current->cmapext);
+        HASH_DEL(OTF_list, current);  /* delete it (users advances to next) */
         free(current);            /* free it */
-	 }
-	 fprintf(bitfile, "[ {tounc_array} {%s} /APPEND pdfmark\n", cmaps_dict_name);
-	 fprintf(bitfile, "[ {Catalog} << /LuaTexCmaps {tounc_array} >> /PUT pdfmark\n");
+     }
+     fprintf(bitfile, "[ {tounc_array} {%s} /APPEND pdfmark\n", cmaps_dict_name);
+     fprintf(bitfile, "[ {Catalog} << /LuaTexCmaps {tounc_array} >> /PUT pdfmark\n");
    }
 //AP--end
    fprintf(bitfile, "\n");
@@ -1943,7 +1962,7 @@ drawchar(chardesctype *c, int cc)
       else hvpos();
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
-	  scout2Octal(c->cid);
+      scout2Octal(c->cid);
    }
 //AP--end
    else if (curfnt->iswide) {

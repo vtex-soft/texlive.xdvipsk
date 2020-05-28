@@ -1,5 +1,5 @@
 /*   $Id: dvips.h 50001 2019-02-11 18:22:31Z karl $
- *   Copyright 1986-2019 Tomas Rokicki.
+ *   Copyright 1986-2020 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -16,10 +16,10 @@
 
 //AP--begin
 #define BANNER \
-"This is xdvips(k) 1.1 Copyright 2019 VTeX Ltd."
+"This is xdvips(k) 2.1 Copyright 2020 VTeX Ltd."
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
-"Based on dvips(k) 5.999 Copyright 2019 Radical Eye Software"
+"Based on dvips(k) 2020.1 Copyright 2020 Radical Eye Software"
 //AP--end
 #ifdef KPATHSEA
 #include "config.h"
@@ -149,7 +149,7 @@ struct resfont {
 //AP--begin
    boolean partialdownload;
    quarterword otftype;  //1 - TrueType, 2 - PostScript, 3 - TTC, 4 - DFONT
-   quarterword index;	 //For TTC & DFONT
+   quarterword index;     //For TTC & DFONT
    halfword cmap_fmt;
    integer luamap_idx;
    //AP--end
@@ -162,7 +162,7 @@ struct resfont {
  */
 typedef struct tcd {
 //AP--begin
-	integer charcode;
+   integer charcode;
 //AP--end
    integer TFMwidth;
    quarterword *packptr;
@@ -202,6 +202,7 @@ typedef struct tfd {
    quarterword psflag;
    quarterword codewidth;
    integer maxchars;
+   integer llx, lly, urx, ury ;
    char *name, *area;
    struct resfont *resfont;
    struct tft *localfonts;
@@ -234,8 +235,8 @@ typedef struct {
 
 //AP--begin
 typedef struct lua_t {
-	integer luamap_idx;
-	struct lua_t *next;
+   integer luamap_idx;
+   struct lua_t *next;
 } luacharmap;
 //AP--end
 
@@ -295,22 +296,22 @@ struct header_list {
 * Charcodes mapping to glyphs from Luatex 
 */
 typedef struct {
-	int charcode;
-	int gid;
-	halfword tu_count;
-	unsigned int *tounicode;
-	UT_hash_handle hh;         /* makes this structure hashable */
+   int charcode;
+   int gid;
+   halfword tu_count;
+   unsigned int *tounicode;
+   UT_hash_handle hh;         /* makes this structure hashable */
 } luamaptype;
 /*
 * Relation between OpenType font names and
 * ToUnicode cmaps is realized by this structure
 */
 typedef struct {
-	int index;
-	char *fontname;
-	char *cmapname;
-	char *cmapext;
-	UT_hash_handle hh;         /* makes this structure hashable */
+   int index;
+   char *fontname;
+   char *cmapname;
+   char *cmapext;
+   UT_hash_handle hh;         /* makes this structure hashable */
 } otfcmaptype;
 //AP--end
 

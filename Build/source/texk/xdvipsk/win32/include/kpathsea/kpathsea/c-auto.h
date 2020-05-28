@@ -11,7 +11,7 @@
 #define KPATHSEA_C_AUTO_H
 
 /* kpathsea: the version string. */
-#define KPSEVERSION "kpathsea version 6.3.1"
+#define KPSEVERSION "kpathsea version 6.3.2"
 
 /* kpathsea/configure.in tests for these functions with
    kb_AC_KLIBTOOL_REPLACE_FUNCS, and naturally Autoheader doesn't know

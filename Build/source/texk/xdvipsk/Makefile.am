@@ -1,8 +1,8 @@
 ## $Id: Makefile.am 43617 2017-03-27 18:00:45Z karl $
 ### Makefile.am for the TeX Live subdirectory texk/xdvipsk/
 ##
-## Copyright 2017      Karl Berry <tex-live@tug.org>
-## Copyright (C) 2009-2015 Peter Breitenlohner <tex-live@tug.org>
+## Copyright 2017-2020 Karl Berry <tex-live@tug.org>
+## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
 GRAPHLIB_INCLUDES = $(srcdir)/graphlib
@@ -19,6 +19,7 @@ xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(
 
 xdvipsk_SOURCES = \
 	bbox.c \
+	bitmapenc.c \
 	charcode.c \
 	color.c \
 	config.h \
@@ -30,7 +31,7 @@ xdvipsk_SOURCES = \
 	dpicheck.c \
 	drawPS.c \
 	dviinput.c \
-    emspecialex.c \
+	emspecialex.c \
 	finclude.c \
 	fontdef.c \
 	header.c \
@@ -173,6 +174,8 @@ libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_L
 @LIBJPEG_RULE@
 ## Rebuild libtiff
 @LIBTIFF_RULE@
+
+enc_DATA = dvips-all.enc
 
 # Files not to be distributed
 include $(srcdir)/../../am/dist_hook.am

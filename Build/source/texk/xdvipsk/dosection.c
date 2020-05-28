@@ -30,6 +30,7 @@ dosection(sectiontype *s, int c)
    integer thispage = 0;
    char buf[514];
 
+   bmenc_startsection() ;
    dopsfont(s);
 #ifdef HPS
 	 if (HPS_FLAG) pagecounter = 0;

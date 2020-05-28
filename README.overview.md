@@ -1,11 +1,12 @@
 # Overview
 
-## *xdvipsk*: extended dvips (TeXLive 2019)
+## *xdvipsk*: extended dvips (TeXLive 2020)
 
-It has two base extensions:
+It has three base extensions:
 * one allows flexible inclusion of bitmap images
 * another extension solves a quite long-standing task -- adds `OpenType` font support
 to `dvips`
+* accepts font map `\special` commands with prefixes `mapfile` and `mapline` 
 
 *xdvipsk* goes `LuaTeX` way in `OpenType` font management:  
 > works on `DVI` files compiled by `LuaTeX` and expects to find the necessary `Unicode` map files, 
@@ -219,6 +220,7 @@ The map is a list of lines with tab-separated fields
     [lmroman10-bold]:+tlig;
     [lmroman10-italic]:+tlig;
     [lmroman10-regular]:+tlig;
+    [Avenir.ttc](11):mode=node;script=DFLT;language=dflt;
     ```
 
 - `PSNAME` 
@@ -313,4 +315,4 @@ extra libraries: `libjpeg`, `libtiff` for `xdvipsk`,
 and `libmupdf` for new utility `make2unc`.
 Other needed libraries are taken from TeX Live distributions.
 
-The current `xdvipsk` version is based on `dvips 5.999`, `web2c + kpathsea 6.3.1`, `TeXLive 2019`.
+The current `xdvipsk` version is based on `dvips 2020.1`, `web2c + kpathsea 6.3.2`, `TeXLive 2020`.

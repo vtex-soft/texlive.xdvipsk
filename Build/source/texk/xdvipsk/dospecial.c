@@ -599,7 +599,7 @@ case 'm':
          char *hdr_name = NULL;
          boolean nopartial_p = false;
          boolean encoding_p = false;
-         boolean repl = 1;
+		 boolean repl = 1; 
          p += 7;
 		 if ((*p == ':') || (*p == '='))
 			 p++;
@@ -704,7 +704,7 @@ case 'm':
 		}
    }
    else if (strncmp(p, "mapfile", 7)==0) {
-		 boolean repl = 1;
+		 boolean repl = 1; 
          p += 7;
 		 if ((*p == ':') || (*p == '='))
 			 p++;
