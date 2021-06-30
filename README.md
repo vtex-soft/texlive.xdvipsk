@@ -1,4 +1,4 @@
-# *xdvipsk*: extended dvips (TeXLive 2019)
+# *xdvipsk*: extended dvips (TeXLive 2020)
 
 It has two base extensions:
 

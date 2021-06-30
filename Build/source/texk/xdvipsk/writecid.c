@@ -111,6 +111,7 @@ static char *rand_string(char *str, size_t size)
 static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cdb, BYTE *binarydata, long bin_size)
 {
     char *str, start[256];
+    char name[64];
     long i, j, k, cnt;
     double dbl, dbl_prev;
     s_SID sid;
@@ -397,7 +398,9 @@ static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cd
     fprintf(bitfile, "%%%%EndData\n");
 
     fprintf(bitfile, "%%%%EndResource\n");
-    fprintf(bitfile, "/%s /TeX_Identity-H [/%s] composefont pop\n", cffont->fontname, cffont->fontname);
+    strcpy(name, "CID+");
+    strcat(name, cffont->fontname);
+    fprintf(bitfile, "/%s /TeX_Identity-H [/%s] composefont pop\n", name, cffont->fontname);
 }
 
 static char *get_sfnt_name(sfnt *sfont, char *name)
@@ -548,7 +551,7 @@ static ULONG *makeglyphslocation(sfnt *sfont, SHORT indexToLocFormat, halfword n
         if (indexToLocFormat == 0) {
             for (i = 0; i <= num_glyphs; i++) {
                 unsigned short pair = td->tables[idx].data[2 * i];
-                loca[i] = 2 * ((pair << 8) | td->tables[idx].data[2 * i + 1]);
+                loca[i] = 2 * ((pair << 8) | (unsigned char)td->tables[idx].data[2 * i + 1]);
             }
         } else if (indexToLocFormat == 1) {
             for (i = 0; i <= num_glyphs; i++) {
@@ -576,6 +579,7 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
     long offset, nb_read, length, len_pad;
     int  i, j, sr;
     char *p, *p1;
+    char name[64];
     BYTE *wbuf, wtbl[1024], padbytes[4] = {0, 0, 0, 0};
 
     struct tt_post_table *post;
@@ -708,34 +712,27 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
             if ( (memcmp(td->tables[i].tag,"glyf",4) == 0) && (td->tables[i].length > 65534) ) {
                 ULONG *loca = makeglyphslocation(sfont,head->indexToLocFormat,maxcid+1);
                 ULONG last = 0;
-                if (!td->tables[i].data) {
-                    if (!sfont->stream)    {
-                        ERROR("Font file not opened or already closed...");
-                        return;
-                    }
-                    length = td->tables[i].length;
-                    td->tables[i].data = NEW(length + len_pad,BYTE);
-                    sfnt_seek_set(sfont, td->tables[i].offset);
-                    nb_read = sfnt_read(td->tables[i].data, td->tables[i].length, sfont);
-                    if (nb_read < 0) {
-                        if ( td->tables[i].data )
-                            RELEASE(td->tables[i].data);
-                        ERROR("Reading file failed...");
-                        return;
-                    }
-                }
                 length = 0;
                 wbuf = NEW(65534,BYTE);
                 for ( j=0; j<maxcid+1; ++j ) {
-                    if (loca[j + 1] - loca[j] > 0) {
-                        if ( loca[j+1]-last > 65534 ) {
-                            dumpsfnt(wbuf,loca[j]-last);
-                            last = loca[j];
-                            length = 0;
-                        }
-                        memcpy(wbuf + length, td->tables[i].data + loca[j], loca[j + 1] - loca[j]);
-                        length += loca[j + 1] - loca[j];
+                    if ( loca[j+1]-last > 65534 ) {
+                        dumpsfnt(wbuf,loca[j]-last);
+                        last = loca[j];
+                        length = 0;
                     }
+                    if (!td->tables[i].data) {
+                        sfnt_seek_set(sfont, td->tables[i].offset + loca[j]);
+                        nb_read = sfnt_read(wbuf + length, loca[j + 1] - loca[j], sfont);
+                        if (nb_read < 0) {
+                            if ( wbuf )
+                                RELEASE(wbuf);
+                                ERROR("Reading file failed...");
+                                return;
+                        }
+                    }
+                    else
+                        memcpy(wbuf + length, td->tables[i].data + loca[j], loca[j + 1] - loca[j]);
+                    length += loca[j + 1] - loca[j];
                 }
                 if ( len_pad > 0 )
                     memcpy(wbuf + length,padbytes,len_pad);
@@ -805,7 +802,9 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
     fprintf( bitfile, "currentdict end dup /CIDFontName get exch /CIDFont defineresource pop\nend\n" );
 
     fprintf(bitfile, "%%%%EndResource\n");
-    fprintf(bitfile, "/%s /TeX_Identity-H [/%s] composefont pop\n",fontname,fontname);
+    strcpy(name, "CID+");
+    strcat(name, fontname);
+    fprintf(bitfile, "/%s /TeX_Identity-H [/%s] composefont pop\n",name,fontname);
 
     RELEASE(post);
 }
@@ -893,6 +892,7 @@ int writecid(charusetype *p)
             hhea = tt_read_hhea_table(sfont);
             if ( cid_partialdownload ) {
                 CIDFont_type2_dofont(rf->PSname,sfont,rf->index,(char *)p->bitmap,&maxcid);
+                head->indexToLocFormat = 1;
             }
             else {
                 for (n = 1; n < num_glyphs; n++)

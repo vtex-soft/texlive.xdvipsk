@@ -435,13 +435,13 @@ tt_build_tables (sfnt *sfont, struct tt_glyphs *g)
      * Choosing short format does not always give good result
      * when compressed. Sometimes increases size.
      */
-    if (glyf_table_size < 0x20000UL) {
-      head->indexToLocFormat = 0;
-      loca_table_size = (g->last_gid + 2)*2;
-    } else {
+//    if (glyf_table_size < 0x20000UL) {
+//      head->indexToLocFormat = 0;
+//      loca_table_size = (g->last_gid + 2)*2;
+//    } else {
       head->indexToLocFormat = 1;
       loca_table_size = (g->last_gid + 2)*4;
-    }
+//    }
 
     hmtx_table_data = p = NEW(hmtx_table_size, char);
     loca_table_data = q = NEW(loca_table_size, char);

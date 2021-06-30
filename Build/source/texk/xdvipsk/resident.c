@@ -11,6 +11,9 @@
 //AP--begin
 //#include "dvips.h" /* The copyright notice in that file is included too! */
 #include "xdvips.h" /* The copyright notice in that file is included too! */
+#ifndef WIN32
+#define strnicmp strncasecmp
+#endif
 //AP--end
 #include "paths.h"
 #ifdef KPATHSEA
@@ -105,7 +108,7 @@ findPSname(char *name)
 static void
 //AP--begin
 add_entry(char *TeXname, char *PSname, char *Fontfile,
-char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF)
+char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, quarterword embolden)
 //add_entry(char *TeXname, char *PSname, char *Fontfile,
 //          char *Vectfile, char *specinfo, char *downloadinfo)
 //AP--end
@@ -135,6 +138,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    else
        p->otftype = 0;
    p->index = 0;
+   p->embolden = embolden;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
 //AP--end
@@ -147,7 +151,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
  */
 void
 add_entry_spec(char *TeXname, char *PSname, char *Fontfile,
-char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, boolean replace)
+char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, quarterword embolden, boolean replace)
 {
    struct resfont *p;
    int h, found = 0;
@@ -183,6 +187,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    else
        p->otftype = 0;
    p->index = 0;
+   p->embolden = embolden;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
    if (!found) {
@@ -1051,7 +1056,7 @@ getpsinfo(const char *name)
                downloadinfo = newstring(downbuf);
                add_entry(TeXname, PSname, Fontfile, Vectfile,
 //AP--begin
-                   specinfo, downloadinfo, !nopartial_p, 0);
+                   specinfo, downloadinfo, !nopartial_p, 0, 0);
 //                         specinfo, downloadinfo);
 //AP--end
             }
@@ -1189,7 +1194,7 @@ getpsinfo_spec(const char *name, boolean replace)
                specinfo = newstring(specbuf);
                downloadinfo = newstring(downbuf);
                add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
-                   specinfo, downloadinfo, !nopartial_p, 0, replace);
+                   specinfo, downloadinfo, !nopartial_p, 0, 0, replace);
             }
          }
       }
@@ -1252,6 +1257,7 @@ getotfinfo(const char *dviname)
             char *Vectfile = NULL;
             char *Fontfile = NULL;
             char *hdr_name = NULL;
+			int embolden = 0;
             specinfo = NULL;
             specbuf[0] = 0;
             while (*p) {
@@ -1345,13 +1351,42 @@ getotfinfo(const char *dviname)
             if (specinfo)
                strcat(specbuf, specinfo);
             if (TeXname) {
+				char seps[] = ";";
+				char *token;
+				float val;
+				p = mymalloc(strlen(TeXname) + 1);
+				strcpy(p, TeXname);
+				strcat(specbuf, "{");
+				token = strtok( p, seps );
+				while( token != NULL ) {
+					if (strnicmp(token, "slant=", 6) == 0) {
+						if (specbuf[strlen(specbuf) - 1] != '{')
+							strcat(specbuf, " ");
+						sscanf(token + 6,"%f",&val);
+						sprintf(map_name,"%g ct_SlantFont",val);
+						strcat(specbuf, map_name);
+					}
+					else if (strnicmp(token, "extend=", 7) == 0) {
+						if (specbuf[strlen(specbuf) - 1] != '{')
+							strcat(specbuf, " ");
+						sscanf(token + 7,"%f",&val);
+						sprintf(map_name,"%g ct_ExtendFont",val);
+						strcat(specbuf, map_name);
+					}
+					else if (strnicmp(token, "embolden=", 9) == 0) {
+						sscanf(token + 9,"%d",&embolden);
+					}
+					token = strtok( NULL, seps );
+				}
+				strcat(specbuf, "}");
+				free(p);
                TeXname = newstring(TeXname);
                PSname = newstring(PSname);
                Vectfile = newstring(Vectfile);
                Fontfile = newstring(Fontfile);
                specinfo = newstring(specbuf);
                add_entry(TeXname, PSname, Fontfile, Vectfile,
-                   specinfo, NULL, 1, 1);
+                   specinfo, NULL, 1, 1, embolden);
             }
          }
       }

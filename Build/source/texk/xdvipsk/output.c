@@ -73,6 +73,11 @@ static void print_composefont(void);
 static void setdir(int d);
 static int JIStoSJIS(int c);
 
+//AP--begin
+static Boolean textStrokeFlag = 0;
+static char textstrokecmd[LINELENGTH];
+//AP--end
+
 static Boolean any_dir = 0; /* did we output any direction commands? */
 static Boolean jflag = 0;
 static integer rhh, rvv;
@@ -792,6 +797,15 @@ specialout(char c)
 void
 stringend(void)
 {
+//AP--begin
+   int tmp_jflag;
+   if (textStrokeFlag) {
+	   tmp_jflag = jflag;
+	   jflag = 1;
+	   cmdout("ct_np");
+	   jflag = tmp_jflag;
+   }
+//AP--end
    if (linepos + instring >= LINELENGTH - 2) {
       putc('\n', bitfile);
       linepos = 0;
@@ -801,6 +815,24 @@ stringend(void)
    fputs(strbuffer, bitfile);
    putc(')', bitfile);
    linepos += instring + 2;
+//AP--begin
+   if (textStrokeFlag) {
+     if (linepos + instring >= LINELENGTH - 2) {
+        putc('\n', bitfile);
+        linepos = 0;
+     }
+     putc('(', bitfile);
+     fputs(strbuffer, bitfile);
+     putc(')', bitfile);
+     linepos += instring + 2;
+	 tmp_jflag = jflag;
+     jflag = 1;
+     cmdout(textstrokecmd);
+	 jflag = tmp_jflag;
+     putc(' ', bitfile);
+	 linepos++;
+   }
+//AP--end
    lastspecial = 1;
    instring = 0;
    strbp = strbuffer;
@@ -1940,6 +1972,9 @@ drawchar(chardesctype *c, int cc)
       jflag = 1;
       hvpos();
       jflag = savejflag;
+//AP--begin
+      textStrokeFlag = 0;
+//AP--end
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       scout2(cc);
@@ -1960,12 +1995,24 @@ drawchar(chardesctype *c, int cc)
          rvv = vv;
       }
       else hvpos();
-      if (lastfont != curfnt->psname)
+      if (lastfont != curfnt->psname) {
+		 if (curfnt->resfont->embolden) {
+		   double fontscale;
+		   textStrokeFlag = 1;
+		   fontscale = curfnt->scaledsize * conv;
+		   sprintf(textstrokecmd, "%g ct_st", (fontscale * curfnt->resfont->embolden) / 100.0);
+		 }
+		 else
+		   textStrokeFlag = 0;
          fontout(curfnt->psname);
+	  }
       scout2Octal(c->cid);
    }
 //AP--end
    else if (curfnt->iswide) {
+//AP--begin
+      textStrokeFlag = 0;
+//AP--end
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       jscout(cc, curfnt->resfont->PSname);
@@ -1985,6 +2032,9 @@ drawchar(chardesctype *c, int cc)
          rvv = vv;
       }
       else hvpos();
+//AP--begin
+      textStrokeFlag = 0;
+//AP--end
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       scout((unsigned char)cc);

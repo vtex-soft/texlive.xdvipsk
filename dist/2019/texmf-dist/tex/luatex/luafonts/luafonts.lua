@@ -10,8 +10,8 @@ module('luafonts', package.seeall)
 
 luafonts.module = {
     name          = "luafonts",
-    version       =  1.8,
-    date          = "2019/06/27",
+    version       =  1.9,
+    date          = "2021/02/12",
     description   = "Lua tex support package.",
     author        = "Sigitas Tolusis",
     copyright     = "Sigitas Tolusis",
@@ -60,7 +60,7 @@ function createfontsmap()
       local tfmname = v.name:gsub( "%s$", "")
       if v['format'] ~= 'unknown' then
          local filename = v.filename:gsub("^" .. selfautoparent, "$SELFAUTOPARENT"):gsub("^" .. selfautograndparent, "$SELFAUTOGRANDPARENT"):gsub( "%s$", "")
-         local fontname = v.fullname:gsub( "%s$", "")
+         local fontname = v.fullname:gsub('[<>:"/\\|%?%*]', '@')
          local psname = v.psname:gsub( "%s$", "")
          local subfont = v.shared.rawdata.subfont
          if vtx_fonts_info.otf_fonts[tfmname] == nil then 

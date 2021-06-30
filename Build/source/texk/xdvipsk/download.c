@@ -221,7 +221,10 @@ download(charusetype *p)
    name[0] = '/';
 //AP--begin
 //   makepsname(name + 1, psfont);
-   makepsname(name + 1, p->fd->psname);
+   name[1] = 0;
+   if (p->fd->resfont) {
+      makepsname(name + 1, p->fd->psname);
+   }
 //AP--end
    curfnt = p->fd;
 //AP--begin
@@ -233,10 +236,17 @@ download(charusetype *p)
 //AP--begin
       if (rf->otftype) {
           cmdout(name);
+		  if (rf->specialinstructions[0] == '{')
+			cmdout(rf->specialinstructions);
+		  else {
+			  char *p = strstr(rf->specialinstructions,"{");
+			  if (p)
+				cmdout(p);
+		  }
           fontscale = curfnt->scaledsize * conv;
           sprintf(nextstring, "%g", fontscale);
           cmdout(nextstring);
-          strcpy(nextstring, "/");
+          strcpy(nextstring, "/CID+");
           strcat(nextstring, rf->PSname);
           cmdout(nextstring);
           cmdout("ct_cid");
@@ -498,9 +508,21 @@ downpsfont(charusetype *p, charusetype *all)
     if (rf == 0 || rf->Fontfile == NULL)
        return;
     for (; all->fd; all++)
-       if (all->fd->resfont &&
-           strcmp(rf->PSname, all->fd->resfont->PSname) == 0)
-          break;
+//AP--begin
+//      if (all->fd->resfont &&
+//           strcmp(rf->PSname, all->fd->resfont->PSname) == 0)
+//          break;
+	  if (rf->otftype) {
+          if (all->fd->resfont && all->fd->resfont->otftype &&
+             (strcmp(rf->PSname, all->fd->resfont->PSname) == 0))
+           break;
+      }
+      else {
+          if (all->fd->resfont && (!all->fd->resfont->otftype) &&
+             (strcmp(rf->PSname, all->fd->resfont->PSname) == 0))
+           break;
+      }
+//AP--end
     if (all != p)
        return;
     if (rf->sent == 2) /* sent as header, from a PS file */
@@ -519,8 +541,8 @@ downpsfont(charusetype *p, charusetype *all)
         p->map_chain = map;
         all++;
         for (; all->fd; all++) {
-            if (all->fd->resfont &&
-                strcmp(rf->PSname, all->fd->resfont->PSname) == 0) {
+            if (all->fd->resfont && all->fd->resfont->otftype &&
+					(strcmp(rf->PSname, all->fd->resfont->PSname) == 0)) {
                 for (j = 0; j < 4096; j++)
                     p->bitmap[j] |= all->bitmap[j];
                 map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
@@ -585,7 +607,10 @@ downpsfont(charusetype *p, charusetype *all)
     clearExtraGlyphList();
 #endif
     for (; all->fd; all++) {
-        if (all->fd->resfont == 0 ||
+//AP--begin
+//        if (all->fd->resfont == 0 ||
+        if ((all->fd->resfont == 0) || all->fd->resfont->otftype ||
+//AP--end
             strcmp(rf->PSname, all->fd->resfont->PSname))
            continue;
         curfnt = all->fd;
