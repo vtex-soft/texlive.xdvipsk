@@ -66,28 +66,6 @@ Several things for style and package authors to know:
 - the program ignores the content of `\special` commands with unknown
   prefixes
 
-- the program accepts `\special` commands with prefixes: `mapfile` and `mapline`.
-```
-    *mapfile* is used for reading a font map file consisting of one or more font map lines. The name
-    of the map file is given together with an optional leading modifier character (+). There is a
-    companion special type *mapline* that allows to scan single map lines; its map line argument has the
-    same syntax as the map lines from a map file. Both specials can be used concurrently.
-    The operation mode is selected by an optional modifier character (+) in front. 
-    This modifier defines how the individual map lines are going to be handled,
-    and how a collision between an already registered map entry and a newer one is resolved; either ignoring
-    a later entry with a warning in case modifier charcter is given, 
-    or replacing an existing entry in case no modifier character is given. 
-    Here are examples: 
-
-    \special{mapfile: +myfont.map}
-    \special{mapline: +ptmri8r Times-Italic <8r.enc <ptmri8a.pfb}
-
-     or 
-
-    \special{mapfile: myfont.map}
-    \special{mapline: ptmri8r Times-Italic <8r.enc <ptmri8a.pfb}
-```
-
 - for more precise image positioning `xdvipsk` inserts the PostScript
   `HiResBoundingBox` parameter
 

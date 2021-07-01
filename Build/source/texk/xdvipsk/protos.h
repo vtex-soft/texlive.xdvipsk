@@ -209,7 +209,7 @@ extern void checkenv(int which);
 //AP--begin
 extern void getotfinfo(const char *dviname);
 extern void add_entry_spec(char *TeXname, char *PSname, char *Fontfile,
-					char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, boolean replace);
+					char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, quarterword embolden, boolean replace);
 extern void getpsinfo_spec(const char *name, boolean replace);
 //AP--end
 

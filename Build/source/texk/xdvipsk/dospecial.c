@@ -700,7 +700,7 @@ case 'm':
             specinfo = newstring(specbuf);
             downloadinfo = newstring(downbuf);
             add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
-				   specinfo, downloadinfo, !nopartial_p, 0, repl);
+				   specinfo, downloadinfo, !nopartial_p, 0, 0, repl);
 		}
    }
    else if (strncmp(p, "mapfile", 7)==0) {

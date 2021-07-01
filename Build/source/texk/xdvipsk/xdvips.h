@@ -16,7 +16,7 @@
 
 //AP--begin
 #define BANNER \
-"This is xdvips(k) 1.1 Copyright 2019 VTeX Ltd."
+"This is xdvips(k) 1.5 Copyright 2021 VTeX Ltd."
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
 "Based on dvips(k) 5.999 Copyright 2019 Radical Eye Software"
@@ -150,6 +150,7 @@ struct resfont {
    boolean partialdownload;
    quarterword otftype;  //1 - TrueType, 2 - PostScript, 3 - TTC, 4 - DFONT
    quarterword index;	 //For TTC & DFONT
+   quarterword embolden; //embolden percent for OTF fonts
    halfword cmap_fmt;
    integer luamap_idx;
    //AP--end

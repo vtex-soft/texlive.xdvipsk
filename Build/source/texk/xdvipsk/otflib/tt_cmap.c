@@ -1112,6 +1112,7 @@ otf_create_ToUnicode_stream (sfnt *sfont,
   int         cmap_add_id;
   tt_cmap    *ttcmap;
   int         i, cmap_type, cmap_ret = 0;
+  luacharmap *lmap;
 
   if (!font_name || !used_chars || !csi)
     return 0;
@@ -1120,7 +1121,8 @@ otf_create_ToUnicode_stream (sfnt *sfont,
   cmap_add = NULL;
 
   CMap_set_silent(1); /* many warnings without this... */
-  if (luamap) {
+  lmap = (luacharmap *)luamap;
+  if (luamap && (lmap->luamap_idx >= 0)) {
 	  ttcmap = NULL;
 	  cmap_ret = create_ToUnicode_cmap(ttcmap, cmap_name, cmap_ext, csi, cmap_add, used_chars,
 		  sfont, code_to_cid_cmap, path, (luacharmap *)luamap);
