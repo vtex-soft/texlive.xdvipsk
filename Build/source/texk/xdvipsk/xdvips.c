@@ -97,6 +97,7 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 /* PS fonts fully downloaded as headers */
 char *downloadedpsnames[DOWNLOADEDPSSIZE];
 
+int found_problems = 0;      /* should we exit successfully? */
 int unused_top_of_psnames;   /* unused top number of downloadedpsnames[#] */
 fontdesctype *fonthead;      /* list of all fonts mentioned so far */
 fontdesctype *curfnt;        /* the currently selected font */
@@ -108,6 +109,7 @@ Boolean t1_partialdownload = 0;  /* turn off Type1 font partial downloading */
 Boolean cid_partialdownload = 1; /* turn on OpenType font partial downloading */
 //AP--end
 Boolean manualfeed;          /* manual feed? */
+Boolean landscaperotate = 0; /* when picking paper sizes allow rotated media */
 Boolean compressed;          /* compressed? */
 Boolean downloadpspk;        /* use PK for downloaded PS fonts? */
 Boolean safetyenclose;       /* enclose in save/restore for stupid spoolers? */
@@ -138,6 +140,7 @@ integer maxsecsize = 0;       /* the maximum size of a section */
 integer firstboploc;         /* where the first bop is */
 Boolean sepfiles;            /* each section in its own file? */
 int numcopies;               /* number of copies of each page to print */
+char *titlename="";          /* if given, used for %%Title */
 const char *oname;           /* output file name */
 char *iname;                 /* dvi file name */
 char *fulliname;             /* same, with current working directory */
@@ -361,6 +364,7 @@ static const char *helparr[] = {
 //AP--end
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
+"-landscaperotate*  Allow landscape to print rotated on portrait papersizes",
 "-m*  Manual feed                     -M*  Don't make fonts",
 "-mode s Metafont device name",
 "-n # Maximum number of pages         -N*  No structured comments",
@@ -384,6 +388,7 @@ static const char *helparr[] = {
 "-r*  Reverse order of pages          -R*  Run securely",
 "-s*  Enclose output in save/restore  -S # Max section size in pages",
 "-t s Paper format                    -T c Specify desired page size",
+"-title s Title in comment",
 "-u s PS mapfile                      -U*  Disable string param trick",
 "-v   Print version number and quit   -V*  Send downloadable PS fonts as PK",
 //AP--begin
@@ -507,7 +512,7 @@ error_with_perror(const char *s, const char *fname)
    if (prettycolumn > 0)
       fprintf(stderr,"\n");
    prettycolumn = 0;
-   fprintf(stderr, "%s: %s", progname, s);
+   fprintf_str(stderr, "%s: %s", progname, s);
    if (fname) {
       putc (' ', stderr);
       perror (fname);
@@ -564,7 +569,7 @@ concat(char *s1, char *s2)
 void
 check_checksum(unsigned c1, unsigned c2, const char *name)
 {
-   if (c1 && c2 && c1 != c2
+  if (c1 && c2 && c1 != c2
 #ifdef KPATHSEA
       && !kpse_tex_hush ("checksum")
 #endif
@@ -1028,7 +1033,7 @@ main(int argc, char **argv)
 //AP--end
                puts (kpathsea_version_string);
 //AP--begin
-        puts ("Copyright 2020 VTeX Ltd.\n\
+        puts ("Copyright 2021 VTeX Ltd.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the xdvips copyright.\n\
@@ -1294,11 +1299,22 @@ default:
                notfirst = 1;
                break;
 case 'l':
-               if (*p == 0 && argv[i+1])
-                  p = argv[++i];
-               if (*p == '=') {
-                  abspage = 1;
-                  p++;
+               if (strncmp(p, "andscaperotate", 14) == 0) {
+                  p += 14 ;
+                  if (*p == 0 || *p == '1') {
+                     landscaperotate = 1 ;
+                  } else if (*p == '0') {
+                     landscaperotate = 0 ;
+                  } else {
+                     error("! -landscaperotate command ended with junk") ;
+                  }
+               } else {
+                  if (*p == 0 && argv[i+1])
+                     p = argv[++i];
+                  if (*p == '=') {
+                     abspage = 1;
+                     p++;
+                  }
                }
 #ifdef SHORTINT
                switch(sscanf(p, "%ld.%ld", &lastpage, &lastseq)) {
@@ -1332,16 +1348,19 @@ case 'r' :
                reverse = (*p != '0');
                break;
 case 't' :
-               if (*p == 0 && argv[i+1])
-                  p = argv[++i];
-               if (strcmp(p, "landscape") == 0) {
-                  if (hpapersize || vpapersize)
-                     error(
-             "both landscape and papersize specified; ignoring landscape");
-                  else
-                     landscape = 1;
-               } else
-                  paperfmt = p;
+               if (STREQ (p, "itle") && argv[i+1]) {
+                  titlename = argv[++i];
+               } else {
+                  if (*p == 0 && argv[i+1])
+                     p = argv[++i];
+                  if (strcmp(p, "landscape") == 0) {
+                     if (hpapersize || vpapersize)
+                        error("both landscape and papersize specified; ignoring landscape");
+                     else
+                        landscape = 1;
+                  } else
+                     paperfmt = p;
+               }
                break;
 case 'v':
 //AP--begin
@@ -1690,19 +1709,19 @@ default:
 #ifdef DEBUG
    if (dd(D_PATHS)) {
 #ifdef SHORTINT
-        fprintf(stderr,"input file %s output file %s swmem %ld\n",
+        fprintf_str(stderr,"input file %s output file %s swmem %ld\n",
 #else /* ~SHORTINT */
-           fprintf(stderr,"input file %s output file %s swmem %d\n",
+           fprintf_str(stderr,"input file %s output file %s swmem %d\n",
 #endif /* ~SHORTINT */
            iname, oname, swmem);
 #ifndef KPATHSEA
-   fprintf(stderr,"tfm path %s\npk path %s\n", tfmpath, pkpath);
-   fprintf(stderr,"fig path %s\nvf path %s\n", figpath, vfpath);
-   fprintf(stderr,"config path %s\nheader path %s\n",
+   fprintf_str(stderr,"tfm path %s\npk path %s\n", tfmpath, pkpath);
+   fprintf_str(stderr,"fig path %s\nvf path %s\n", figpath, vfpath);
+   fprintf_str(stderr,"config path %s\nheader path %s\n",
                   configpath, headerpath);
 #endif
 #ifdef FONTLIB
-   fprintf(stderr,"fli path %s\nfli names %s\n", flipath, fliname);
+   fprintf_str(stderr,"fli path %s\nfli names %s\n", flipath, fliname);
 #endif
    } /* dd(D_PATHS) */
 #endif /* DEBUG */
@@ -1870,7 +1889,7 @@ default:
                   fprintf(stderr, "\n");
                   prettycolumn = 0;
                }
-               fprintf(stderr, "(-> %s) ", oname);
+               fprintf_str(stderr, "(-> %s) ", oname);
                prettycolumn += strlen(oname) + 6;
             }
 #ifdef HPS
@@ -1920,7 +1939,7 @@ default:
 #endif
 //AP--begin
    dvips_exit(0);
-//   return 0;
+//   return found_problems ? EXIT_FAILURE : EXIT_SUCCESS;
 //AP--end
    /*NOTREACHED*/
 }

@@ -20,6 +20,7 @@ Options:
 -j*  Download T1 fonts partially     -J*  Download OpenType fonts partially
 -k*  Print crop marks                -K*  Pull comments from inclusions
 -l # Last page                       -L*  Last special papersize wins
+-landscaperotate*  Allow landscape to print rotated on portrait papersizes
 -m*  Manual feed                     -M*  Don't make fonts
 -mode s Metafont device name
 -n # Maximum number of pages         -N*  No structured comments
@@ -34,6 +35,7 @@ Options:
 -r*  Reverse order of pages          -R*  Run securely
 -s*  Enclose output in save/restore  -S # Max section size in pages
 -t s Paper format                    -T c Specify desired page size
+-title s Title in comment
 -u s PS mapfile                      -U*  Disable string param trick
 -v   Print version number and quit   -V*  Send downloadable PS fonts as PK
                                      -W*  Extended search for emTeX graphics

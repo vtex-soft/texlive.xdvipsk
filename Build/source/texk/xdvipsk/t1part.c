@@ -665,7 +665,7 @@ PrintChar(CHAR *TmpChar)
     {
         if(ThisChar->choose==1)
         {
-            fprintf(stderr, " Debug: Char %d '%s'\n",
+            fprintf_str(stderr, " Debug: Char %d '%s'\n",
                     ThisChar->num,ThisChar->name);
         }
         ThisChar = ThisChar->NextChar;
@@ -1068,7 +1068,7 @@ ViewReturnCall(int num_err, int top, int *pstack,
             {
                 if(TableCommand[k].code==*pstack)
                 {
-                    fprintf(stderr," %s",
+                    fprintf_str(stderr," %s",
                     TableCommand[k].command);
                     k=0;
                     break;
@@ -1422,7 +1422,7 @@ ScanChars(int i)
 
                         if(dd(D_VIEW_VECTOR)&&(num_err==-1))
                         {
-                            fprintf(stderr,
+                            fprintf_str(stderr,
                          " Debug: Char '%s' not used in WorkVector\n", token);
 
                         }
@@ -1470,7 +1470,7 @@ ScanChars(int i)
                         if(dd(D_CALL_SUBR))
                         {
                             if(num_err>0)
-                                fprintf(stderr,
+                                fprintf_str(stderr,
                             " Debug for Char '%s'\n", tmp_token);
                         }
 #endif
@@ -1514,7 +1514,7 @@ ScanChars(int i)
 
             if(tmp_token!=NULL)
             {
-                fprintf(stderr, "\n Last seen token was '%s'\n", tmp_token);
+                fprintf_str(stderr, "\n Last seen token was '%s'\n", tmp_token);
             }
 //AP--begin
 			dvips_exit(1);
@@ -1634,7 +1634,7 @@ FindKeyWord(int First_Key, int lastkey)
 //AP--end
 
             for(i=First_Key; i<=lastkey; i++)
-                fprintf(stderr,"\n %dth > '%s' ",i,Key[i].name);
+                fprintf_str(stderr,"\n %dth > '%s' ",i,Key[i].name);
 //AP--begin
 			dvips_exit(1);
 //            exit(1);
@@ -1693,7 +1693,7 @@ ScanBinary(void)
                     for(i=0;i<=2;i++)
                     {
                         if(keyword[i].oldnum!=0)
-                            fprintf(stderr, " Result for <%s>:  %s  %d (instead %d) \n",
+                            fprintf_str(stderr, " Result for <%s>:  %s  %d (instead %d) \n",
                             psfontfile, Key[keyword[i].type].name,keyword[i].newnum, keyword[i].oldnum);
                     }
 
@@ -2058,7 +2058,7 @@ CheckChoosing(void)
 //            fprintf(stderr,
 //            "\n Warning: after loading AFM file \n");
 
-//            fprintf(stderr,
+//            fprintf_str(stderr,
 //            " only %d chars found instead %d for <%s>\n",
 //            CharCount, GridCount, psfontfile);
 //AP--end
@@ -2078,7 +2078,7 @@ CheckChoosing(void)
             fprintf(stderr, " Encoding: not standard \n");
 
         if(reencode==FLG_REENCODE)
-            fprintf(stderr, " with reencode vector <%s>\n", psvectfile);
+            fprintf_str(stderr, " with reencode vector <%s>\n", psvectfile);
 
         PrintChar(FirstCharW);
     }
@@ -2532,7 +2532,7 @@ Afm(void)
 
     afmfile[i]='\0';
     strcat((char *) afmfile,".afm");
-    fprintf(stderr, "<%s>", afmfile);
+    fprintf_str(stderr, "<%s>", afmfile);
 
     if ((fafm = psfopen((char *) afmfile, "r")) == NULL)
     {
@@ -2636,7 +2636,7 @@ FontPart(FILE *fout, unsigned char *fontfile,
 
 #ifdef DEBUG
         if(dd(D_VIEW_VECTOR))
-           fprintf(stderr, " Base vector <%s>.", basevect);
+           fprintf_str(stderr, " Base vector <%s>.", basevect);
 #endif
 
         if(LoadVector(1, FirstCharB)==1)
@@ -2816,7 +2816,7 @@ LoadVector(int num, CHAR *TmpChar)
                             CharCount++;
                         else
                         {
-                           fprintf(stderr,
+                           fprintf_str(stderr,
                "Error: '%s' not found in reencoding vector <%s> for <%s>\n",
                              token,psvectfile, psfontfile);
                         }

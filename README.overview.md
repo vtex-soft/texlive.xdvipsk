@@ -1,6 +1,6 @@
 # Overview
 
-## *xdvipsk*: extended dvips (TeXLive 2020)
+## *xdvipsk*: extended dvips (TeXLive 2022)
 
 It has three base extensions:
 * one allows flexible inclusion of bitmap images
@@ -315,4 +315,4 @@ extra libraries: `libjpeg`, `libtiff` for `xdvipsk`,
 and `libmupdf` for new utility `make2unc`.
 Other needed libraries are taken from TeX Live distributions.
 
-The current `xdvipsk` version is based on `dvips 2020.1`, `web2c + kpathsea 6.3.2`, `TeXLive 2020`.
+The current `xdvipsk` version is based on `dvips 2022.1`, `web2c + kpathsea 6.3.4`, `TeXLive 2022`.

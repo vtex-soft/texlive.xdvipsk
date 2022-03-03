@@ -1,4 +1,4 @@
-# xdvipsk (dvips 5.997, web2c+kpathsea 6.2.3) (TeXLive 2017) 2017.03.18
+# xdvipsk (dvips 2022.1, web2c+kpathsea 6.3.4) (TeXLive 2022)
 
 ## New options
 
@@ -76,7 +76,7 @@
 
 ```
     jpeglib - version 9.2.0
-    libpng  - version 1.6.30
+    libpng  - version 1.6.37
     libtiff - version 4.0.8
     zlib    - version 1.2.11
 ```

@@ -1,4 +1,4 @@
-## $Id: Makefile.am 43617 2017-03-27 18:00:45Z karl $
+## $Id$
 ### Makefile.am for the TeX Live subdirectory texk/xdvipsk/
 ##
 ## Copyright 2017-2020 Karl Berry <tex-live@tug.org>

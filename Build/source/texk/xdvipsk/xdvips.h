@@ -1,5 +1,5 @@
-/*   $Id: dvips.h 50001 2019-02-11 18:22:31Z karl $
- *   Copyright 1986-2020 Tomas Rokicki.
+/*   $Id: dvips.h 61654 2022-01-18 22:17:46Z karl $
+ *   Copyright 1986-2022 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -16,10 +16,10 @@
 
 //AP--begin
 #define BANNER \
-"This is xdvips(k) 2.5 Copyright 2021 VTeX Ltd."
+"This is xdvips(k) 2.65 Copyright 2021 VTeX Ltd."
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
-"Based on dvips(k) 2020.1 Copyright 2020 Radical Eye Software"
+"Based on dvips(k) 2.65 (2022.1) Copyright 2020 Radical Eye Software"
 //AP--end
 #ifdef KPATHSEA
 #include "config.h"
@@ -214,8 +214,12 @@ typedef struct tfd {
 //   chardesctype *chardesc;
    chardesctype *chardesc_hh;
 //AP--end
-   int iswide;
+   int iswide, kind;
 } fontdesctype;
+
+#define VF_TEX   (1)
+#define VF_OMEGA (2)
+#define VF_PTEX  (3)
 
 /*  A fontmap associates a fontdesc with a font number.
  */
@@ -372,6 +376,18 @@ struct papsiz {
 #define ADD_TO_USED_CHARS2(b,c) {(b)[(c)/8] |= (1 << (7-((c)%8)));}
 #define IS_USED_CHAR2(b,c) (((b)[(c)/8]) & (1 << (7-((c)%8))))
 //AP--end
+/* output Unicode string on console in windows */
+#if defined(KPATHSEA) && defined(WIN32)
+#undef  perror
+#define fprintf_str  win32_fprintf
+#define fputs_str    win32_fputs
+#define putc_str     win32_putc
+#define perror       win32_perror
+#else
+#define fprintf_str  fprintf
+#define fputs_str    fputs
+#define putc_str     putc
+#endif
 
 /* Things that KPATHSEA knows, and are useful even without it. */
 #if !defined(KPATHSEA)

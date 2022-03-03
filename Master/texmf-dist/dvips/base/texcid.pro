@@ -1,6 +1,6 @@
 TeXDict begin/ct_slant 0.0 def /ct_extend 1.0 def
 /ct_SlantFont{/ct_slant exch def}def/ct_ExtendFont{/ct_extend exch def}def
-/ct_np{/ct_saveX currentpoint/ct_saveY X def}def
+/ct_np{/ct_saveX currentpoint/ct_saveY X def}def 
 /ct_st{setlinewidth false charpath stroke ct_saveX ct_saveY moveto}def
 /ct_cid{/ct_basefontname exch def
 /ct_fontsize exch def /ct_special exch def /ct_newfontname dup exch def
@@ -9,7 +9,7 @@ TeXDict begin/ct_slant 0.0 def /ct_extend 1.0 def
 /ct_outfontdict ct_numentries dict def
 ct_basefontdict { exch dup /FID ne { exch ct_outfontdict 3 1 roll put }
 { pop pop } ifelse } forall ct_special exec
-/ct_mtx[{ct_fontsize ct_extend mul}exec 0.0
+/ct_mtx[{ct_fontsize ct_extend mul}exec 0.0 
 {ct_fontsize ct_slant mul}exec {ct_fontsize neg}exec 0.0 0.0]def
 [/ct_cid_scaled ct_newfontname ct_outfontdict definefont def
 /ct_outfontdict_scaled ct_cid_scaled ct_mtx makefont def

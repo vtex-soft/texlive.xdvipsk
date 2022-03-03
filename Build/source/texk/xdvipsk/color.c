@@ -186,7 +186,7 @@ resetcolorstack(char * p, int outtops)
    if (q > cstack && outtops == 0) {
 #ifdef SHORTINT
      fprintf(stderr, "You've mistakenly made a global color change ");
-     fprintf(stderr, "to %s within nested colors\n", p);
+     fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %ld. Will try to recover.\n", pagenum);
 //AP--begin
      sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
@@ -194,7 +194,7 @@ resetcolorstack(char * p, int outtops)
 //AP--end
 #else   /* ~SHORTINT */
      fprintf(stderr, "You've mistakenly made a global color change ");
-     fprintf(stderr, "to %s within nested colors\n", p);
+     fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %d. Will try to recover.\n", pagenum);
 //AP--begin
      sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);

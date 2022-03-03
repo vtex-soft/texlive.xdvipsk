@@ -28,7 +28,9 @@ dosection(sectiontype *s, int c)
    int np;
    int k;
    integer thispage = 0;
+//AP--begin
    char buf[514];
+//AP--end
 
    bmenc_startsection() ;
    dopsfont(s);
@@ -46,7 +48,11 @@ dosection(sectiontype *s, int c)
    doubleout(mag);
    numout((integer)DPI);
    numout((integer)VDPI);
+   /* possibly lines in eps files are supposed to be <= 255;
+      not worth testing the limits merely to output a long file name. */
+//AP--begin
    snprintf(buf, sizeof(buf), "(%.500s)", fulliname);
+//AP--end
    cmdout(buf);
    newline();
    cmdout("@start");

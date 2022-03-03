@@ -712,35 +712,35 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
             if ( (memcmp(td->tables[i].tag,"glyf",4) == 0) && (td->tables[i].length > 65534) ) {
                 ULONG *loca = makeglyphslocation(sfont,head->indexToLocFormat,maxcid+1);
                 ULONG last = 0;
-                length = 0;
-                wbuf = NEW(65534,BYTE);
-                for ( j=0; j<maxcid+1; ++j ) {
-                    if ( loca[j+1]-last > 65534 ) {
-                        dumpsfnt(wbuf,loca[j]-last);
-                        last = loca[j];
-                        length = 0;
-                    }
-                    if (!td->tables[i].data) {
-                        sfnt_seek_set(sfont, td->tables[i].offset + loca[j]);
-                        nb_read = sfnt_read(wbuf + length, loca[j + 1] - loca[j], sfont);
-                        if (nb_read < 0) {
-                            if ( wbuf )
-                                RELEASE(wbuf);
-                                ERROR("Reading file failed...");
-                                return;
-                        }
+				length = 0;
+				wbuf = NEW(65534,BYTE);
+				for ( j=0; j<maxcid+1; ++j ) {
+					if ( loca[j+1]-last > 65534 ) {
+						dumpsfnt(wbuf,loca[j]-last);
+						last = loca[j];
+						length = 0;
+ 					}
+       				if (!td->tables[i].data) {
+       					sfnt_seek_set(sfont, td->tables[i].offset + loca[j]); 
+	        			nb_read = sfnt_read(wbuf + length, loca[j + 1] - loca[j], sfont);
+			        	if (nb_read < 0) {
+					        if ( wbuf )
+						        RELEASE(wbuf);
+					        ERROR("Reading file failed...");
+					        return;
+    			        }
                     }
                     else
-                        memcpy(wbuf + length, td->tables[i].data + loca[j], loca[j + 1] - loca[j]);
-                    length += loca[j + 1] - loca[j];
-                }
-                if ( len_pad > 0 )
-                    memcpy(wbuf + length,padbytes,len_pad);
-                dumpsfnt(wbuf,length + len_pad);
-                RELEASE(td->tables[i].data);
-                td->tables[i].data = NULL;
-                free(loca);
-                free(wbuf);
+					    memcpy(wbuf + length, td->tables[i].data + loca[j], loca[j + 1] - loca[j]);
+					length += loca[j + 1] - loca[j];
+				}
+				if ( len_pad > 0 )
+					memcpy(wbuf + length,padbytes,len_pad);
+				dumpsfnt(wbuf,length + len_pad);
+				RELEASE(td->tables[i].data);
+				td->tables[i].data = NULL;
+				free(loca);
+				free(wbuf);
             }
             else {
                 if (!td->tables[i].data) {

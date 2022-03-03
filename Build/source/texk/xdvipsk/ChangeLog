@@ -1,3 +1,235 @@
+2021-03-23  Karl Berry  <karl@tug.org>
+
+	* TL'21.
+
+2021-02-17  Karl Berry  <karl@freefriends.org>
+
+	* NEWS,
+	* afm2tfm.c,
+	* dvips.c,
+	* dvips.h,
+	* dvips.texi,
+	* configure.ac: version 2021.1 and copyright 2021.
+
+2021-02-09  Karl Berry  <karl@freefriends.org>
+
+	* test-afm2tfm.test: rewrite as shell script.
+	* afm2tfm-test.pl: remove.
+	* Makefile.am (TESTS, etc.): adapt accordingly.
+
+2021-02-08  Karl Berry  <karl@freefriends.org>
+
+	* configure.ac (AC_INIT): TeX Live not TeXLive.
+
+	* dvips.c (found_problems): define.
+	(main): final exit status depends on its value.
+	* protos.h (found_problems): declare.
+	* output.c (copyfile_general): set found_problems=1 if image not found.
+	This is to match the new behavior of dvipdfmx.
+	https://tug.org/pipermail/dvipdfmx/2021-January/000159.html (thread)
+	
+	* test-missing-image.test: corresponding test.
+	* testdata/missing-image.dvi,
+	* testdata/missing-image.tex: files for new test.
+
+2020-12-05  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* NEWS: Mention new/jfm feature.
+	* dospecial.c:
+	Output error of html special not to STDOUT but to STDERR.
+	* dvips.h, {bitmapenc,color,dopage,dospecial,download,dvips,
+	emspecial,finclude,fontdef,header,loadfont,output,pprescan,prescan,
+	resident,scanpage,search,t1part,virtualfont,writet1}.c:
+	Allow Unicode error messages on Windows console. (Windows only)
+
+2020-11-28  Akira Kakuto  <kakuto@w32tex.org>
+
+	* protos.h (titlename): new global.
+	* dvips.c (titlename): new global.
+	(helparr): new option -title.
+	(main): recognize it.
+	* output.c (initprinter) <%%Title>: use xbasename(iname) instead of
+	iname by default.
+
+2020-11-28  Karl Berry  <karl@freefriends.org>
+
+	* dvips.texi (Option details): document -title.
+
+2020-11-28  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* virtualfont.c:
+	Accept Japanese virtual fonts without character definitions.
+	https://github.com/texjporg/tex-jp-build/issues/99
+
+2020-05-20  Karl Berry  <karl@freefriends.org>
+
+	* dvips.texi (Virtual fonts): add brief mention of this new vf/jfm
+	feature, from Takuji. Update all ctan links while here.
+
+2020-05-10  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* uptex-vf.test, testdata/upjf.{tex,dvi,tfm},
+	testdata/upjf_{full,omit}.vf, testdata/upjf_{full,omit}.cnf:
+	Update the test.
+
+2020-04-26  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* Makefile.{am,in}, uptex-vf.test,
+	testdata/Makefile_upjf, testdata/upjf{,-r,-g}.tfm,
+	testdata/upjf.{tex,dvi,map}, testdata/upjf_{full,omit}.vf,
+	testdata/upjf_{full,omit}.cnf:
+	Add a new test for fallback of virtual fonts.
+
+2020-04-19  TANAKA Takuji  <ttk@t-lab.opal.ne.jp>
+
+	* {virtualfont,pprescan,scanpage,dopage}.c, dvips.h:
+	Fallback multibyte character in virtual font for (u)pTeX.
+	https://github.com/texjporg/tex-jp-build/issues/99
+
+	A new rule for virtual fonts is implemented:
+	If a virtual font has no entry of a codepoint and the first
+	MAPFONT designates a (u)pTeX TFM(JFM), then we designate the
+	glyph (usually with a fullwidth metric) of the same codepoint
+	in the TFM(JFM) with the smallest font ID.
+	The new rule helps to shrink size of Japanese virtual fonts.
+
+2020-04-10  Akira Kakuto  <kakuto@w32tex.org>
+
+	* dospecial.c: Support \special{psfile=non-ascii-name}.
+
+2020-03-27  Karl Berry  <karl@tug.org>
+
+	* TeX Live 2020.
+
+2020-02-29  Tomas Rokicki  <rokicki@gmail.com>
+
+	* loadfont.c (bitmapfontseen): define new global.
+	(loadfont): set it, if a bitmap font is seen.
+	* protos.h (bitmapfontseen): declare it.
+	* output.c (initprinter): If bitmapfontseen, emit
+	%%ViewingOrientation comment to try to cope with Distiller's
+        auto-orientation (page rotation).
+
+2020-01-30  Karl Berry  <karl@freefriends.org>
+
+	* Makefile.am (enc_DATA): new variable, for new file dvips-all.enc.
+	* configure.ac (encdir): define it.
+
+2020-01-30  Akira Kakuto  <kakuto@w32tex.org>
+
+	* bitmapenc.c: use strchr() instead of index(), because index()
+	is not supported in Visual Studio 2010.
+
+2020-01-29  Tomas Rokicki  <rokicki@gmail.com>
+	
+	* bitmapenc.c (struct bmenc): new member existsbm.
+	(parseencodingfile): rename from parseencoding; change calls.
+	(trytoparseenc),
+	(parseenc): new fns.
+	(addbmenc): call parseenc.
+	(getencoding_seq): change type to struct bmenc.
+	(downloadbmencoding): check that every defined character has a name.
+	(doubleout): take double instead of float.
+	* dvips-all.enc: more fonts.
+	* dvips.c (-bitmapfontenc): rename option from -J.
+	* dvips.texi: adjust documentation.
+	* resident.c (get_defaults): new case b for bitmapfontenc,
+	renamed from J.
+
+2020-01-16  Karl Berry  <karl@freefriends.org>
+
+	* afm2tfm.c,
+	* dvips.c,
+	* configure.ac: version 2020.1 and copyright 2020.
+
+2020-01-12  Akira Kakuto  <kakuto@w32tex.org>
+
+	* bitmapenc.c, download.c: Support old compilers, by declaring
+	variables early in a block.
+
+2020-01-11  Tomas Rokicki  <rokicki@gmail.com>
+
+	Support encodings for bitmapped fonts, e.g., when cmr10
+	is used as a bitmap. TUGboat article:
+	https://tug.org/TUGboat/tb40-2/tb125rokicki-type3search.pdf
+	
+	* dvips-all.enc,
+	* bitmapenc.c: new files.
+	* Makefile.am (dvips_SOURCES): add it.
+	* dosection.c (dosection): call bmenc_startsection.
+	* download.c (unpack_bb): new fn.
+	(downchar): call unpack_bb.
+	(download): call downloadbmencoding .. finishbitmapencoding
+	if needed.
+	* dvips.c (helparr): new option -J to control feature.
+	* dvips.h (tfd): new integer members llx, lly, urx, urx.
+	* dvips.texi (Option details): describe -J option.
+	(Configuration file commands): describe J config directive.
+	(Bitmap font encodings): new section.
+	* loadfont.c (loadfont): initialize and update global font
+	bounding box, to set font sizes for the new bitmap encodings.
+	* output.c (psnameout, pslineout): new fns.
+	* protos.h: add declarations for the various new fns and
+	variable encodetype3.
+	* resident.c (getdefaults): handle J directive.
+
+2019-05-03  Akira Kakuto  <kakuto@w32tex.org>
+
+	* dvips.c, output.c, search.c: Support non-ascii file names
+	in default code page of OS irrespective of values of a
+	variable 'command_line_encoding' (Windows only).
+
+2019-04-30  Karl Berry  <karl@tug.org>
+
+	* dosection.c (dosection): close PostScript string constant
+	for long filenames. tex-k mail from Arnaud Blouin,
+	24 Apr 2019 13:54:10.
+
+2019-04-07  Karl Berry  <karl@freefriends.org>
+
+	* TeX Live 2019.
+
+2019-04-05  Karl Berry  <karl@tug.org>
+
+	* dospecial.c (dospecial): off by one with PSFILESIZ.
+	Report from Andy Nguyen of ETH Zurich.
+
+2019-03-30  Karl Berry  <karl@freefriends.org>
+
+	* emspecial.c (bmpgraph): avoid writing after isblack
+	if clrtablesize is >256.
+	Report from Andy Nguyen of ETH Zurich.
+
+2019-03-29  Karl Berry  <karl@freefriends.org>
+
+	* loadfont.c (errbuf),
+	* protos.h (errbuf): increase to 1500.
+	* dospecial.c,
+	* flib.c,
+	* makefont.c,
+	* output.c,
+	* pprescan.c,
+	* scanpage.c,
+	* tfmload.c: limit sprintf %s arguments into buffers.
+
+	* dospecial.c (dospecial) <bare psfile>: reverse sense of maccess
+	test, as intended; check for buffer overflow.
+	(maccess): add doc.
+
+	* color.c (colorcmdout),
+	* dospecial.c (dospecial) <epsfile>, <postscriptbox>, <psfile>:
+	check for buffer overflows.
+	* test-overflow-buffers.test,
+	* testdata/color.pro,
+	* testdata/overflow-color-push.dvi,
+	* testdata/overflow-color-push.tex,
+	* testdata/overflow-epsfile.dvi,
+	* testdata/overflow-epsfile.tex,
+	* testdata/overflow-psbox.dvi,
+	* testdata/overflow-psbox.tex: new test files and support.
+	* Makefile.am (TESTS, EXTRA_DIST, DISTCLEANFILES): add new tests.
+	Report from Andy Nguyen of ETH Zurich.
+
 2019-02-26  Hironobu Yamashita  <h.y.acetaminophen@gmail.com>
 
 	* afm2tfm.c: Forbid too long file name.

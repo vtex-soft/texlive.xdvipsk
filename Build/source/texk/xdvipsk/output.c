@@ -34,7 +34,7 @@ extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
 #endif
 
 #ifdef __DJGPP__
-#include <unistd.h>    /* for `isatty' */
+#include <unistd.h>	/* for `isatty' */
 #endif
 
 /* UCS -> UTF-8 */
@@ -309,9 +309,10 @@ copyfile_general(const char *s, struct header_list *cur_header)
       }
       break;
    }
-   if (f==NULL)
+   if (f==NULL) {
+      found_problems = 1; /* continue, but eventually exit unsuccessfully */
       error(errbuf);
-   else {
+   } else {
       if (! quiet) {
 #if defined(VMCMS) || defined (MVSXA)
          if (strlen(s) + prettycolumn > STDOUTSIZE) {
@@ -324,7 +325,7 @@ copyfile_general(const char *s, struct header_list *cur_header)
 #if defined(VMCMS) || defined (MVSXA)
          fprintf(stderr, "<%s>", trunc_s);
 #else
-         fprintf(stderr, "<%s>", realnameoffile);
+         fprintf_str(stderr, "<%s>", realnameoffile);
 #endif
          fflush(stderr);
 #if defined(VMCMS) || defined (MVSXA)
@@ -1359,16 +1360,18 @@ findpapersize(void) {
             fps = 0;
          mindiff = 0x7fffffff;
          if (fps == 0) {
-            for (ps=papsizes; ps; ps = ps->next) {
-               iv = ps->ysize-hpapersize;
-               ih = ps->xsize-vpapersize;
-               if (ih < 0) ih = -ih;
-               if (iv < 0) iv = -iv;
-               it = ih;
-               if (it < iv) it = iv;
-               if (it < mindiff) {
-                  mindiff = it;
-                  fps = ps;
+            if (landscaperotate) {
+               for (ps=papsizes; ps; ps = ps->next) {
+                  iv = ps->ysize-hpapersize;
+                  ih = ps->xsize-vpapersize;
+                  if (ih < 0) ih = -ih;
+                  if (iv < 0) iv = -iv;
+                  it = ih;
+                  if (it < iv) it = iv;
+                  if (it < mindiff) {
+                     mindiff = it;
+                     fps = ps;
+                  }
                }
             }
             if (indelta(mindiff))
@@ -1624,8 +1627,10 @@ initprinter(sectiontype *sect)
 //AP--begin
       fprintf(bitfile, "%%%%+        %s\n", banner3);
 //AP--end
-      if (*iname)
-         fprintf(bitfile, "%%%%Title: %s\n", iname);
+      if (*titlename)
+         fprintf(bitfile, "%%%%Title: %s\n", titlename);
+      else if (*iname)
+         fprintf(bitfile, "%%%%Title: %s\n", xbasename(iname));
 #ifdef CREATIONDATE
       jobtime = get_unique_time_if_given();
       if (jobtime == INVALID_EPOCH_VALUE) {
@@ -1669,6 +1674,25 @@ initprinter(sectiontype *sect)
       tell_needed_fonts();
       paperspec(finpapsiz->specdat, 1);
       fprintf(bitfile, "%%%%EndComments\n");
+/*
+ *   If we encode Type 3 fonts with an encoding vector, this can cause
+ *   Distiller's autoorientation to get confused.  We remedy this by
+ *   emitting underdocumented ViewingOrientation comments right after
+ *   EndComments.  Known defect: if a user "flips" the landscape to be
+ *   180 degrees using one of the \special{} commands available, the
+ *   document will be rendered in the viewer upside down.  (But only
+ *   with bitmap font encoding enabled and bitmapped fonts actually used.)
+ *   --tgr, 29 February 2020.
+ */
+      if (encodetype3 && bitmapfontseen) {
+         fprintf(bitfile, "%%%%BeginDefaults\n") ;
+         if (landscape) {
+            fprintf(bitfile, "%%%%ViewingOrientation: 0 -1 1 0\n") ;
+         } else {
+            fprintf(bitfile, "%%%%ViewingOrientation: 1 0 0 1\n") ;
+         }
+         fprintf(bitfile, "%%%%EndDefaults\n") ;
+      }
    }
    {
       int i, len;

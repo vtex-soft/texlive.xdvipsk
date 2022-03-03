@@ -288,7 +288,7 @@ char *emp;
 	   }
 	}
 	else if (strncmp(emp, "message", 7) == 0) {
-           fprintf(stderr, "em message: %s\n", emp+7);
+           fprintf_str(stderr, "em message: %s\n", emp+7);
 	}
 	else if (strncmp(emp, "graph", 5) == 0) {
 	   int i;
@@ -343,26 +343,26 @@ void
 imagehead(char *filename, int wide, int high, int dpi,
 	  float emwidth, float emheight)
 {
-	char *fullname = NULL, *name ;
+	char *fullname = NULL, *name;
 	if (!quiet) {
 #ifdef KPATHSEA
-	    fullname = (char *)kpse_find_file (filename, pictpath, 0) ;
+	    fullname = (char *)kpse_find_file (filename, pictpath, 0);
 #endif
 	    if (!fullname)
-		name = filename ;
+		name = filename;
 	    else
-		name = fullname ;
+		name = fullname;
 	    if (strlen(name) + prettycolumn > STDOUTSIZE) {
 		fprintf(stderr,"\n");
 		prettycolumn = 0;
 	    }
-	    (void)fprintf(stderr,"<%s",name);
+	    (void)fprintf_str(stderr,"<%s",name);
 	    (void)fflush(stderr);
 	    prettycolumn += 2+strlen(name);
 	    if (fullname) free (fullname);
 	}
 	hvpos();
-	nlcmdout("@beginspecial @setspecial") ;
+	nlcmdout("@beginspecial @setspecial");
 	if (!disablecomments) {
 		cmdout("%%BeginDocument: em:graph");
 		cmdout(filename);
@@ -382,7 +382,7 @@ imagehead(char *filename, int wide, int high, int dpi,
 	  (void)fprintf(stderr, 
 	    "\nem:graph: %s width  %d pixels scaled to %.1f pixels\n",
 	    filename, wide, emwidth);
-	  (void)fprintf(stderr, 
+	  (void)fprintf_str(stderr, 
 	    "em:graph: %s height %d pixels scaled to %.1f pixels\n",
 	    filename, high, emheight);
    	}

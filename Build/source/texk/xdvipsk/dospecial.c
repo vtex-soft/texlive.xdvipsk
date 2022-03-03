@@ -42,25 +42,25 @@ specerror(const char *s)
       specialerrors--;
    } else if (specialerrors == 0
 #ifdef KPATHSEA
-	      && !kpse_tex_hush ("special")
+          && !kpse_tex_hush ("special")
 #endif
-	      ) {
+          ) {
 //AP--begin
-	  writelogrecord(s);
+      writelogrecord(s);
 //      error("more errors in special, being ignored . . .");
 //      error("(perhaps dvips doesn't support your macro package?)");
-		fprintf(stderr, "%s\n", "more errors in special, being ignored . . .");
-		fprintf(stderr, "%s\n", "(perhaps dvips doesn't support your macro package?)");
+      fprintf(stderr, "%s\n", "more errors in special, being ignored . . .");
+      fprintf(stderr, "%s\n", "(perhaps dvips doesn't support your macro package?)");
 //AP--end
       specialerrors--;
    }
 //AP--begin
    else if (specialerrors < 0
 #ifdef KPATHSEA
-	&& !kpse_tex_hush("special")
+    && !kpse_tex_hush("special")
 #endif
-	 ) {
-	 writelogrecord(s);
+     ) {
+     writelogrecord(s);
    }
 //AP--end
 }
@@ -303,7 +303,7 @@ GetKeyVal(char *str, int *tno) /* returns NULL if none found, else next scan poi
      /* str : starting point for scan */
      /* tno : table entry number of keyword, or -1 if keyword not found */
 {
-   register char *s;
+   unsigned char *s;
    register int i;
    register char t;
 
@@ -392,7 +392,7 @@ predospecial(integer numbytes, Boolean scanning)
       if (numbytes < 0 || numbytes > (INT_MAX - 1000) / 2 ) {
          error("! Integer overflow in predospecial");
 //AP--begin
-		 dvips_exit(1);
+         dvips_exit(1);
 //         exit(1);
 //AP--end
       }
@@ -420,7 +420,7 @@ predospecial(integer numbytes, Boolean scanning)
       p++;
 #ifdef DEBUG
    if (dd(D_SPECIAL))
-      fprintf(stderr, "Preprocessing special: %s\n", p);
+      fprintf_str(stderr, "Preprocessing special: %s\n", p);
 #endif
 
 /*
@@ -479,66 +479,66 @@ case 'h':
       while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
          p++;
       if(*p == '{') {
-	 p++;
-	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-	    p++;
-	 q = p;
-	 while (*p != '}' && *p != 0)
-	    p++;
-	 r = p-1;
-	 while ((*r <= ' ' || *r == ')') && r >= q)
-	    r--;
-	 if (*p != 0) p++;
-	 r[1] = 0; /* q is the file name */
-	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-	    p++;
-	 if(strncmp(p, "pre", 3) == 0) {
-	    int bracecount = 1, num_bytes = 0;
-	    while(*p != '{' && *p != 0)
-	       p++;
-	    if (*p != 0) p++;
-	    for(r = p; *r != 0; r++) {
-	       if (*r == '{') bracecount++;
-	       else if (*r == '}') bracecount--;
-	       if (bracecount == 0) break;
-	       num_bytes++;
-	    }
-	    pre = (char *)malloc(num_bytes+1);
-	    r = pre;
-	    for (j=0; j < num_bytes; j++)
-	       *r++ = *p++;
-	    *r = 0;
-	    if (*p != 0) p++;
-	 }
-	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-	    p++;
-	 if(strncmp(p, "post", 4) == 0) {
-	    int bracecount = 1, num_bytes = 0;
-	    while(*p != '{' && *p != 0)
-	       p++;
-	    if (*p != 0) p++;
-	    for(r = p; *r != 0; r++) {
-	       if (*r == '{') bracecount++;
-	       else if (*r == '}') bracecount--;
-	       if (bracecount == 0) break;
-	       num_bytes++;
-	    }
-	    post = (char *)malloc(num_bytes+1);
-	    r = post;
-	    for (j=0; j < num_bytes; j++)
-	       *r++ = *p++;
-	    *r = 0;
-	 }
-	 if (strlen(q) > 0)
-	    add_header_general(q, pre, post);
+         p++;
+         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+            p++;
+         q = p;
+         while (*p != '}' && *p != 0)
+            p++;
+         r = p-1;
+         while ((*r <= ' ' || *r == ')') && r >= q)
+            r--;
+         if (*p != 0) p++;
+         r[1] = 0; /* q is the file name */
+         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+            p++;
+         if(strncmp(p, "pre", 3) == 0) {
+            int bracecount = 1, num_bytes = 0;
+            while(*p != '{' && *p != 0)
+               p++;
+            if (*p != 0) p++;
+            for(r = p; *r != 0; r++) {
+               if (*r == '{') bracecount++;
+               else if (*r == '}') bracecount--;
+               if (bracecount == 0) break;
+               num_bytes++;
+            }
+            pre = (char *)malloc(num_bytes+1);
+            r = pre;
+            for (j=0; j < num_bytes; j++)
+               *r++ = *p++;
+            *r = 0;
+            if (*p != 0) p++;
+         }
+         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+            p++;
+         if(strncmp(p, "post", 4) == 0) {
+            int bracecount = 1, num_bytes = 0;
+            while(*p != '{' && *p != 0)
+               p++;
+            if (*p != 0) p++;
+            for(r = p; *r != 0; r++) {
+               if (*r == '{') bracecount++;
+               else if (*r == '}') bracecount--;
+               if (bracecount == 0) break;
+               num_bytes++;
+            }
+            post = (char *)malloc(num_bytes+1);
+            r = post;
+            for (j=0; j < num_bytes; j++)
+               *r++ = *p++;
+            *r = 0;
+         }
+         if (strlen(q) > 0)
+            add_header_general(q, pre, post);
       } else {
-	 q = p;  /* we will remove enclosing parentheses */
-	 p = p + strlen(p) - 1;
-	 while ((*p <= ' ' || *p == ')') && p >= q)
-	    p--;
-	 p[1] = 0;
-	 if (p >= q)
-	    add_header(q);
+         q = p;  /* we will remove enclosing parentheses */
+         p = p + strlen(p) - 1;
+         while ((*p <= ' ' || *p == ')') && p >= q)
+            p--;
+         p[1] = 0;
+         if (p >= q)
+            add_header(q);
       }
    }
    break;
@@ -588,10 +588,10 @@ case '!':
 //AP--begin
 case 'm':
    if (strncmp(p, "mapline", 7)==0) {
-		 char *specinfo, *downloadinfo;
-		 char downbuf[500];
-		 char specbuf[500];
-		 int slen;
+         char *specinfo, *downloadinfo;
+         char downbuf[500];
+         char specbuf[500];
+         int slen;
          char *TeXname = NULL;
          char *PSname = NULL;
          char *Fontfile = NULL;
@@ -599,16 +599,16 @@ case 'm':
          char *hdr_name = NULL;
          boolean nopartial_p = false;
          boolean encoding_p = false;
-		 boolean repl = 1; 
+         boolean repl = 1; 
          p += 7;
-		 if ((*p == ':') || (*p == '='))
-			 p++;
-		 if ((*p == ' ') || (*p == '\t'))
-			 p++;
-		 if (*p == '+') {
-			 repl = 0;
-			 p++;
-		 }
+         if ((*p == ':') || (*p == '='))
+            p++;
+         if ((*p == ' ') || (*p == '\t'))
+            p++;
+         if (*p == '+') {
+            repl = 0;
+            p++;
+         }
          specinfo = NULL;
          downloadinfo = NULL;
          downbuf[0] = 0;
@@ -643,9 +643,9 @@ case 'm':
                   /* skip whitespace after < */
                   while (*p && *p <= ' ')
                     p++;
-				                     /* save start of header name */
+                     /* save start of header name */
                   hdr_name = p;
-				} else if (TeXname) /* second regular word on line? */
+                } else if (TeXname) /* second regular word on line? */
                   PSname = p;
 
                 else                /* first regular word? */
@@ -672,15 +672,15 @@ case 'm':
                         Vectfile = downloadinfo = hdr_name;
                      } else if (nopartial_p) {
                         downloadinfo = hdr_name;
-		             } else if	(FILESTRCASEEQ (suffix, "pfa")
-				             || FILESTRCASEEQ (suffix, "pfb")
-				             || STREQ (suffix, "PFA")
-				             || STREQ (suffix, "PFB")) {
-			           Fontfile = hdr_name;
-		             } else {
+                     } else if (FILESTRCASEEQ (suffix, "pfa")
+                             || FILESTRCASEEQ (suffix, "pfb")
+                             || STREQ (suffix, "PFA")
+                             || STREQ (suffix, "PFB")) {
+                             Fontfile = hdr_name;
+                     } else {
                         downloadinfo = hdr_name;
                      }
-					 hdr_name = NULL;
+                 hdr_name = NULL;
                  }
              }
          }
@@ -700,21 +700,21 @@ case 'm':
             specinfo = newstring(specbuf);
             downloadinfo = newstring(downbuf);
             add_entry_spec(TeXname, PSname, Fontfile, Vectfile,
-				   specinfo, downloadinfo, !nopartial_p, 0, 0, repl);
-		}
+            specinfo, downloadinfo, !nopartial_p, 0, 0, repl);
+         }
    }
    else if (strncmp(p, "mapfile", 7)==0) {
-		 boolean repl = 1; 
-         p += 7;
-		 if ((*p == ':') || (*p == '='))
-			 p++;
-		 if ((*p == ' ') || (*p == '\t'))
-			 p++;
-		 if (*p == '+') {
-			 repl = 0;
-			 p++;
-		 }
-		 getpsinfo_spec(p, repl);
+      boolean repl = 1; 
+      p += 7;
+      if ((*p == ':') || (*p == '='))
+         p++;
+      if ((*p == ' ') || (*p == '\t'))
+         p++;
+      if (*p == '+') {
+         repl = 0;
+      p++;
+      }
+      getpsinfo_spec(p, repl);
    }
    break;
 //AP--end
@@ -785,7 +785,7 @@ if (HPS_FLAG && NEED_NEW_BOX) {
       p++;
 #ifdef DEBUG
    if (dd(D_SPECIAL))
-      fprintf(stderr, "Processing special: %s\n", p);
+      fprintf_str(stderr, "Processing special: %s\n", p);
 #endif
 
 //AP--begin
@@ -980,36 +980,37 @@ case 'h':
    if (strncmp(p, "header", 6)==0) return;
 #ifdef HPS
    if (strncmp(p, "html:", 5)==0) {
-     if (! HPS_FLAG) return;
-	 		p += 5;
-			while (isspace((unsigned char)*p))
-   		p++;
-			if (*p == '<') {
-    			char               *sp = p;
-    			char               *str;
-    			int                 ii=0;int len;int lower_len;
+      if (! HPS_FLAG) return;
+      p += 5;
+      while (isspace((unsigned char)*p))
+         p++;
+      if (*p == '<') {
+         char *sp = p;
+         char *str;
+         int  ii=0, len, lower_len;
 
-    			while ((*p) && (*p != '>')) {
-						ii++;
-						p++;
-   			 }
-    		str = (char *)mymalloc(ii+2);
-   			strncpy(str,sp+1,ii-1);
-    		str[ii-1] = 0;len=strlen(str);
-				if(len>6) lower_len=6; else lower_len=len;
-				for(ii=0;ii<lower_len;ii++) str[ii]=tolower((unsigned char)str[ii]);
-				do_html(str);
-   			free(str);
-				} else
+         while ((*p) && (*p != '>')) {
+            ii++;
+            p++;
+         }
+         str = (char *)mymalloc(ii+2);
+         strncpy(str,sp+1,ii-1);
+         str[ii-1] = 0;len=strlen(str);
+         if(len>6) lower_len=6; else lower_len=len;
+         for(ii=0;ii<lower_len;ii++) str[ii]=tolower((unsigned char)str[ii]);
+         do_html(str);
+         free(str);
+      } else
 #ifdef KPATHSEA
-				  if (!kpse_tex_hush ("special"))
+         if (!kpse_tex_hush ("special"))
 #endif
-				    {
+      {
 
-    			printf("Error in html special\n");
-    			return;
-				}
-	return;
+         sprintf(errbuf,"Error in html special\n");
+         error(errbuf);
+         return;
+      }
+      return;
    }
 #else
    if (strncmp(p, "html:", 5)==0) return;
@@ -1118,7 +1119,7 @@ default:
            * to be given without the 'psfile=' keyword */
          if (!psfile[0] && maccess(KeyStr)==0) /* yes we can read it */
 //AP--begin
-		 {
+           {
 //             strcpy(psfile,KeyStr);
 //         else {
 //AP--end
@@ -1133,8 +1134,8 @@ default:
            }
            specerror(errbuf);
 //AP--begin
-		   cmdout("@endspecial");
-		   return;
+         cmdout("@endspecial");
+         return;
 //AP--end
          }
          break;
@@ -1144,8 +1145,8 @@ default:
                     "psfile", ValStr);
            specerror(errbuf);
 //AP--begin
-		   cmdout("@endspecial");
-		   return;
+           cmdout("@endspecial");
+           return;
 //AP--end
          }
          else {
@@ -1153,7 +1154,7 @@ default:
                sprintf(errbuf, 
            "! PS filename (%.20s...) in \\special longer than %d characters",
                        ValStr, PSFILESIZ);
-	       error(errbuf);
+           error(errbuf);
            }
            strcpy(psfile, ValStr);
          }
@@ -1188,14 +1189,14 @@ default:
       } else {
 //AP--begin
 //         fprintf (stderr, "dvips: iff2ps and tek2ps are not supported.\n");
-		 error("dvips: iff2ps and tek2ps are not supported.");
+         error("dvips: iff2ps and tek2ps are not supported.");
 //AP--end
       }
    } else if (psfilewanted
 #ifdef KPATHSEA
-	      && !kpse_tex_hush ("special")
+          && !kpse_tex_hush ("special")
 #endif
-	      )
+      )
       specerror("No \\special psfile was given; figure will be blank");
 
    cmdout("@endspecial");
@@ -1219,7 +1220,7 @@ bbdospecial(int nbytes)
       if (nbytes < 0 || nbytes > (INT_MAX - 1000) / 2 ) {
          error("! Integer overflow in bbdospecial");
 //AP--begin
-		 dvips_exit(1);
+         dvips_exit(1);
 //         exit(1);
 //AP--end
       }
@@ -1253,8 +1254,8 @@ bbdospecial(int nbytes)
       j = 0;
       while ((p=GetKeyVal(p, &j))) {
          if (j >= 0 && j < NKEYS && KeyTab[j].Type == Number) {
-	    seen[j]++;
-	    valseen[j] = ValNum;
+            seen[j]++;
+            valseen[j] = ValNum;
          }
       }
       /*
@@ -1278,9 +1279,9 @@ bbdospecial(int nbytes)
          vsize = valseen[13] - valseen[11];
       if (seen[14] || seen[15]) {
          if (seen[14] && seen[15] == 0) {
-	    hscale = vscale = valseen[14] / (10.0 * hsize);
+            hscale = vscale = valseen[14] / (10.0 * hsize);
          } else if (seen[15] && seen[14] == 0) {
-	    hscale = vscale = valseen[15] / (10.0 * vsize);
+            hscale = vscale = valseen[15] / (10.0 * vsize);
          } else {
             hscale = valseen[14] / (10.0 * hsize);
             vscale = valseen[15] / (10.0 * vsize);

@@ -187,7 +187,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    else
        p->otftype = 0;
    p->index = 0;
-   p->embolden = embolden;
+   p->embolden = 0;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
    if (!found) {
@@ -232,7 +232,7 @@ residentfont(register fontdesctype *curfnt)
 //AP--end
 #ifdef DEBUG
    if (dd(D_FONTS))
-      fprintf(stderr,"Using PK font %s for <%s>.\n",
+      fprintf_str(stderr,"Using PK font %s for <%s>.\n",
                                   curfnt->name, p->PSname);
 #endif  /* DEBUG */
    return 0;
@@ -242,7 +242,7 @@ residentfont(register fontdesctype *curfnt)
  */
 #ifdef DEBUG
    if (dd(D_FONTS))
-      fprintf(stderr,"Font %s <%s> is resident.\n",
+      fprintf_str(stderr,"Font %s <%s> is resident.\n",
                                   curfnt->name, p->PSname);
 #endif  /* DEBUG */
    curfnt->resfont = p;
@@ -314,9 +314,9 @@ static unsigned c_lineno;
 static void
 bad_config(const char *err)
 {
-   fprintf (stderr, "%s:%d:", realnameoffile, c_lineno);
+   fprintf_str(stderr, "%s:%d:", realnameoffile, c_lineno);
    error (err);
-   fprintf(stderr, " (%s)\n", was_inline);
+   fprintf_str(stderr, " (%s)\n", was_inline);
 }
 
 #ifndef KPATHSEA
@@ -489,7 +489,7 @@ getdefaults(const char *s)
       }
 #ifdef DEBUG
       if (dd (D_CONFIG)) {
-         fprintf (stderr, "Reading dvips config file `%s':\n", realnameoffile);
+         fprintf_str(stderr, "Reading dvips config file `%s':\n", realnameoffile);
       }
 #endif
       c_lineno = 0;
@@ -497,7 +497,7 @@ getdefaults(const char *s)
          c_lineno++;
 #ifdef DEBUG
          if (dd (D_CONFIG)) {
-            fprintf (stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
+            fprintf_str(stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
          }
 #endif
 /*
@@ -950,7 +950,7 @@ getpsinfo(const char *name)
             fprintf(stderr, "\n");
             prettycolumn = 0;
          }
-         fprintf(stderr, "{%s}", realnameoffile);
+         fprintf_str(stderr, "{%s}", realnameoffile);
          prettycolumn += strlen(realnameoffile) + 2;
       }
       while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
