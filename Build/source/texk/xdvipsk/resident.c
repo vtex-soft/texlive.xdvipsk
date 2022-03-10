@@ -158,7 +158,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
 
    if (PSname == NULL)
       PSname = TeXname;
-   if (p = lookup(TeXname)) {
+   if ((p = lookup(TeXname))) {
       if (!replace) {
          char s[256];
          sprintf(s,"Resident font %s allready found in map",TeXname);
@@ -1307,7 +1307,7 @@ getotfinfo(const char *dviname)
                   want to check the suffix.  */
                   if (hdr_name) {
                      const char *suffix;
-                     if (specinfo = strchr(hdr_name, '(')) {
+                     if ((specinfo = strchr(hdr_name, '('))) {
                         *specinfo = 0;
                         specinfo++;
                         strcat(specbuf, "index=");
@@ -1334,7 +1334,7 @@ getotfinfo(const char *dviname)
                      }
                   }
                   if (TeXname) {
-                     if (specinfo = strchr(TeXname, '(')) {
+                     if ((specinfo = strchr(TeXname, '('))) {
                         specinfo++;
                         strcat(specbuf, "index=");
                         while (*specinfo != ')') {

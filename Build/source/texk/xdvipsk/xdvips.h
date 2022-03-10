@@ -16,10 +16,10 @@
 
 //AP--begin
 #define BANNER \
-"This is xdvips(k) 2.65 Copyright 2021 VTeX Ltd."
+"This is xdvips(k) 2.65.1 Copyright 2022 VTeX Ltd."
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
-"Based on dvips(k) 2.65 (2022.1) Copyright 2020 Radical Eye Software"
+"Based on dvips(k) 2.65 (2022.1) Copyright 2022 Radical Eye Software"
 //AP--end
 #ifdef KPATHSEA
 #include "config.h"

@@ -171,7 +171,7 @@ static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cd
         cnt++;
 
     if ( cnt ) {
-        fprintf(bitfile, "/FontInfo %d dict dup begin\n",cnt);
+        fprintf(bitfile, "/FontInfo %ld dict dup begin\n",cnt);
         if ( cff_dict_known(cffont->topdict,"Notice") ) {
             sid = (s_SID)cff_dict_get(cffont->topdict, "Notice", 0);
             str = cff_get_string(cffont,sid);
@@ -221,7 +221,7 @@ static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cd
 
     fprintf(bitfile, "/FDArray %d array\n",cdb->fdcnt);
     for ( i=0; i<cdb->fdcnt; ++i ) {
-        fprintf(bitfile,"dup %d\n",i);
+        fprintf(bitfile,"dup %ld\n",i);
         fprintf(bitfile, "%%ADOBeginFontDict\n");
         fprintf(bitfile, "15 dict begin\n");
 
@@ -363,7 +363,7 @@ static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cd
         }
         fprintf(bitfile, "    /OtherSubrs");
         j = 0;
-        while ( str = (char *)cid_othersubrs[j] ) {
+        while ( (str = (char *)cid_othersubrs[j]) ) {
             fprintf(bitfile, "      %s\n",str);
             j++;
         }
@@ -382,11 +382,11 @@ static void writecidtype0(cff_font *cffont, CIDSysInfo *csi, struct cidbytes *cd
     }
     fprintf(bitfile, "def\n");
 
-    sprintf(start,"(Hex) %d StartData\n",bin_size);
-    fprintf(bitfile, "%%%%BeginData: %d Binary Bytes\n",strlen(start) + bin_size * 2 + 1);
+    sprintf(start,"(Hex) %ld StartData\n",bin_size);
+    fprintf(bitfile, "%%%%BeginData: %ld Binary Bytes\n",(long)strlen(start) + bin_size * 2 + 1);
 //    sprintf(start,"(Binary) %d StartData ",bin_size);
 //    fprintf(bitfile, "%%%%BeginData: %d Binary Bytes\n",strlen(start) + bin_size);
-    fprintf(bitfile, start);
+    fprintf(bitfile, "%s", start);
     hexline_length = 0;
     for ( i=0; i<bin_size; i++ ) {
         cid_outhex(binarydata[i]);
@@ -448,16 +448,19 @@ static char *get_sfnt_name(sfnt *sfont, char *name)
     return ret;
 }
 
-static void dumpsfnt(BYTE *sfnt_tbl,ULONG length) {
+static void dumpsfnt(BYTE *sfnt_table,ULONG length) {
     int ch, ch1;
-    ULONG i, bytesout;
+	ULONG i, bytesout;
+    BYTE *sfnt_tbl;
 
     if ( length&1 )
         ERROR("SFNT table length should not be odd");
 
+    sfnt_tbl = sfnt_table;
     while ( length>65534 ) {
-        dumpsfnt(sfnt_tbl,65534);
-        length -= 65534;
+		dumpsfnt(sfnt_tbl,65534);
+		length -= 65534;
+		sfnt_tbl += 65534;
     }
 
     fprintf( bitfile, " <\n  " );
@@ -466,7 +469,7 @@ static void dumpsfnt(BYTE *sfnt_tbl,ULONG length) {
         ch = sfnt_tbl[i];
         if ( ch==EOF )
             break;
-        if ( bytesout>=62 ) {
+        if ( bytesout>=31 ) {
             fprintf( bitfile, "\n  " );
             bytesout = 0;
         }
@@ -623,10 +626,10 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
     fprintf(bitfile, " ] readonly def\n");
 
     fprintf(bitfile, "/FontInfo 11 dict dup begin\n");
-    if ( str = get_sfnt_name(sfont,"Version") ) {
+    if ( (str = get_sfnt_name(sfont,"Version")) ) {
         fprintf(bitfile, "  /Version (%s) readonly def\n",str + 8);
     }
-    if ( str = get_sfnt_name(sfont,"Notice") ) {
+    if ( (str = get_sfnt_name(sfont,"Notice")) ) {
         fprintf(bitfile, "  /Notice (");
         for ( k=0; k<strlen(str); ++k ) {
             if (  str[k]<' ' ||  str[k]>=0x7f ||  str[k]=='\\' ||  str[k]=='(' ||  str[k]==')' ) {
@@ -639,13 +642,13 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
         }
         fprintf(bitfile, ") readonly def\n");
     }
-    if ( str = get_sfnt_name(sfont,"FullName") ) {
+    if ( (str = get_sfnt_name(sfont,"FullName")) ) {
         fprintf(bitfile, "  /FullName (%s) readonly def\n",str);
     }
-    if ( str = get_sfnt_name(sfont,"FamilyName") ) {
+    if ( (str = get_sfnt_name(sfont,"FamilyName")) ) {
         fprintf(bitfile, "  /FamilyName (%s) readonly def\n",str);
     }
-    if ( str = get_sfnt_name(sfont,"Weight") ) {
+    if ( (str = get_sfnt_name(sfont,"Weight")) ) {
         fprintf(bitfile, "  /Weight (%s) readonly def\n",str);
     }
     dbl = (double)post->italicAngle / 65536;
@@ -768,9 +771,9 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
                     RELEASE(td->tables[i].data);
                     td->tables[i].data = NULL;
                 }
-                if ( len_pad > 0 )
-                    memcpy(wbuf + length,padbytes,len_pad);
-                dumpsfnt(wbuf,length + len_pad);
+				if ( len_pad > 0 )
+					memcpy(wbuf + length,padbytes,len_pad);
+				dumpsfnt(wbuf,length + len_pad);
                 free(wbuf);
                 wbuf = NULL;
                 /* Set offset for next table */
@@ -794,7 +797,7 @@ static void writecidtype2(sfnt *sfont, struct tt_head_table *head, struct tt_hhe
 //            fprintf( bitfile, "    %d %d def\n", i, i );
 //    fprintf(bitfile, "  end readonly def\n");
 
-    fprintf( bitfile, "  /CIDCount %d def\n", maxcid+1 );
+    fprintf( bitfile, "  /CIDCount %ld def\n", maxcid+1 );
     fprintf( bitfile, "  /GDBytes %d def\n", maxcid+1>65535?3:2 );
     fprintf( bitfile, "  /CIDMap 0 def\n" );
 //    fprintf( bitfile, "  /CIDMap 0 def\n" );

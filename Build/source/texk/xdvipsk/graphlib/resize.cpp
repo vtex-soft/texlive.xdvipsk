@@ -1131,6 +1131,8 @@ void CResizeEngine::horizontalFilter(FIBITMAP *const src, unsigned height, unsig
 			}
 		}
 		break;
+		case FIT_UNKNOWN:
+            break;
 	}
 }
 
@@ -1790,5 +1792,7 @@ void CResizeEngine::verticalFilter(FIBITMAP *const src, unsigned width, unsigned
 			}
 		}
 		break;
+		case FIT_UNKNOWN:
+            break;
 	}
 }

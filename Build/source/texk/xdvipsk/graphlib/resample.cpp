@@ -369,7 +369,8 @@ static FIBITMAP* Sample(FIBITMAP *src, unsigned dst_width, unsigned dst_height, 
 		}
 		}
 		break;
-
+		case FIT_UNKNOWN:
+            break;
 	}
 
 	free(x_offset);

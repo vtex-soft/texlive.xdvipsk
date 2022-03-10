@@ -1033,7 +1033,7 @@ main(int argc, char **argv)
 //AP--end
                puts (kpathsea_version_string);
 //AP--begin
-        puts ("Copyright 2021 VTeX Ltd.\n\
+        puts ("Copyright 2022 VTeX Ltd.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the xdvips copyright.\n\

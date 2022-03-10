@@ -6,6 +6,7 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <math.h>
 /*
  *   The external declarations:
  */
@@ -222,7 +223,8 @@ char *emp;
               emused = TRUE;
               emclear();
            }
-	   for (emp = emp+5; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
+	   for (emp = emp+5; *emp && isspace((unsigned char)*emp); emp++) /* skip blanks */
+           ;
            empoint1 = (shalfword)atoi(emp);
            empoint = emptput(empoint1,hh,vv);
 #ifdef DEBUG
@@ -236,20 +238,26 @@ char *emp;
 #endif
 	}
 	else if (strncmp(emp, "line", 4) == 0) {
-	   for (emp = emp+4; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
+	   for (emp = emp+4; *emp && isspace((unsigned char)*emp); emp++) /* skip blanks */
+           ;
            empoint1 = (shalfword)atoi(emp);
-	   for (; *emp && isdigit((unsigned char)*emp); emp++); /* skip point 1 */
+	   for (; *emp && isdigit((unsigned char)*emp); emp++) /* skip point 1 */
+           ;
 	   if ( *emp && strchr("hvp",*emp)!=0 )
 	      emp++;  /* skip line cut */
-	   for (; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
+	   for (; *emp && isspace((unsigned char)*emp); emp++) /* skip blanks */
+           ;
 	   if ( *emp && (*emp==',') )
 	      emp++; /*  skip comma separator */
-	   for (; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
+	   for (; *emp && isspace((unsigned char)*emp); emp++) /* skip blanks */
+           ;
            empoint2 = (shalfword)atoi(emp);
-	   for (; *emp && isdigit((unsigned char)*emp); emp++); /* skip point 2 */
+	   for (; *emp && isdigit((unsigned char)*emp); emp++) /* skip point 2 */
+           ;
 	   if ( *emp && strchr("hvp",*emp)!=0 )
 	      emp++;  /* skip line cut */
-	   for (; *emp && isspace((unsigned char)*emp); emp++); /* skip blanks */
+	   for (; *emp && isspace((unsigned char)*emp); emp++) /* skip blanks */
+           ;
 	   if ( *emp && (*emp==',') )
 	      emp++; /*  skip comma separator */
 	   emwidth = -1.0;
@@ -829,13 +837,13 @@ bitmapgraph(FILE *f, BitmapIO *io, char *filename, BITMAP_FORMAT fif, float emwi
 		nHeight = bm->biHeight;
 		if (emwidth > 0.0) {
 			mw = (float)bm->biWidth / dpi * actualdpi;
-			if ( abs(mw - emwidth) > RESIZE_COND ) {
+			if ( fabsf(mw - emwidth) > RESIZE_COND ) {
 				nWidth = (int)((float)bm->biWidth / mw * emwidth + 0.5); 
 			}
 		}
 		if (emheight > 0.0) {
 			mh = (float)bm->biHeight / dpi * vactualdpi;
-			if ( abs(mh - emheight) > RESIZE_CONDV ) {
+			if ( fabsf(mh - emheight) > RESIZE_CONDV ) {
 				nHeight = (int)((float)bm->biHeight / mh * emheight + 0.5); 
 			}
 		}
@@ -1251,7 +1259,7 @@ emgraph(char *filename, float emwidth, float emheight)
 	if (f == (FILE *)NULL) {
    	    if ( (env = getenv("DVIDRVGRAPH")) != NULL )
 #ifdef KPATHSEA
-		f = search((kpse_file_format_type)env,filename,READBIN);
+		f = search((kpse_file_format_type)env[0],filename,READBIN);
 #else
 		f = search(env,filename,READBIN);
 #endif
@@ -1269,7 +1277,7 @@ emgraph(char *filename, float emwidth, float emheight)
 		if (f == (FILE *)NULL) {
 	    	    if ( (env = getenv("DVIDRVGRAPH")) != NULL )
 #ifdef KPATHSEA
-			f = search((kpse_file_format_type)env,filename,READBIN);
+			f = search((kpse_file_format_type)env[0],filename,READBIN);
 #else
 			f = search(env,filename,READBIN);
 #endif

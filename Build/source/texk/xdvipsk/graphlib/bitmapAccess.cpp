@@ -1114,6 +1114,8 @@ Bitmap_ValidateFromHandle(BITMAP_FORMAT fif, BitmapIO *io, fi_handle handle) {
 		case FIF_TIFF:
 			valid = ValidateTIFF(io, handle);
 			break;
+		case FIF_UNKNOWN:
+			break;
 		}
 		io->seek_proc(handle, tell, SEEK_SET);
 	}
@@ -1161,6 +1163,8 @@ Bitmap_LoadFromHandle(BITMAP_FORMAT fif, BitmapIO *io, fi_handle handle, int fla
 			break;
 		case FIF_TIFF:
 			bitmap = LoadTIFF(io, handle, -1, flags);
+			break;
+		case FIF_UNKNOWN:
 			break;
 		}
 	}
