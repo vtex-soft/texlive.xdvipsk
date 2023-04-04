@@ -6,10 +6,11 @@
  *   If you request an EPSF file and specify -a, you may end up
  *   processing a single page four times!
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #include <math.h>
 /*
  *   The external declarations:
@@ -48,9 +49,9 @@ bbtfmload(register fontdesctype *curfnt)
    integer pretend_no_chars;
    integer slant = 0;
    bbchardesctype *cc;
-//AP--begin
+#ifdef XDVIPSK
    chardesctype *chardesc;
-//AP--end
+#endif /* XDVIPSK */
    register bbfontdesctype *bbcurfnt =
       (bbfontdesctype *)mymalloc(sizeof(bbfontdesctype));
 
@@ -180,36 +181,38 @@ bbtfmload(register fontdesctype *curfnt)
    fclose(tfmfile);
 
    if (id == 9 || id == 11) {
-//AP--begin
+#ifdef XDVIPSK
       chardesc = find_chardesc(curfnt, 0);
-//AP--end
+#endif /* XDVIPSK */
       for (i=0; i<MAX_2BYTES_CODE+1; i++) {
          cc = &(bbcurfnt->bbchardesc[i]);
          if (chardat[0] != -1) {
             cc->ury = scaled[((chardat[0] >> 4) & 15) + nw];
             cc->lly = - scaled[(chardat[0] & 15) + nw + nh];
             cc->llx = 0;
-//AP--begin
-//            cc->urx = curfnt->chardesc[0].TFMwidth;
+#ifndef XDVIPSK
+            cc->urx = curfnt->chardesc[0].TFMwidth;
+#else
             cc->urx = chardesc->TFMwidth;
-//AP--end
+#endif /* XDVIPSK */
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
          }
       }
       for (i=1; i<nt; i++) {
-//AP--begin
+#ifdef XDVIPSK
          chardesc = find_chardesc(curfnt, index[i]);
-//AP--end
+#endif /* XDVIPSK */
          cc = &(bbcurfnt->bbchardesc[index[i]]);
          if (chardat[chartype[i]] != -1) {
             cc->ury = scaled[((chardat[chartype[i]] >> 4) & 15) + nw];
             cc->lly = - scaled[(chardat[chartype[i]] & 15) + nw + nh];
             cc->llx = 0;
-//AP--begin
-//            cc->urx = curfnt->chardesc[index[i]].TFMwidth;
+#ifndef XDVIPSK
+            cc->urx = curfnt->chardesc[index[i]].TFMwidth;
+#else
             cc->urx = chardesc->TFMwidth;
-//AP--end
+#endif /* XDVIPSK */
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
          }
@@ -218,9 +221,9 @@ bbtfmload(register fontdesctype *curfnt)
       free(chartype);
    } else {
       for (i=0; i<pretend_no_chars; i++) {
-//AP--begin
+#ifdef XDVIPSK
          chardesc = find_chardesc(curfnt, i);
-//AP--end
+#endif /* XDVIPSK */
          cc = &(bbcurfnt->bbchardesc[i]);
          if (chardat[i] != -1) {
             halfword iw;
@@ -238,10 +241,11 @@ bbtfmload(register fontdesctype *curfnt)
             cc->ury = scaled[ih];
             cc->lly = - scaled[nh + id];
             cc->llx = 0;
-//AP--begin
-//            cc->urx = curfnt->chardesc[i].TFMwidth;
+#ifndef XDVIPSK
+            cc->urx = curfnt->chardesc[i].TFMwidth;
+#else
             cc->urx = chardesc->TFMwidth;
-//AP--end
+#endif /* XDVIPSK */
          } else {
             cc->llx = cc->lly = cc->urx = cc->ury = 0;
          }
@@ -342,19 +346,21 @@ case 130: /* set3 */
          charmove = 1;
          goto dochar;
 case 134: /* put2 */
-//AP--begin
-//         if (noomega && noptex) error("! synch");
+#ifndef XDVIPSK
+         if (noomega && noptex) error("! synch");
+#else
          if (noomega && noptex && noluatex) error("! synch");
-//AP--end
+#endif /* XDVIPSK */
          mychar = dvibyte();
          mychar = (mychar << 8) + dvibyte();
          charmove = 0;
          goto dochar;
 case 129: /* set2 */
-//AP--begin
-//         if (noomega && noptex) error("! synch");
+#ifndef XDVIPSK
+         if (noomega && noptex) error("! synch");
+#else
          if (noomega && noptex && noluatex) error("! synch");
-//AP--end
+#endif /* XDVIPSK */
          mychar = dvibyte();
          mychar = (mychar << 8) + dvibyte();
          charmove = 1;
@@ -368,10 +374,11 @@ default: /* these are commands 0 (setchar0) thru 127 (setchar127) */
          mychar = cmd;
          charmove = 1;
 dochar:
-//AP--begin
-//         cd = &(curfnt->chardesc[mychar]);
+#ifndef XDVIPSK
+         cd = &(curfnt->chardesc[mychar]);
+#else
          cd = find_chardesc(curfnt, mychar);
-//AP--end
+#endif /* XDVIPSK */
          bcd = &(bbcurfnt->bbchardesc[CD_IDX(mychar)]);
          if (!dir) {
             if (h + bcd->llx < llx) llx = h + bcd->llx;

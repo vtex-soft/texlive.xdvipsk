@@ -1,5 +1,5 @@
 /*   $Id: dvips.h 61654 2022-01-18 22:17:46Z karl $
- *   Copyright 1986-2022 Tomas Rokicki.
+ *   Copyright 1986-2023 Tomas Rokicki.
  *   This is dvips, a freely redistributable PostScript driver
  *   for dvi files. You may freely use, modify and/or distribute this
  *   program or any portion thereof.
@@ -14,13 +14,13 @@
 #define VF_MEM_UNIT 0x10000
 #define CD_IDX(i)  ((i>=MAX_2BYTES_CODE ? MAX_2BYTES_CODE : i))
 
-//AP--begin
+#ifdef XDVIPSK
 #define BANNER \
-"This is xdvips(k) 2.65.1 Copyright 2022 VTeX Ltd."
+"This is xdvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
-"Based on dvips(k) 2.65 (2022.1) Copyright 2022 Radical Eye Software"
-//AP--end
+"Based on dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
+#endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include "config.h"
 #include "debug.h"
@@ -43,10 +43,10 @@ extern char *sprintf();
 #endif
 #include "paths.h"
 #include "debug.h"
-//AP--begin
+#ifdef XDVIPSK
 #include <time.h>
 #include "uthash.h"
-//AP--end
+#endif /* XDVIPSK */
 #ifdef VMS
 #include "[.vms]vms.h"
 #endif /* VMS */
@@ -146,14 +146,14 @@ struct resfont {
    char *specialinstructions;
    char *downloadheader; /* possibly multiple files */
    quarterword sent;
-//AP--begin
+#ifdef XDVIPSK
    boolean partialdownload;
    quarterword otftype;  //1 - TrueType, 2 - PostScript, 3 - TTC, 4 - DFONT
    quarterword index;     //For TTC & DFONT
    quarterword embolden; //embolden percent for OTF fonts
    halfword cmap_fmt;
    integer luamap_idx;
-   //AP--end
+#endif /* XDVIPSK */
 };
 
 /*
@@ -162,17 +162,17 @@ struct resfont {
  *   with the following meanings:
  */
 typedef struct tcd {
-//AP--begin
+#ifdef XDVIPSK
    integer charcode;
-//AP--end
+#endif /* XDVIPSK */
    integer TFMwidth;
    quarterword *packptr;
    shalfword pixelwidth;
    quarterword flags, flags2;
-//AP--begin
+#ifdef XDVIPSK
    halfword cid;
    UT_hash_handle hh;         /* makes this structure hashable */
-//AP--end
+#endif /* XDVIPSK */
 } chardesctype;
 #define EXISTS (1)
 #define PREVPAGE (2)
@@ -210,10 +210,11 @@ typedef struct tfd {
    struct tfd *next;
    struct tfd *nextsize;
    char *scalename;
-//AP--begin
-//   chardesctype *chardesc;
+#ifndef XDVIPSK
+   chardesctype *chardesc;
+#else
    chardesctype *chardesc_hh;
-//AP--end
+#endif /* XDVIPSK */
    int iswide, kind;
 } fontdesctype;
 
@@ -238,12 +239,12 @@ typedef struct {
    fontmaptype *ff;
 } frametype;
 
-//AP--begin
+#ifdef XDVIPSK
 typedef struct lua_t {
    integer luamap_idx;
    struct lua_t *next;
 } luacharmap;
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The next type holds the font usage information in a 256-bit table;
@@ -252,11 +253,12 @@ typedef struct lua_t {
 typedef struct {
    fontdesctype *fd;
    halfword psfused;
-//AP--begin
-//   halfword bitmap[16];
+#ifndef XDVIPSK
+   halfword bitmap[16];
+#else
    halfword bitmap[4096];
    luacharmap *map_chain;
-//AP--end
+#endif /* XDVIPSK */
 } charusetype;
 
 /*   Next we want to record the relevant data for a section.  A section is
@@ -296,7 +298,7 @@ struct header_list {
    char *name;
 };
 
-//AP--begin
+#ifdef XDVIPSK
 /*
 * Charcodes mapping to glyphs from Luatex 
 */
@@ -318,7 +320,7 @@ typedef struct {
    char *cmapext;
    UT_hash_handle hh;         /* makes this structure hashable */
 } otfcmaptype;
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   Some machines define putlong in their library.
@@ -372,10 +374,10 @@ struct papsiz {
 #define USE_PCLOSE (801)
 #define USE_FCLOSE (802)
 
-//AP--begin
+#ifdef XDVIPSK
 #define ADD_TO_USED_CHARS2(b,c) {(b)[(c)/8] |= (1 << (7-((c)%8)));}
 #define IS_USED_CHAR2(b,c) (((b)[(c)/8]) & (1 << (7-((c)%8))))
-//AP--end
+#endif /* XDVIPSK */
 /* output Unicode string on console in windows */
 #if defined(KPATHSEA) && defined(WIN32)
 #undef  perror

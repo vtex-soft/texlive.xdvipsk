@@ -14,10 +14,11 @@
  *  documents using lots of colors on each page on a 640K IBM PC
  *  relatively quickly.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #include <stdio.h>
 /*
  *   The external declarations:
@@ -176,9 +177,9 @@ popcolor(Boolean outtops)
 void
 resetcolorstack(char * p, int outtops)
 {
-//AP--begin
+#ifdef XDVIPSK
    char buf[1024];
-//AP--end
+#endif /* XDVIPSK */
    char *q = csp - 1;
 
    while (q > cstack && *q != '\n')
@@ -188,18 +189,18 @@ resetcolorstack(char * p, int outtops)
      fprintf(stderr, "You've mistakenly made a global color change ");
      fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %ld. Will try to recover.\n", pagenum);
-//AP--begin
+#ifdef XDVIPSK
      sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
      writelogrecord(buf);
-//AP--end
+#endif /* XDVIPSK */
 #else   /* ~SHORTINT */
      fprintf(stderr, "You've mistakenly made a global color change ");
      fprintf_str(stderr, "to %s within nested colors\n", p);
      fprintf(stderr, "on page %d. Will try to recover.\n", pagenum);
-//AP--begin
+#ifdef XDVIPSK
      sprintf(buf, "You've mistakenly made a global color change to %s within nested colors on page %d. Will try to recover.", p, pagenum);
      writelogrecord(buf);
-//AP--end
+#endif /* XDVIPSK */
 #endif  /* ~SHORTINT */
    }
    csp = cstack;

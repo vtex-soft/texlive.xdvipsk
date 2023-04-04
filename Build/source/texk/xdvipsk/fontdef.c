@@ -3,10 +3,11 @@
  *  A routine skipnop is also included to handle nops and font definitions
  *  between pages.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif
 #ifdef KPATHSEA
 #include <kpathsea/magstep.h>
 #endif
@@ -27,10 +28,11 @@ newfontdesc(integer cksum, integer scsize, integer dssize,
    register fontdesctype *fp;
 
    fp = (fontdesctype *)mymalloc((integer)sizeof(fontdesctype));
-//AP--begin
-//   fp->chardesc = (chardesctype *)mymalloc(256 * (integer)sizeof(chardesctype));
+#ifndef XDVIPSK
+   fp->chardesc = (chardesctype *)mymalloc(256 * (integer)sizeof(chardesctype));
+#else
    fp->chardesc_hh = NULL;
-//AP--end
+#endif
    fp->maxchars = 256;
    fp->iswide = 0;
    fp->psname = 0;

@@ -1,10 +1,11 @@
 /*
  *   Loads a tfm file.  It marks the characters as undefined.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include <kpathsea/c-pathmx.h>
 #include <kpathsea/concatn.h>
@@ -29,64 +30,47 @@ badtfm(const char *s)
 }
 
 /*
- *   Tries to open a tfm file.  Uses cmr10.tfm if unsuccessful,
- *   and complains loudly about it.
+ *   Tries to open a tfm file in FD.  Uses cmr10.tfm if unsuccessful,
+ *   and complains loudly about it.  No return, sets tfmfile global.
  */
 void
 tfmopen(register fontdesctype *fd)
 {
-   register char *n;
-#ifdef KPATHSEA
+   char *full_name;
    kpse_file_format_type d;
-#else
-   register char *d;
-#endif
-   n = fd->name;
-   if (strlen(n) + 6 >= sizeof (name)) {
-      /* 6 for tfm() + null */
-      error("! TFM file name too long in tfmopen") ;
-   }
-   if (!noomega) {
-#ifdef KPATHSEA
+   char *stem_name = concat(fd->area, fd->name);
+   
+   if (!noomega) { /* search for .ofm first */
+      full_name = concat(stem_name, ".ofm");
       d = ofmpath;
-#else
-      d = fd->area;
-      if (*d==0)
-        d = ofmpath;
-#endif
-#ifdef MVSXA   /* IBM: MVS/XA */
-      sprintf(name, "ofm(%s)", n);
-#else
-      sprintf(name, "%s.ofm", n);
-#endif
-      if ((tfmfile=search(d, name, READBIN))!=NULL)
+      if ((tfmfile = search(d, full_name, READBIN)) != NULL) {
+         free(stem_name);
+         free(full_name);
          return;
+      }
+      free(full_name);
    }
-#ifdef KPATHSEA
+
+   /* try tfm */
    d = tfmpath;
-#else
-   d = fd->area;
-   if (*d==0)
-     d = tfmpath;
-#endif
-#ifdef MVSXA   /* IBM: MVS/XA */
-   sprintf(name, "tfm(%s)", n);
-#else
-   sprintf(name, "%s.tfm", n);
-#endif
-   if ((tfmfile=search(d, name, READBIN))!=NULL)
+   full_name = concat(stem_name, ".tfm");
+   if ((tfmfile = search(d, full_name, READBIN)) != NULL) {
+      free(stem_name);
+      free(full_name);
       return;
-   sprintf(errbuf, "Can't open font metric file %.500s%.500s",
-          fd->area, name);
+   }
+   sprintf(errbuf, "Can't open font metric file %.999s", full_name);
    error(errbuf);
+   
    error("I will use cmr10.tfm instead, so expect bad output.");
-#ifdef MVSXA   /* IBM: MVS/XA */
-   if ((tfmfile=search(d, "tfm(cmr10)", READBIN))!=NULL)
-#else
-   if ((tfmfile=search(d, "cmr10.tfm", READBIN))!=NULL)
-#endif
+   if ((tfmfile=search(d, "cmr10.tfm", READBIN)) != NULL) {
+      free(stem_name);
+      free(full_name);
       return;
+   }
+
    error("! I can't find cmr10.tfm; please reinstall me with proper paths");
+   free(stem_name);
 }
 
 static shalfword
@@ -138,9 +122,9 @@ tfmload(register fontdesctype *curfnt)
    int font_level;
    integer pretend_no_chars;
    int charcount = 0;
-//AP--begin
+#ifdef XDVIPSK
    chardesctype *chr;
-//AP--end
+#endif /* XDVIPSK */
 
    tfmopen(curfnt);
 /*
@@ -159,21 +143,22 @@ tfmload(register fontdesctype *curfnt)
          nt = tfm16(); li = tfm16();
          curfnt->iswide = 1;
          curfnt->maxchars = MAX_CODE;
-//AP--begin
-//         curfnt->chardesc = (chardesctype *)realloc(curfnt->chardesc,
-//                            sizeof(chardesctype)*(MAX_CODE));
-//         for (i=0; i<MAX_CODE; i++) {
-//            curfnt->chardesc[i].TFMwidth = 0;
-//            curfnt->chardesc[i].packptr = NULL;
-//            curfnt->chardesc[i].pixelwidth = 0;
-//            curfnt->chardesc[i].flags = 0;
-//         }
+#ifndef XDVIPSK
+         curfnt->chardesc = (chardesctype *)realloc(curfnt->chardesc,
+                            sizeof(chardesctype)*(MAX_CODE));
+         for (i=0; i<MAX_CODE; i++) {
+            curfnt->chardesc[i].TFMwidth = 0;
+            curfnt->chardesc[i].packptr = NULL;
+            curfnt->chardesc[i].pixelwidth = 0;
+            curfnt->chardesc[i].flags = 0;
+         }
+#else
 		 delete_all_chardesc(curfnt);
 		 curfnt->chardesc_hh = NULL;
 		 for (i = 0; i<MAX_CODE; i++) {
 			 add_chardesc(curfnt, i);
 		 }
-//AP--end
+#endif /* XDVIPSK */
       }
       hd = tfm16();
       bc = tfm16(); ec = tfm16();
@@ -190,8 +175,15 @@ tfmload(register fontdesctype *curfnt)
       for (i=0; i<8; i++) li=tfm32();
       if (!noptex && font_level==1 && ec>=0x2E00) {
          curfnt->iswide = 1;
-         if (li==5)    /* interpret FONTDIR RT as pTeX vertical writing */
+         if (li==5) {  /* interpret FONTDIR RT as pTeX vertical writing */
             curfnt->dir = 9;
+#ifdef DEBUG
+            if (dd(D_FONTS))
+               fprintf_str(stderr,
+                  "We will interpret font (%s.ofm) direction as pTeX vertical writing.\n",
+                  curfnt->name);
+#endif /* DEBUG */
+         }
       }
       if (font_level>1 || hd<2 || bc<0 || ec<0 || nw<0
                        || bc>ec+1 || ec>65535 || nw>65536)
@@ -238,13 +230,14 @@ tfmload(register fontdesctype *curfnt)
    } else {
       if (pretend_no_chars<=256) pretend_no_chars=256;
       else {
-//AP--begin
-//         curfnt->chardesc = (chardesctype *)
-//            xrealloc(curfnt->chardesc, sizeof(chardesctype)*pretend_no_chars);
+#ifndef XDVIPSK
+         curfnt->chardesc = (chardesctype *)
+            xrealloc(curfnt->chardesc, sizeof(chardesctype)*pretend_no_chars);
+#else
 		  for (i = 256; i<pretend_no_chars; i++) {
 			  add_chardesc(curfnt, i);
 		  }
-//AP--end
+#endif /* XDVIPSK */
          curfnt->maxchars = pretend_no_chars;
       }
       for (i=2; i<((font_level==1)?nco-29:hd); i++)
@@ -289,14 +282,15 @@ tfmload(register fontdesctype *curfnt)
    if (id == 9 || id == 11) {
       for (i=0; i<MAX_CODE; i++) {
          li = scaled[chardat[0]];
-//AP--begin
-//         curfnt->chardesc[i].TFMwidth = li;
-//         if (li >= 0)
-//            curfnt->chardesc[i].pixelwidth = ((integer)(conv*li+0.5));
-//         else
-//            curfnt->chardesc[i].pixelwidth = -((integer)(conv*-li+0.5));
-//         curfnt->chardesc[i].flags = (curfnt->resfont ? EXISTS : 0);
-//         curfnt->chardesc[i].flags2 = EXISTS;
+#ifndef XDVIPSK
+         curfnt->chardesc[i].TFMwidth = li;
+         if (li >= 0)
+            curfnt->chardesc[i].pixelwidth = ((integer)(conv*li+0.5));
+         else
+            curfnt->chardesc[i].pixelwidth = -((integer)(conv*-li+0.5));
+         curfnt->chardesc[i].flags = (curfnt->resfont ? EXISTS : 0);
+         curfnt->chardesc[i].flags2 = EXISTS;
+#else
 		 chr = find_chardesc(curfnt, i);
 		 chr->TFMwidth = li;
 		 if (li >= 0)
@@ -305,23 +299,24 @@ tfmload(register fontdesctype *curfnt)
 			 chr->pixelwidth = -((integer)(conv*-li + 0.5));
 		 chr->flags = (curfnt->resfont ? EXISTS : 0);
 		 chr->flags2 = EXISTS;
-//AP--end
+#endif /* XDVIPSK */
       }
       for (i=1; i<nt; i++) {
          li = scaled[chardat[chartype[i]]];
-//AP--begin
-//         curfnt->chardesc[index[i]].TFMwidth = li;
-//         if (li >= 0)
-//            curfnt->chardesc[index[i]].pixelwidth = ((integer)(conv*li+0.5));
-//         else
-//            curfnt->chardesc[index[i]].pixelwidth = -((integer)(conv*-li+0.5));
+#ifndef XDVIPSK
+         curfnt->chardesc[index[i]].TFMwidth = li;
+         if (li >= 0)
+            curfnt->chardesc[index[i]].pixelwidth = ((integer)(conv*li+0.5));
+         else
+            curfnt->chardesc[index[i]].pixelwidth = -((integer)(conv*-li+0.5));
+#else
 		 chr = find_chardesc(curfnt, index[i]);
 		 chr->TFMwidth = li;
 		 if (li >= 0)
 			 chr->pixelwidth = ((integer)(conv*li + 0.5));
 		 else
 			 chr->pixelwidth = -((integer)(conv*-li + 0.5));
-//AP--end
+#endif /* XDVIPSK */
       }
       free(index);
       free(chartype);
@@ -329,14 +324,15 @@ tfmload(register fontdesctype *curfnt)
       for (i=0; i<pretend_no_chars; i++)
          if (chardat[i]!= -1) {
             li = scaled[chardat[i]];
-//AP--begin
-//            curfnt->chardesc[i].TFMwidth = li;
-//            if (li >= 0)
-//               curfnt->chardesc[i].pixelwidth = ((integer)(conv*li+0.5));
-//            else
-//               curfnt->chardesc[i].pixelwidth = -((integer)(conv*-li+0.5));
-//            curfnt->chardesc[i].flags = (curfnt->resfont ? EXISTS : 0);
-//            curfnt->chardesc[i].flags2 = EXISTS;
+#ifndef XDVIPSK
+            curfnt->chardesc[i].TFMwidth = li;
+            if (li >= 0)
+               curfnt->chardesc[i].pixelwidth = ((integer)(conv*li+0.5));
+            else
+               curfnt->chardesc[i].pixelwidth = -((integer)(conv*-li+0.5));
+            curfnt->chardesc[i].flags = (curfnt->resfont ? EXISTS : 0);
+            curfnt->chardesc[i].flags2 = EXISTS;
+#else
 			chr = find_chardesc(curfnt, i);
 			chr->TFMwidth = li;
 			if (li >= 0)
@@ -345,7 +341,7 @@ tfmload(register fontdesctype *curfnt)
 				chr->pixelwidth = -((integer)(conv*-li + 0.5));
 			chr->flags = (curfnt->resfont ? EXISTS : 0);
 			chr->flags2 = EXISTS;
-//AP--end
+#endif /* XDVIPSK */
          }
       if (ec>=256) curfnt->codewidth = 2; /* XXX: 2byte-code can have ec<256 */
    }

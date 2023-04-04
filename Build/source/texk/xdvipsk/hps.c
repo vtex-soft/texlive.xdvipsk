@@ -3,10 +3,11 @@
  * and the University of California. You may modify and use this program to
  * your heart's content.
  */
-//AP--begin
-//#include "dvips.h"
+#ifndef XDVIPSK
+#include "dvips.h"
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif
 
 /*
  *   The external declarations:

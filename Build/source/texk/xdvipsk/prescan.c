@@ -1,18 +1,19 @@
 /*
  *   This is the main routine for the first (prescanning) pass.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The external declarations:
  */
 #include "protos.h"
-//AP--begin
+#ifdef XDVIPSK
 #include "uthash.h"
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   This routine handles the processing of the preamble in the dvi file.
@@ -70,9 +71,9 @@ prescanpages(void)
    integer mpagenum;
    integer pageseq = 0;
    int ntfirst = notfirst;
-   //AP--begin
+#ifdef XDVIPSK
    chardesctype *current, *tmp;
-   //AP--end
+#endif /* XDVIPSK */
 
    readpreamble();
 /*
@@ -124,16 +125,17 @@ prescanpages(void)
    while (maxpages > 0 && cmd != 248) {
       for (f=fonthead; f; f=f->next) {
          f->psname = 0;
-//AP--begin
-//         if (f->loaded==1)
-//            for (c=255; c>=0; c--)
-//               f->chardesc[c].flags &= (STATUSFLAGS);
+#ifndef XDVIPSK
+         if (f->loaded==1)
+            for (c=255; c>=0; c--)
+               f->chardesc[c].flags &= (STATUSFLAGS);
+#else
 		 if (f->loaded == 1) {
 			 HASH_ITER(hh, f->chardesc_hh, current, tmp) {
 				 current->flags &= (STATUSFLAGS);
 			 }
 		 }
-//AP--end
+#endif /* XDVIPSK */
       }
       fontmem = swmem - OVERCOST;
       if (fontmem <= 1000)
@@ -180,17 +182,18 @@ prescanpages(void)
             if (f->loaded==1) {
                if (f->psflag & THISPAGE)
                   f->psflag = PREVPAGE;
-//AP--begin
-//               for (c=255; c>=0; c--)
-//                  if (f->chardesc[c].flags & THISPAGE)
-//                     f->chardesc[c].flags = PREVPAGE |
-//               (f->chardesc[c].flags & (STATUSFLAGS));
+#ifndef XDVIPSK
+               for (c=255; c>=0; c--)
+                  if (f->chardesc[c].flags & THISPAGE)
+                     f->chardesc[c].flags = PREVPAGE |
+               (f->chardesc[c].flags & (STATUSFLAGS));
+#else
 			   HASH_ITER(hh, f->chardesc_hh, current, tmp) {
 				   if (current->flags & THISPAGE)
 					   current->flags = PREVPAGE |
 					   (current->flags & (STATUSFLAGS));
 			   }
-//AP--end
+#endif /* XDVIPSK */
             }
          cmd=skipnop();
          if (cmd==248) break;
@@ -260,7 +263,7 @@ prescanpages(void)
                cp->psfused = (f->psflag & PREVPAGE);
                f->psflag = 0;
                cp->fd = f;
-//AP--begin
+#ifdef XDVIPSK
 			   memset(cp->bitmap, 0, sizeof(halfword) * 4096);
 			   if (f->resfont && f->resfont->otftype) {
 				   char *used_chars = (char *)cp->bitmap;
@@ -273,18 +276,22 @@ prescanpages(void)
 				   }
 			   }
 			   else {
+#endif /* XDVIPSK */
 				   c = 0;
-				   for (b = 0; b<16; b++) {
+				   for (b=0; b<16; b++) {
 					   cp->bitmap[b] = 0;
-					   for (bit = 32768; bit != 0; bit >>= 1) {
+					   for (bit=32768; bit!=0; bit>>=1) {
+#ifdef XDVIPSK
 						   current = find_chardesc(f, c);
 						   if (current->flags & PREVPAGE)
+#else
+                     if (f->chardesc[c].flags & PREVPAGE)
+#endif /* XDVIPSK */
 							   cp->bitmap[b] |= bit;
 						   c++;
 					   }
 				   }
 			   }
-//AP--end
                cp++;
             }
          cp->fd = NULL;

@@ -1,10 +1,11 @@
 /*
  *   This is the main routine.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include <kpathsea/c-pathch.h>
 #include <kpathsea/proginit.h>
@@ -35,8 +36,8 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #ifdef VMS
 #define GLOBAL globaldef
 #ifdef __GNUC__
-#include "climsgdef.h"    /* created by hand, extracted from STARLET.MLB */
-            /* and put in GNU_CC:[INCLUDE.LOCAL]           */
+#include "climsgdef.h"	/* created by hand, extracted from STARLET.MLB */
+			/* and put in GNU_CC:[INCLUDE.LOCAL]           */
 #include "ctype.h"
 #include "descrip.h"
 #else
@@ -54,18 +55,18 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #if defined(WIN32) && defined(KPATHSEA)
 FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 {
-   FILE *f;
- 
-   f = fsyscp_fopen (filename, mode);
- 
-   if (f == NULL && file_system_codepage != win32_codepage) {
-      int tmpcp = file_system_codepage;
-      file_system_codepage = win32_codepage;
-      f = fsyscp_fopen (filename, mode);
-      file_system_codepage = tmpcp;
-   }
- 
-   return f;
+  FILE *f;
+
+  f = fsyscp_fopen (filename, mode);
+
+  if (f == NULL && file_system_codepage != win32_codepage) {
+    int tmpcp = file_system_codepage;
+    file_system_codepage = win32_codepage;
+    f = fsyscp_fopen (filename, mode);
+    file_system_codepage = tmpcp;
+  }
+
+  return f;
 }
 #undef fopen
 #define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
@@ -75,12 +76,12 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 #define DEFRES (600)
 #endif
 
-//AP--begin
+#ifdef XDVIPSK
 #ifndef WIN32
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The external declarations:
@@ -91,7 +92,7 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
  *   First we define some globals.
  */
 #ifdef VMS
-   static char ofnme[252],infnme[252],pap[40],thh[20];
+    static char ofnme[252],infnme[252],pap[40],thh[20];
 #endif
 
 /* PS fonts fully downloaded as headers */
@@ -102,12 +103,13 @@ int unused_top_of_psnames;   /* unused top number of downloadedpsnames[#] */
 fontdesctype *fonthead;      /* list of all fonts mentioned so far */
 fontdesctype *curfnt;        /* the currently selected font */
 sectiontype *sections;       /* sections to process document in */
-//AP--begin
-//Boolean partialdownload = 1; /* turn on partial downloading */
+#ifndef XDVIPSK
+Boolean partialdownload = 1; /* turn on partial downloading */
+#else
 /*!!!!!partial T1 download turned OFF by default!!!!*/
 Boolean t1_partialdownload = 0;  /* turn off Type1 font partial downloading */
 Boolean cid_partialdownload = 1; /* turn on OpenType font partial downloading */
-//AP--end
+#endif /* XDVIPSK */
 Boolean manualfeed;          /* manual feed? */
 Boolean landscaperotate = 0; /* when picking paper sizes allow rotated media */
 Boolean compressed;          /* compressed? */
@@ -171,7 +173,7 @@ integer hh, vv;              /* horizontal and vertical pixel positions */
 Boolean noomega = 0;         /* Omega extensions are enabled */
 Boolean noptex = 0;          /* pTeX extensions are enabled */
 Boolean lastpsizwins = 1;    /* if 1, last \special{papersize=w,h} wins */
-//AP--begin
+#ifdef XDVIPSK
 Boolean noluatex = 0;        /* LuaTeX extensions are enabled */
 Boolean noToUnicode = 0;     /* ToUnicode Cmap file for OpenType font generation are enabled */
 Boolean TURBO_MODE = 0;      /* Write direct EPS files to PS stream */
@@ -200,7 +202,7 @@ FILE *Exe_Log = NULL;          /* Program logfile*/
 int log_records_count = 0;      /* Log records count */
 Boolean Exe_Log_Mode = 1;      /* Log records writing mode */
 Boolean VTEX_SPEC_MODE = 0;      /* Skip specials with prefixes mt:, vtex:, MC:, BMC: and EMC: */
-//AP--end
+#endif /* XDVIPSK */
 
 /*-----------------------------------------------------------------------*
  * The PATH definitions cannot be defined on the command line because so many
@@ -253,10 +255,10 @@ char **gargv;                /* global argument vector */
 int totalpages = 0;          /* total number of pages */
 Boolean reverse;             /* are we going reverse? */
 Boolean usesPSfonts;         /* do we use local PostScript fonts? */
-//AP--begin
+#ifdef XDVIPSK
 Boolean usesOTFfonts;        /* do we use local OpenType fonts? */
 otfcmaptype *OTF_list = NULL;/* relation between OpenType fonts and ToUnicode cmaps*/
-//AP--end
+#endif /* XDVIPSK */
 Boolean usesspecial;         /* do we use \special? */
 Boolean headers_off;         /* do we send headers or not? */
 Boolean usescolor;           /* IBM: color - do we use colors? */
@@ -279,9 +281,9 @@ int nextfonthd;                 /* next unused fonthd[] index */
 char xdig[256];                 /* table for reading hexadecimal digits */
 char banner[] = BANNER;        /* our startup message */
 char banner2[] = BANNER2;      /* our second startup message */
-//AP--begin
+#ifdef XDVIPSK
 char banner3[] = BANNER3;  /* our third startup message */
-//AP--end
+#endif /* XDVIPSK */
 Boolean noenv = 0;             /* ignore PRINTER envir variable? */
 Boolean dopprescan = 0;        /* do we do a scan before the prescan? */
 struct papsiz *papsizes;       /* all available paper size */
@@ -347,21 +349,25 @@ static const char *helparr[] = {
 "-e # Maxdrift value                  -E*  Try to create EPSF",
 "-f*  Run as filter                   -F*  Send control-D at end",
 #ifdef SHIFTLOWCHARS
-//"                                     -G*  Shift low chars to higher pos.",
-//AP--begin
-"-g*  write log file                  -G*  Shift low chars to higher pos.",
+#ifndef XDVIPSK
+"                                     -G*  Shift low chars to higher pos.",
 #else
+"-g*  write log file                  -G*  Shift low chars to higher pos.",
+#endif /* XDVIPSK */
+#else
+#ifdef XDVIPSK
 "-g*  write log file",
-//AP--end
+#endif /* XDVIPSK */
 #endif
-//AP--begin
-//"-h f Add header file",
-//"-i*  Separate file per section",
-//"-j*  Download fonts partially",
+#ifndef XDVIPSK
+"-h f Add header file",
+"-i*  Separate file per section",
+"-j*  Download fonts partially",
+#else
 "-h f Add header file                 -H*  Turbo mode for PS graphics",
 "-i*  Separate file per section       -I*  Resize mode for emTeX graphics",
 "-j*  Download T1 fonts partially     -J*  Download OpenType fonts partially",
-//AP--end
+#endif /* XDVIPSK */
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
 "-landscaperotate*  Allow landscape to print rotated on portrait papersizes",
@@ -370,10 +376,10 @@ static const char *helparr[] = {
 "-n # Maximum number of pages         -N*  No structured comments",
 "-noomega  Disable Omega extensions",
 "-noptex   Disable pTeX extensions",
-//AP--begin
+#ifdef XDVIPSK
 "-noluatex   Disable LuaTeX extensions",
 "-noToUnicode   Disable ToUnicode CMap file generation for OpenType fonts",
-//AP--end
+#endif /* XDVIPSK */
 "-o f Output file                     -O c Set/change paper offset",
 #if defined(MSDOS) || defined(OS2)
 "-p # First page                      -P s Load $s.cfg",
@@ -381,19 +387,20 @@ static const char *helparr[] = {
 "-p # First page                      -P s Load config.$s",
 #endif
 "-pp l Print only pages listed",
-//AP--begin
-//"-q*  Run quietly",
+#ifndef XDVIPSK
+"-q*  Run quietly",
+#else
 "-q*  Run quietly                     -Q*  Skip VTeX private specials",
-//AP--end
+#endif /* XDVIPSK */
 "-r*  Reverse order of pages          -R*  Run securely",
 "-s*  Enclose output in save/restore  -S # Max section size in pages",
 "-t s Paper format                    -T c Specify desired page size",
 "-title s Title in comment",
 "-u s PS mapfile                      -U*  Disable string param trick",
 "-v   Print version number and quit   -V*  Send downloadable PS fonts as PK",
-//AP--begin
+#ifdef XDVIPSK
 "                                     -W*  Extended search for emTeX graphics",
-//AP--end
+#endif /* XDVIPSK */
 "-x # Override dvi magnification      -X # Horizontal resolution",
 "-y # Multiply by dvi magnification   -Y # Vertical resolution",
 #ifdef HPS
@@ -436,7 +443,7 @@ freememforpsnames(void)
 
 static char *progname;
 
-//AP--begin
+#ifdef XDVIPSK
 void openlogfile(int argc, char **argv)
 {
    char *p;
@@ -504,37 +511,38 @@ dvips_exit(int code)
    }
    exit(code);
 }
-//AP--end
+#endif /* XDVIPSK */
 
 void
 error_with_perror(const char *s, const char *fname)
 {
    if (prettycolumn > 0)
-      fprintf(stderr,"\n");
+        fprintf(stderr,"\n");
    prettycolumn = 0;
    fprintf_str(stderr, "%s: %s", progname, s);
    if (fname) {
-      putc (' ', stderr);
-      perror (fname);
+     putc (' ', stderr);
+     perror (fname);
    } else {
-      putc ('\n', stderr);
+     putc ('\n', stderr);
    }
-//AP--begin
+#ifdef XDVIPSK
    writelogrecord(s);
-//AP--end
+#endif /* XDVIPSK */
 
    if (*s=='!') {
       freememforpsnames();
       if (bitfile != NULL) {
          cleanprinter();
       }
-//AP--begin
+#ifndef XDVIPSK
+      exit(1); /* fatal */
+#else
       (void)printf("\nRemoving output file...");
       if (remove(oname) != 0)
          (void)printf("unable to remove unfinished output file!");
       dvips_exit(1);
-//      exit(1); /* fatal */
-//AP--end
+#endif /* XDVIPSK */
    }
 }
 
@@ -552,14 +560,14 @@ error(const char *s)
 char *
 concat(char *s1, char *s2)
 {
-   char *s = malloc(strlen(s1)+strlen(s2)+1);
-   if (s == NULL) {
-      fprintf(stderr, "Malloc failed to give %d bytes.\nAborting\n",
-         strlen(s1)+strlen(s2)+1);
+  char *s = malloc(strlen(s1)+strlen(s2)+1);
+  if (s == NULL) {
+    fprintf(stderr, "Malloc failed to give %d bytes.\nAborting\n",
+	    strlen(s1)+strlen(s2)+1);
     exit(1);
-   }
-   strcpy(s, s1);
-   strcat(s, s2);
+  }
+  strcpy(s, s1);
+  strcat(s, s2);
 }
 #endif
 
@@ -574,12 +582,13 @@ check_checksum(unsigned c1, unsigned c2, const char *name)
       && !kpse_tex_hush ("checksum")
 #endif
       ) {
-//AP--begin
-//     char *msg = concat ("Checksum mismatch in %s", name);
-      char *msg = concat("Checksum mismatch in ", name);
-//AP--end
-      error (msg);
-      free (msg);
+#ifndef XDVIPSK
+     char *msg = concat ("Checksum mismatch in %s", name);
+#else
+     char *msg = concat("Checksum mismatch in ", name);
+#endif /* XDVIPSK */
+     error (msg);
+     free (msg);
    }
 }
 
@@ -667,7 +676,7 @@ initialize(void)
    maxdrift = -1;
    vmaxdrift = -1;
    dontmakefont = !MAKE_TEX_PK_BY_DEFAULT;
-//AP--begin
+#ifdef XDVIPSK
 #if defined(WIN32)
    strcpy(RESIZE_FILTER_BWName, "WinGDI filter with mode BLACKONWHITE");
    strcpy(RESIZE_FILTER_GrayName, "WinGDI filter with mode COLORONCOLOR");
@@ -678,7 +687,7 @@ initialize(void)
    strcpy(RESIZE_FILTER_RGBName, "Resample filter");
 #endif
    strcpy(RESIZE_FILTER_CMYKName, "Resample filter");
-//AP--end
+#endif /* XDVIPSK */
 }
 /*
  *   This routine copies a string into the string `pool', safely.
@@ -764,7 +773,7 @@ queryargs(void)
    qargv[qargc] = (char *)NULL;
 }
 
-//AP--begin
+#ifdef XDVIPSK
 int CompareUpperCase(char *x, char *y)
 {
 #if defined(WIN32)
@@ -875,7 +884,7 @@ void queryresizeargs(char *p)
       }
    }
 }
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   Finally, our main routine.
@@ -909,6 +918,55 @@ main(int argc, char **argv)
    setrlimit(RLIMIT_STACK, &rl);
 #endif
 #ifdef KPATHSEA
+   if (argc > 1) {
+      if (argc == 2 && strncmp(argv[1], "-?", 2) == 0) {
+#ifndef XDVIPSK
+         printf("%s %s\n", banner, banner2);
+#else
+         printf("%s %s\n%s\n", banner, banner2, banner3);
+#endif /* XDVIPSK */
+         help(0);
+         exit(0);
+      }
+      if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
+#ifndef XDVIPSK
+         printf("%s %s\n", banner, banner2);
+#else
+         printf("%s %s\n%s\n", banner, banner2, banner3);
+#endif /* XDVIPSK */
+         exit(0);
+      }
+      /* print information and exit if dvips finds options --help or --version */
+      if (strlen(argv[1]) == 6 && strcmp(argv[1], "--help") == 0) {
+         help (0);
+         exit (0);
+      }
+      if (strlen (argv[1]) == 9 && strcmp(argv[1], "--version") == 0) {
+         puts (BANNER);
+#ifdef XDVIPSK
+         puts(BANNER3);
+#endif /* XDVIPSK */
+         puts (kpathsea_version_string);
+#ifndef XDVIPSK
+         puts ("There is NO warranty.  You may redistribute this software\n\
+under the terms of the GNU General Public License\n\
+and the Dvips copyright.\n\
+For more information about these matters, see the files\n\
+named COPYING and dvips.h.\n\
+Primary author of Dvips: T. Rokicki.");
+#else
+        puts ("Copyright 2023 VTeX Ltd.\n\
+There is NO warranty.  You may redistribute this software\n\
+under the terms of the GNU General Public License\n\
+and the xdvips copyright.\n\
+For more information about these matters, see the files\n\
+named COPYING and xdvips.h.\n\
+Primary author of Dvips: T. Rokicki.");
+        puts("Modifications author: A. Povilaitis.");
+#endif /* XDVIPSK */
+         exit (0);
+      }
+   }
    kpse_set_program_name (argv[0], "dvips");
    kpse_set_program_enabled (kpse_pk_format, MAKE_TEX_PK_BY_DEFAULT, kpse_src_compile);
 #ifdef WIN32
@@ -923,20 +981,20 @@ main(int argc, char **argv)
 #ifdef __THINK__
    argc = dcommand(&argv); /* do I/O stream redirection */
 #endif
-#ifdef VMS        /* Grab the command-line buffer */
+#ifdef VMS		/* Grab the command-line buffer */
    short len_arg;
-   $DESCRIPTOR( verb_dsc, "DVIPS ");    /* assume the verb is always DVIPS */
+   $DESCRIPTOR( verb_dsc, "DVIPS ");	/* assume the verb is always DVIPS */
    struct dsc$descriptor_d temp_dsc = { 0, DSC$K_DTYPE_T, DSC$K_CLASS_D, 0};
 
    progname = &thh[0];
    strcpy(progname,"DVIPS%ERROR");
 
-   lib$get_foreign( &temp_dsc, 0, &len_arg, 0);    /* Get the command line */
-   str$prefix(&temp_dsc, &verb_dsc);        /* prepend the VERB     */
-   len_arg += verb_dsc.dsc$w_length;        /* update the length    */
-   temp_dsc.dsc$a_pointer[len_arg] = '\0';    /* terminate the string */
-   gargv = &temp_dsc.dsc$a_pointer;        /* point to the buffer  */
-   gargc = 1;                    /* only one big argv    */
+   lib$get_foreign( &temp_dsc, 0, &len_arg, 0);	/* Get the command line */
+   str$prefix(&temp_dsc, &verb_dsc);		/* prepend the VERB     */
+   len_arg += verb_dsc.dsc$w_length;		/* update the length    */
+   temp_dsc.dsc$a_pointer[len_arg] = '\0';	/* terminate the string */
+   gargv = &temp_dsc.dsc$a_pointer;		/* point to the buffer  */
+   gargc = 1;					/* only one big argv    */
 #else
    progname = argv[0];
    gargv = argv;
@@ -961,25 +1019,6 @@ main(int argc, char **argv)
    if (dd(D_SEARCH)) KPSE_DEBUG_SET (KPSE_DEBUG_SEARCH);
 #endif /* KPATHSEA && KPSE_DEBUG */
 #endif /* DEBUG */
-#ifdef KPATHSEA
-   if (argc > 1) {
-      if (argc == 2 && strncmp(argv[1], "-?", 2) == 0) {
-//AP--begin
-//         printf("%s %s\n", banner, banner2);
-         printf("%s %s\n%s\n", banner, banner2, banner3);
-//AP--end
-         help(0);
-         exit(0);
-      }
-      if (argc == 2 && strncmp(argv[1], "-v", 2) == 0) {
-//AP--begin
-//         printf("%s %s\n", banner, banner2);
-         printf("%s %s\n%s\n", banner, banner2, banner3);
-//AP--end
-         exit(0);
-      }
-   }
-#endif /* KPATHSEA */
 #endif /* VMS */
    dvips_debug_flag = 0;
    { /* for compilers incompatible with c99 */
@@ -993,9 +1032,9 @@ main(int argc, char **argv)
          }
       }
    }
-//AP--begin
+#ifdef XDVIPSK
    openlogfile(argc, argv);
-//AP--end
+#endif /* XDVIPSK */
    initialize();
    checkenv(0);
    getdefaults(CONFIGFILE);
@@ -1018,38 +1057,11 @@ main(int argc, char **argv)
          if (*argv[i]=='-') {
             char *p=argv[i]+2;
             char c=argv[i][1];
-#ifdef KPATHSEA
-            /* print information and exit if dvips finds options
-               --help or --version */
-            if (strlen (argv[i] + 1) == 5 && strcmp (argv[i] + 1, "-help") == 0) {
-               help (0);
-               exit (0);
-            }
-            if (strlen (argv[i] + 1) == 8 &&
-                strcmp (argv[i] + 1, "-version") == 0) {
-               puts (BANNER);
-//AP--begin
-        puts(BANNER3);
-//AP--end
-               puts (kpathsea_version_string);
-//AP--begin
-        puts ("Copyright 2022 VTeX Ltd.\n\
-There is NO warranty.  You may redistribute this software\n\
-under the terms of the GNU General Public License\n\
-and the xdvips copyright.\n\
-For more information about these matters, see the files\n\
-named COPYING and xdvips.h.\n\
-Primary author of Dvips: T. Rokicki.");
-        puts("Modifications author: A. Povilaitis.");
-//AP--end
-               exit (0);
-            }
-#endif /* KPATHSEA */
             switch (c) {
 case '-':
                queryoptions = 1;
                break;
-//AP--begin
+#ifdef XDVIPSK
 case 'g':
                Exe_Log_Mode = (*p != '0');
                break;
@@ -1067,7 +1079,7 @@ case 'W':
 case 'Q':
                VTEX_SPEC_MODE = (*p != '0');
                break;
-//AP--end
+#endif /* XDVIPSK */
 case 'a':
                dopprescan = (*p != '0');
                break;
@@ -1149,10 +1161,11 @@ case 'u' :
                      psmapfile = strdup(PSname); /* a cute small memory leak (just as in 'p' option handling in resident.c) */
                }
                break;
-//AP--begin
-    //case 'h': case 'H':
+#ifndef XDVIPSK
+case 'h' : case 'H' :
+#else
 case 'h':
-//AP--end
+#endif /* XDVIPSK */
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
                if (strcmp(p, "-") == 0)
@@ -1167,14 +1180,15 @@ case 'i':
                }
                break;
 case 'j':
-//AP--begin
-//               partialdownload = (*p != '0');
+#ifndef XDVIPSK
+               partialdownload = (*p != '0');
+#else
                t1_partialdownload = (*p != '0');
                break;
 case 'J':
                cid_partialdownload = (*p != '0');
                break;
-//AP--end
+#endif /* XDVIPSK */
 case 'k':
                cropmarks = (*p != '0');
                break;
@@ -1207,14 +1221,14 @@ case 'n' :
                  noomega = 1;
                } else if (STREQ (p, "optex")) {
                  noptex = 1;
-//AP--begin
+#ifdef XDVIPSK
                }
                else if (STREQ(p, "oluatex")) {
                    noluatex = 1;
                }
                else if (STREQ(p, "oToUnicode")) {
                    noToUnicode = 1;
-//AP--end
+#endif /* XDVIPSK */
                } else {
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
@@ -1315,22 +1329,22 @@ case 'l':
                      abspage = 1;
                      p++;
                   }
-               }
 #ifdef SHORTINT
-               switch(sscanf(p, "%ld.%ld", &lastpage, &lastseq)) {
+                  switch(sscanf(p, "%ld.%ld", &lastpage, &lastseq)) {
 #else        /* ~SHORTINT */
-               switch(sscanf(p, "%d.%d", &lastpage, &lastseq)) {
+                  switch(sscanf(p, "%d.%d", &lastpage, &lastseq)) {
 #endif        /* ~SHORTINT */
-case 1:           lastseq = 0;
-case 2:           break;
+case 1:              lastseq = 0;
+case 2:              break;
 default:
 #ifdef KPATHSEA
-                  error(concat3 ("! Bad last page option (-l ", p, ")."));
+                     error(concat3 ("! Bad last page option (-l ", p, ")."));
 #else
-                  error("! Bad last page option (-l).");
+                     error("! Bad last page option (-l).");
 #endif
+                  }
+                  notlast = 1;
                }
-               notlast = 1;
                break;
 case 'A':
                oddpages = 1;
@@ -1338,10 +1352,11 @@ case 'A':
 case 'B':
                evenpages = 1;
                break;
-//AP--begin
-//case 'q': case 'Q':
+#ifndef XDVIPSK
+case 'q' : case 'Q' :
+#else
 case 'q':
-//AP--end
+#endif /* XDVIPSK */
                quiet = (*p != '0');
                break;
 case 'r' :
@@ -1363,12 +1378,13 @@ case 't' :
                }
                break;
 case 'v':
-//AP--begin
-//                printf ("%s %s\n", banner, banner2);
+#ifndef XDVIPSK
+               printf ("%s %s\n", banner, banner2);
+#else
                printf("%s %s\n%s\n", banner, banner2, banner3);
-//AP--end
-                exit (0);
-                break;
+#endif /* XDVIPSK */
+               exit (0);
+               break;
 case 'x' : case 'y' :
                if (*p == 0 && argv[i+1])
                   p = argv[++i];
@@ -1430,7 +1446,7 @@ case 'F' :
                break;
 case 'G' :
                shiftlowchars = (*p != '0');
-           break;
+	       break;
 case 'M':
                dontmakefont = (*p != '0');
 #ifdef KPATHSEA
@@ -1461,7 +1477,7 @@ case 'P' :
                      npapsiz->next = papsizes;
                      papsizes = opapsiz;
                   }
-               }
+	       }
                break;
 case 's':
                safetyenclose = (*p != '0');
@@ -1495,10 +1511,10 @@ default:
                lastext = 0;
                iname = nextstring;
                p = argv[i];
-               if (NAME_BEGINS_WITH_DEVICE(p)) { /* get past DOSISH drive */
-                  *nextstring++ = *p++;
-                  *nextstring++ = *p++;
-               }
+	       if (NAME_BEGINS_WITH_DEVICE(p)) { /* get past DOSISH drive */
+		  *nextstring++ = *p++;
+		  *nextstring++ = *p++;
+	       }
                while (*p) {
                   *nextstring = *p++;
                   if (*nextstring == '.')
@@ -1531,7 +1547,7 @@ default:
          register char *p;
          struct papsiz *opapsiz = papsizes;
          papsizes = 0;
-         if (0 != (p = getenv("PRINTER"))) {
+	 if (0 != (p = getenv("PRINTER"))) {
 #if defined(MSDOS) || defined(OS2)
             strcpy(nextstring, p);
             strcat(nextstring, ".cfg");
@@ -1553,18 +1569,19 @@ default:
       }
       papsizes = (struct papsiz *)revlist((void *)papsizes);
       if (queryoptions != 0) {            /* get new options */
-//AP--begin
+#ifndef XDVIPSK
+         fprintf(stderr, "%s %s\n", banner, banner2);
+#else
          fprintf(stderr, "%s %s\n%s\n", banner, banner2, banner3);
-//         fprintf(stderr, "%s %s\n", banner, banner2);
-//AP--end
+#endif /* XDVIPSK */
          help(1);
          queryargs();
          if (qargc == 1)
-            queryoptions = 0;
+           queryoptions = 0;
          else {
-            qargv[0] = argv[0];
-            argc=qargc;
-            argv=qargv;
+           qargv[0] = argv[0];
+           argc=qargc;
+           argv=qargv;
          }
       }
    } while (queryoptions != 0);
@@ -1590,31 +1607,33 @@ default:
  *   the hash chain.  We do this by reversing the lists, adding them
  *   to the front, and then reversing them again.
  */
-//AP--begin
+#ifdef XDVIPSK
    if (!Exe_Log_Mode) {
       fclose(Exe_Log);
       remove(Exe_Log_Name);
       Exe_Log = NULL;
    }
-//AP--end
+#endif /* XDVIPSK */
    revpslists();
    getpsinfo((char *)NULL);
    revpslists();
    if (dvips_debug_flag) {
       if (!quiet)
-//AP--begin
+#ifndef XDVIPSK
+         fprintf(stderr, "\n%s %s\n", banner, banner2);
+#else
          fprintf(stderr, "\n%s %s\n%s\n", banner, banner2, banner3);
-//         fprintf(stderr, "\n%s %s\n", banner, banner2);
-//AP--end
+#endif /* XDVIPSK */
       prettycolumn = 0;
    } else {
       if (!quiet)
-//AP--begin
+#ifndef XDVIPSK
+         fprintf(stderr, "%s %s\n", banner, banner2);
+#else
          fprintf(stderr, "\n%s %s\n%s\n", banner, banner2, banner3);
-//         fprintf(stderr, "\n%s %s\n", banner, banner2);
-//AP--end
+#endif /* XDVIPSK */
    }
-//AP--begin
+#ifdef XDVIPSK
    if (!quiet) {
       if (TURBO_MODE)
          (void)fprintf(stderr, "Turbo mode for PS graphics is ON.\n");
@@ -1630,7 +1649,7 @@ default:
       if (VTEX_SPEC_MODE)
          (void)fprintf(stderr, "Skipping VTeX private specials is ON.\n");
    }
-//AP--end
+#endif /* XDVIPSK */
    if (*iname) {
       dvifile = fopen(iname, READBIN);
 /*
@@ -1660,16 +1679,16 @@ default:
 #ifdef MVSXA /* IBM: MVS/XA */
       if (strchr(iname, '(') != NULL  &&
           strchr(iname, ')') != NULL) {
-         firstext = strchr(iname, '(') - iname + 1;
-         lastext = strrchr(iname, ')') - iname - 1;
-      }
-      else {
-         if (strrchr(iname, '.') != NULL) {
-            lastext = strrchr(iname, '.') - iname - 1;
+      firstext = strchr(iname, '(') - iname + 1;
+      lastext = strrchr(iname, ')') - iname - 1;
          }
+      else {
+      if (strrchr(iname, '.') != NULL) {
+      lastext = strrchr(iname, '.') - iname - 1;
+           }
          else lastext = strlen(iname) - 1;
-         if (strchr(iname, '\'') != NULL)
-            firstext = strchr(iname, '.') - iname + 1;
+      if (strchr(iname, '\'') != NULL)
+         firstext = strchr(iname, '.') - iname + 1;
          else firstext = 0;
       }
 #endif  /* IBM: MVS/XA */
@@ -1751,12 +1770,12 @@ default:
       fulliname = nextstring;
 #ifndef IGNORE_CWD
       if (!IS_DIR_SEP(*iname) && !NAME_BEGINS_WITH_DEVICE(iname)) {
-         getcwd(nextstring, MAXPATHLEN + 2);
-         while (*nextstring++);
-#ifdef VMS        /* VMS doesn't need the '/' character appended */
-            nextstring--;    /* so just back up one byte. */
+        getcwd(nextstring, MAXPATHLEN + 2);
+        while (*nextstring++);
+#ifdef VMS		/* VMS doesn't need the '/' character appended */
+        nextstring--;	/* so just back up one byte. */
 #else
-         *(nextstring-1) = '/';
+        *(nextstring-1) = '/';
 #endif
       }
 #endif
@@ -1765,7 +1784,7 @@ default:
    } else if (filter) {
       dvifile = stdin;
       if (O_BINARY && !isatty(fileno(stdin)))
-         SET_BINARY(fileno(stdin));
+	 SET_BINARY(fileno(stdin));
    } else {
 #ifdef KPATHSEA
       fprintf (stderr, "dvips: Missing DVI file argument (or -f).\n");
@@ -1773,17 +1792,19 @@ default:
 #else
       help(1);
 #endif
-//AP--begin
+#ifndef XDVIPSK
+      exit(1);
+#else
       dvips_exit(1);
-//      exit(1);
-//AP--end
+#endif /* XDVIPSK */
    }
    if (dvifile==NULL) {
       error_with_perror("DVI file can't be opened:", iname);
-//AP--begin
+#ifndef XDVIPSK
+      exit(1);
+#else
       dvips_exit(1);
-//      exit(1);
-//AP--end
+#endif /* XDVIPSK */
    }
    if (fseek(dvifile, 0L, 0) < 0)
       error("! DVI file must not be a pipe.");
@@ -1792,7 +1813,7 @@ default:
 #ifdef FONTLIB
    fliload();    /* read the font libaries */
 #endif
-//AP--begin
+#ifdef XDVIPSK
    if (!noluatex) {
        getotfinfo(fulliname);
        LuaMap_cache_init();
@@ -1800,7 +1821,7 @@ default:
    }
    usesPSfonts = 0;
    usesOTFfonts = 0;
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   Now we do our main work.
  */
@@ -1826,23 +1847,23 @@ default:
    prescanpages();
 #if defined MSDOS || defined OS2 || defined(ATARIST)
    if (mfjobfile != (FILE*)NULL) {
-      char answer[5];
-      fputs("}\n",mfjobfile);
-      fclose(mfjobfile);
-      fputs("Exit to make missing fonts now (y/n)? ",stdout);
-      fgets(answer,4,stdin);
-      if (*answer=='y' || *answer=='Y')
-         exit(8); /* exit with errorlevel 8 for emTeX dvidrv */
+     char answer[5];
+     fputs("}\n",mfjobfile);
+     fclose(mfjobfile);
+     fputs("Exit to make missing fonts now (y/n)? ",stdout);
+     fgets(answer,4,stdin);
+     if (*answer=='y' || *answer=='Y')
+       exit(8); /* exit with errorlevel 8 for emTeX dvidrv */
    }
 #endif
    if (includesfonts)
-       add_header(IFONTHEADER);
+      add_header(IFONTHEADER);
    if (usesPSfonts)
-       add_header(PSFONTHEADER);
-//AP--begin
+      add_header(PSFONTHEADER);
+#ifdef XDVIPSK
    if (usesOTFfonts)
       add_header(CIDFONTHEADER);
-//AP--end
+#endif /* XDVIPSK */
    if (usesspecial)
       add_header(SPECIALHEADER);
    if (usescolor)  /* IBM: color */
@@ -1915,7 +1936,7 @@ default:
                finish_hps();
 #endif
             cleanprinter();
-     }
+	 }
       }
    }
    freememforpsnames();
@@ -1937,10 +1958,11 @@ default:
 #endif
    }
 #endif
-//AP--begin
+#ifndef XDVIPSK
+   return found_problems ? EXIT_FAILURE : EXIT_SUCCESS;
+#else
    dvips_exit(0);
-//   return found_problems ? EXIT_FAILURE : EXIT_SUCCESS;
-//AP--end
+#endif /* XDVIPSK */
    /*NOTREACHED*/
 }
 #ifdef VMS

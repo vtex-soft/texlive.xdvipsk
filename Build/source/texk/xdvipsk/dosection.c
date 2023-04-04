@@ -1,18 +1,19 @@
 /*
  *  Code to output PostScript commands for one section of the document.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   The external declarations:
  */
 #include "protos.h"
 
-//AP--begin
-//static int psfont;
-//AP--end
+#ifndef XDVIPSK
+static int psfont;
+#endif /* XDVIPSK */
 #ifdef HPS
 int pagecounter;
 #endif
@@ -28,9 +29,9 @@ dosection(sectiontype *s, int c)
    int np;
    int k;
    integer thispage = 0;
-//AP--begin
+#ifdef XDVIPSK
    char buf[514];
-//AP--end
+#endif /* XDVIPSK */
 
    bmenc_startsection() ;
    dopsfont(s);
@@ -50,9 +51,9 @@ dosection(sectiontype *s, int c)
    numout((integer)VDPI);
    /* possibly lines in eps files are supposed to be <= 255;
       not worth testing the limits merely to output a long file name. */
-//AP--begin
+#ifdef XDVIPSK
    snprintf(buf, sizeof(buf), "(%.500s)", fulliname);
-//AP--end
+#endif /* XDVIPSK */
    cmdout(buf);
    newline();
    cmdout("@start");
@@ -67,16 +68,17 @@ dosection(sectiontype *s, int c)
    }
    cleanres();
    cu = (charusetype *) (s + 1);
-//AP--begin
-//   psfont = 1;
-//AP--end
+#ifndef XDVIPSK
+   psfont = 1;
+#endif /* XDVIPSK */
    while (cu->fd) {
       if (cu->psfused)
          cu->fd->psflag = EXISTS;
-//AP--begin
-//      download(cu++, psfont++);
+#ifndef XDVIPSK
+      download(cu++, psfont++);
+#else
 	  download(cu++);
-//AP--end
+#endif /* XDVIPSK */
    }
    fonttableout();
    if (! multiplesects) {

@@ -8,13 +8,14 @@
  *   This code reads in and handles the defaults for the program from the
  *   file config.sw.  This entire file is a bit kludgy, sorry.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
 #ifndef WIN32
 #define strnicmp strncasecmp
 #endif
-//AP--end
+#endif /* XDVIPSK */
 #include "paths.h"
 #ifdef KPATHSEA
 #include <kpathsea/c-ctype.h>
@@ -106,12 +107,13 @@ findPSname(char *name)
  *   This routine adds an entry.
  */
 static void
-//AP--begin
+#ifndef XDVIPSK
+add_entry(char *TeXname, char *PSname, char *Fontfile,
+          char *Vectfile, char *specinfo, char *downloadinfo)
+#else
 add_entry(char *TeXname, char *PSname, char *Fontfile,
 char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, quarterword embolden)
-//add_entry(char *TeXname, char *PSname, char *Fontfile,
-//          char *Vectfile, char *specinfo, char *downloadinfo)
-//AP--end
+#endif /* XDVIPSK */
 {
    struct resfont *p;
    int h;
@@ -131,7 +133,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    h = hash(TeXname);
    p->next = reshash[h];
    p->sent = 0;
-//AP--begin
+#ifdef XDVIPSK
    p->partialdownload = partial;
    if (isOTF)
        p->otftype = 100;
@@ -141,11 +143,11 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
    p->embolden = embolden;
    p->cmap_fmt = 0;
    p->luamap_idx = -1;
-//AP--end
+#endif /* XDVIPSK */
    reshash[h] = p;
 }
 
-//AP--begin
+#ifdef XDVIPSK
 /*
  *   This routine adds(replaces) an entry from SPECIAL.
  */
@@ -196,7 +198,7 @@ char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isO
       reshash[h] = p;
    }
 }
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   Now our residentfont routine.  Returns the number of characters in
@@ -207,9 +209,9 @@ residentfont(register fontdesctype *curfnt)
 {
    int i;
    struct resfont *p;
-//AP--begin
+#ifdef XDVIPSK
    chardesctype *cd;
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   First we determine if we can find this font in the resident list.
@@ -226,28 +228,29 @@ residentfont(register fontdesctype *curfnt)
  *   directives, one that downloads fonts and one that downloads
  *   short headers that are innocuous.
  */
-//AP--begin
-//   if (p->Fontfile && downloadpspk) {
+#ifndef XDVIPSK
+   if (p->Fontfile && downloadpspk) {
+#else
    if (p->Fontfile && (!p->otftype) && downloadpspk) {
-//AP--end
+#endif /* XDVIPSK */
 #ifdef DEBUG
-   if (dd(D_FONTS))
-      fprintf_str(stderr,"Using PK font %s for <%s>.\n",
-                                  curfnt->name, p->PSname);
+      if (dd(D_FONTS))
+         fprintf_str(stderr,"Using PK font %s for <%s>.\n",
+                                     curfnt->name, p->PSname);
 #endif  /* DEBUG */
-   return 0;
+      return 0;
    }
 /*
  *   We clear out some pointers:
  */
 #ifdef DEBUG
    if (dd(D_FONTS))
-      fprintf_str(stderr,"Font %s <%s> is resident.\n",
-                                  curfnt->name, p->PSname);
+        fprintf_str(stderr,"Font %s <%s> is resident.\n",
+                                     curfnt->name, p->PSname);
 #endif  /* DEBUG */
    curfnt->resfont = p;
    curfnt->name = p->TeXname;
-//AP--begin
+#ifdef XDVIPSK
    if (p->otftype) {
       curfnt->maxchars = MAX_CODE;
       curfnt->iswide = 1;
@@ -261,15 +264,18 @@ residentfont(register fontdesctype *curfnt)
       usesOTFfonts = 1;
       return(i);
    }
-   for (i = 0; i<256; i++) {
-//      curfnt->chardesc[i].TFMwidth = 0;
-//      curfnt->chardesc[i].packptr = NULL;
-//      curfnt->chardesc[i].pixelwidth = 0;
-//      curfnt->chardesc[i].flags = 0;
-//      curfnt->chardesc[i].flags2 = 0;
+#endif /* XDVIPSK */
+   for (i=0; i<256; i++) {
+#ifndef XDVIPSK
+      curfnt->chardesc[i].TFMwidth = 0;
+      curfnt->chardesc[i].packptr = NULL;
+      curfnt->chardesc[i].pixelwidth = 0;
+      curfnt->chardesc[i].flags = 0;
+      curfnt->chardesc[i].flags2 = 0;
+#else
       cd = add_chardesc(curfnt, i);
+#endif
    }
-//AP--end
    add_name(p->PSname, &ps_fonts_used);
 /*
  *   We include the font here.  But we only should need to include the
@@ -398,9 +404,9 @@ getdefaults(const char *s)
 {
    FILE *deffile;
    char PSname[INLINE_SIZE];
-//AP--begin
+#ifdef XDVIPSK
    char buf[INLINE_SIZE];
-//AP--end
+#endif /* XDVIPSK */
    register char *p;
    integer hsiz, vsiz;
 #ifndef KPATHSEA
@@ -416,44 +422,44 @@ getdefaults(const char *s)
 #ifdef KPATHSEA
          char *dvipsrc = kpse_var_value ("DVIPSRC");
 #ifdef WIN32
-         if (dvipsrc && *dvipsrc) {
-            /* $DVIPSRC was set by user */
-            strcpy(PSname, dvipsrc);
-         }
-         else
-            /* No env var, looking into some kind of standard path. */
-            if (SearchPath(".;%HOME%;c:\\", ".dvipsrc", NULL,
-                 INLINE_SIZE, PSname,
-                 &dvipsrc) == 0) {
-            /* search failed, we must put something into PSname. */
-            dvipsrc = kpse_var_expand(DVIPSRC);
-            if (dvipsrc) {
-               strcpy(PSname, dvipsrc);
-               free(dvipsrc);
-            }
-            /* Else SearchPath has filled PSname with something */
-            }
-         /* remove any redundant path separators. Many configurations
-            can show  up: c:\/.dvipsrc and so on ... */
-         {
-          char *p, *q;
-          for (p = q = PSname; *p && (p - PSname < INLINE_SIZE);
-           p++, q++) {
-             if (IS_DIR_SEP(*p)) {
-                *q = DIR_SEP; p++; q++;
-                while (*p && IS_DIR_SEP(*p)) p++;
-             }
-             else if (IS_KANJI(p)) {
-                *q++ = *p++;
-             }
-             *q = *p;
-           }
-          *q = '\0';
-         }
+	 if (dvipsrc && *dvipsrc) {
+	   /* $DVIPSRC was set by user */
+	   strcpy(PSname, dvipsrc);
+	 }
+	 else
+	   /* No env var, looking into some kind of standard path. */
+	   if (SearchPath(".;%HOME%;c:\\", ".dvipsrc", NULL,
+			  INLINE_SIZE, PSname,
+			  &dvipsrc) == 0) {
+	     /* search failed, we must put something into PSname. */
+	     dvipsrc = kpse_var_expand(DVIPSRC);
+	     if (dvipsrc) {
+	       strcpy(PSname, dvipsrc);
+	       free(dvipsrc);
+	     }
+	     /* Else SearchPath has filled PSname with something */
+	   }
+	 /* remove any redundant path separators. Many configurations
+	    can show  up: c:\/.dvipsrc and so on ... */
+	 {
+	   char *p, *q;
+	   for (p = q = PSname; *p && (p - PSname < INLINE_SIZE);
+		p++, q++) {
+	     if (IS_DIR_SEP(*p)) {
+	       *q = DIR_SEP; p++; q++;
+	       while (*p && IS_DIR_SEP(*p)) p++;
+	     }
+	     else if (IS_KANJI(p)) {
+	       *q++ = *p++;
+	     }
+	     *q = *p;
+	   }
+	   *q = '\0';
+	 }
 #else
-         if (!dvipsrc) dvipsrc = kpse_var_expand(DVIPSRC);
+         if(!dvipsrc) dvipsrc = kpse_var_expand(DVIPSRC);
          strcpy(PSname, dvipsrc ? dvipsrc : "~/.dvipsrc");
-         if (dvipsrc) free(dvipsrc);
+         if(dvipsrc) free(dvipsrc);
 #endif /* WIN32 */
 
 #else /* ! KPATHSEA */
@@ -488,28 +494,28 @@ getdefaults(const char *s)
          prettycolumn += strlen(realnameoffile) + 2;
       }
 #ifdef DEBUG
-      if (dd (D_CONFIG)) {
-         fprintf_str(stderr, "Reading dvips config file `%s':\n", realnameoffile);
-      }
+     if (dd (D_CONFIG)) {
+       fprintf_str(stderr, "Reading dvips config file `%s':\n", realnameoffile);
+     }
 #endif
-      c_lineno = 0;
-      while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
-         c_lineno++;
+     c_lineno = 0;
+     while (fgets(was_inline, INLINE_SIZE, deffile)!=NULL) {
+       c_lineno++;
 #ifdef DEBUG
-         if (dd (D_CONFIG)) {
-            fprintf_str(stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
-         }
+       if (dd (D_CONFIG)) {
+         fprintf_str(stderr, "%s:%d:%s", realnameoffile, c_lineno, was_inline);
+       }
 #endif
 /*
  *   We need to get rid of the newline.
  */
-         for (p=was_inline; *p; p++);
-         while (p > was_inline && (*(p-1) == '\n' || *(p-1) == '\r')) {
-            *--p = '\0';
-         }
-         if (was_inline[0] != '@')
-            canaddtopaper = 0;
-         switch (was_inline[0]) {
+       for (p=was_inline; *p; p++);
+       while (p > was_inline && (*(p-1) == '\n' || *(p-1) == '\r')) {
+          *--p = '\0';
+       }
+       if (was_inline[0] != '@')
+          canaddtopaper = 0;
+       switch (was_inline[0]) {
 /*
  *   Handling paper size information:
  *
@@ -639,6 +645,13 @@ case 'O' :
          p = was_inline + 1;
          handlepapersize(p, &hoff, &voff);
          break;
+case 'l':
+         p = was_inline + 1 ;
+         if (strncmp(p, "andscaperotate", 14) != 0)
+            error("! in config file line starting with l was not landscaperotate") ;
+         p += 14 ;
+         landscaperotate = (*p != '0') ;
+         break ;
 #ifdef FONTLIB
 case 'L' :
          {
@@ -826,16 +839,17 @@ case 'e' :
             vmaxdrift = maxdrift;
          break;
 case 'z' :
-         if (secure_option && secure && was_inline[1] == '0') {
-//AP--begin
+     if (secure_option && secure && was_inline[1] == '0') {
+#ifndef XDVIPSK
+	   fprintf_str(stderr,
+	            "warning: %s: z0 directive ignored since -R1 given\n",
+	            realnameoffile); /* Never happen */
+#else
             sprintf(buf,
                "warning: %s: z0 directive ignored since -R1 given\n",
                realnameoffile); /* Never happen */
             error(buf);
-//         fprintf(stderr,
-//                "warning: %s: z0 directive ignored since -R1 given\n",
-//                realnameoffile); /* Never happen */
-//AP--end
+#endif /* XDVIPSK */
          } else {
             if (was_inline[1] == '0') {
                secure = 0;
@@ -881,14 +895,15 @@ case 'Z' :
          compressed = (was_inline[1] != '0');
          break;
 case 'j':
-//AP--begin
-//         partialdownload = (was_inline[1] != '0');
+#ifndef XDVIPSK
+         partialdownload = (was_inline[1] != '0');
+#else
          t1_partialdownload = (was_inline[1] != '0');
          break;
 case 'J':
          cid_partialdownload = (was_inline[1] != '0');
          break;
-//AP--end
+#endif /* XDVIPSK */
 case 't' :
          if (sscanf(was_inline+1, "%s", PSname) != 1)
             bad_config("missing arg to t");
@@ -1055,10 +1070,11 @@ getpsinfo(const char *name)
                specinfo = newstring(specbuf);
                downloadinfo = newstring(downbuf);
                add_entry(TeXname, PSname, Fontfile, Vectfile,
-//AP--begin
+#ifndef XDVIPSK
+                         specinfo, downloadinfo);
+#else
                    specinfo, downloadinfo, !nopartial_p, 0, 0);
-//                         specinfo, downloadinfo);
-//AP--end
+#endif /* XDVIPSK */
             }
          }
       }
@@ -1066,7 +1082,7 @@ getpsinfo(const char *name)
    }
    checkstrings();
 }
-//AP--begin
+#ifdef XDVIPSK
 /*
 *   Read fonts map file suplied via /special{mapfile: xxxx.map}
 *   Replaces or not duplicating entries
@@ -1394,7 +1410,7 @@ getotfinfo(const char *dviname)
    }
    checkstrings();
 }
-//AP--end
+#endif /* XDVIPSK */
 #ifndef KPATHSEA
 /*
  *   Get environment variables! These override entries in ./config.h.

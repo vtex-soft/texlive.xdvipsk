@@ -3,10 +3,11 @@
  *   By Radical Eye Software.
  *   (Slight mods by Don Knuth in December 89.)
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif
 /*
  *   The external declarations:
  */

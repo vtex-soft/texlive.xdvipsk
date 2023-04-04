@@ -13,10 +13,11 @@
  *   Since this math is special, we put it in its own file.  It is the only
  *   place in the program where such accuracy is required.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   The external declarations:
  */

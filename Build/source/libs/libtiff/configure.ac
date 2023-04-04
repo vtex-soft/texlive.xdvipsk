@@ -27,6 +27,7 @@ AC_CONFIG_HEADERS([config.h])
 KPSE_COMPILER_VISIBILITY
 
 KPSE_LIBJPEG_FLAGS
+KPSE_ZLIB_FLAGS
 
 AM_CONDITIONAL([build], [test "x$enable_build" != xno])
 

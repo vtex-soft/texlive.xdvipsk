@@ -1,10 +1,11 @@
 /*
  *   This is the main routine for the first (prescanning) pass.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The external declarations:
@@ -28,14 +29,15 @@ ppreselectfont(fontdesctype *f)
    if (curfnt->loaded == 0) {
       if (!residentfont(curfnt))
          if (!virtualfont(curfnt)) {
-//AP--begin
-//			 for (i = 0; i<256; i++)
-//               curfnt->chardesc[i].flags = 0;
+#ifndef XDVIPSK
+            for (i=0; i<256; i++)
+               curfnt->chardesc[i].flags = 0;
+#else
 				for (i = 0; i<256; i++) {
 					chardesctype *cd = add_chardesc(curfnt, i);
 					cd->flags = 0;
 				}
-//AP--end
+#endif /* XDVIPSK */
             curfnt->loaded = 3; /* we're scanning for sizes */
          }
    }
@@ -108,10 +110,11 @@ case 130: case 135: /* set3, put3 */
          mychar = (mychar << 8) + dvibyte();
          goto dochar;
 case 129: case 134: /* set2, put2 */
-//AP--begin
-//         if (noomega && noptex) {
+#ifndef XDVIPSK
+         if (noomega && noptex) {
+#else
 		 if (noomega && noptex && noluatex) {
-//AP--end
+#endif /* XDVIPSK */
             sprintf(errbuf,
                "! DVI file contains unexpected command (%d)",cmd);
             error(errbuf);
@@ -141,10 +144,11 @@ dochar:
             frp->curf = curfnt;
             if (++frp == &frames[MAXFRAME] )
                error("! virtual recursion stack overflow");
-//AP--begin
-//            cd = curfnt->chardesc + mychar;
+#ifndef XDVIPSK
+            cd = curfnt->chardesc + mychar;
+#else
 			cd = find_chardesc(curfnt, mychar);
-//AP--end
+#endif /* XDVIPSK */
 
             if (mychar>=curfnt->maxchars || cd->packptr == NULL) {
                if (!noptex && mychar<0x1000000 && curfnt->kind == VF_PTEX) { /* fallback */
@@ -177,14 +181,15 @@ dochar:
                else
                   ppreselectfont(ffont->desc);
             }
-//AP--begin
-//         } else if (curfnt->loaded == 3)
-//            curfnt->chardesc[mychar].flags = EXISTS;
+#ifndef XDVIPSK
+         } else if (curfnt->loaded == 3)
+            curfnt->chardesc[mychar].flags = EXISTS;
+#else
 		 } else if (curfnt->loaded == 3) {
 			 cd = find_chardesc(curfnt, mychar);
 			 cd->flags = EXISTS;
 		 }
-//AP--end
+#endif /* XDVIPSK */
          break;
 case 171: case 172: case 173: case 174: case 175: case 176: case 177:
 case 178: case 179: case 180: case 181: case 182: case 183: case 184:

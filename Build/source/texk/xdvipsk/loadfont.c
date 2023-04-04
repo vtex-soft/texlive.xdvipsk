@@ -2,10 +2,11 @@
  *   Here's the code to load a PK file into memory.
  *   Individual bitmaps won't be unpacked until they prove to be needed.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #ifdef OS2
 #include <stdlib.h>
 #endif
@@ -141,7 +142,7 @@ pkopen(register fontdesctype *fd)
      pkfile = pksearch(this_name, READBIN, fd->dpi, &name_ret, &dpi_ret);
 
      if (!pkfile || !FILESTRCASEEQ (this_name, name_ret)) {
-       char *msg = concatn ("Font ", fd->area, n, " not found; ", NULL);
+       char *msg = concatn ("PK font ", fd->area, n, " not found; ", NULL);
        /* wasting some memory */
        if (!pkfile)
          msg = concat (msg, "characters will be left blank.");
@@ -321,27 +322,29 @@ loadfont(register fontdesctype *curfnt)
  */
    if (curfnt->loaded == 3) {
       for (i=0; i<256; i++) {
-//AP--begin
-//         curfnt->chardesc[i].TFMwidth = 0;
-//         curfnt->chardesc[i].packptr = NULL;
-//         curfnt->chardesc[i].pixelwidth = 0;
-//         curfnt->chardesc[i].flags &= EXISTS;
-//         curfnt->chardesc[i].flags2 = 0;
+#ifndef XDVIPSK
+         curfnt->chardesc[i].TFMwidth = 0;
+         curfnt->chardesc[i].packptr = NULL;
+         curfnt->chardesc[i].pixelwidth = 0;
+         curfnt->chardesc[i].flags &= EXISTS;
+         curfnt->chardesc[i].flags2 = 0;
+#else
          cd = find_chardesc(curfnt, i);
          if (cd)
              cd->flags &= EXISTS;
-//AP--end
+#endif /* XDVIPSK */
       }
    } else {
       for (i=0; i<256; i++) {
-//AP--begin
-//         curfnt->chardesc[i].TFMwidth = 0;
-//         curfnt->chardesc[i].packptr = NULL;
-//         curfnt->chardesc[i].pixelwidth = 0;
-//         curfnt->chardesc[i].flags = 0;
-//         curfnt->chardesc[i].flags2 = 0;
+#ifndef XDVIPSK
+         curfnt->chardesc[i].TFMwidth = 0;
+         curfnt->chardesc[i].packptr = NULL;
+         curfnt->chardesc[i].pixelwidth = 0;
+         curfnt->chardesc[i].flags = 0;
+         curfnt->chardesc[i].flags2 = 0;
+#else
          cd = add_chardesc(curfnt, i);
-//AP--end
+#endif /* XDVIPSK */
       }
    }
    curfnt->maxchars = 256; /* just in case we return before the end */
@@ -399,10 +402,11 @@ loadfont(register fontdesctype *curfnt)
 case 0: case 1: case 2: case 3:
             length = (cmd & 7) * 256 + pkbyte() - 3;
             cc = pkbyte();
-//AP--begin
-//            cd = curfnt->chardesc+cc;
+#ifndef XDVIPSK
+            cd = curfnt->chardesc+cc;
+#else
             cd = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
             if (nosmallchars || curfnt->dpi != curfnt->loadeddpi)
                cd->flags |= BIGCHAR;
             cd->TFMwidth = scalewidth(pktrio(), scaledsize);
@@ -412,10 +416,11 @@ case 4: case 5: case 6:
             length = (cmd & 3) * 65536L + pkbyte() * 256L;
             length = length + pkbyte() - 4L;
             cc = pkbyte();
-//AP--begin
-//            cd = curfnt->chardesc+cc;
+#ifndef XDVIPSK
+            cd = curfnt->chardesc+cc;
+#else
             cd = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
             cd->TFMwidth = scalewidth(pktrio(), scaledsize);
             cd->flags |= BIGCHAR;
             i = pkbyte();
@@ -425,10 +430,11 @@ case 7:
             length = pkquad() - 11;
             cc = pkquad();
             if (cc<0 || cc>255) badpk("character code out of range");
-//AP--begin
-//            cd = curfnt->chardesc + cc;
+#ifndef XDVIPSK
+            cd = curfnt->chardesc + cc;
+#else
             cd = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
             cd->flags |= BIGCHAR;
             cd->TFMwidth = scalewidth(pkquad(), scaledsize);
             cd->pixelwidth = (pkquad() + 32768) >> 16;

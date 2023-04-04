@@ -2,10 +2,11 @@
  *   This routine handles special commands;
  *   predospecial() is for the prescan, dospecial() for the real thing.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 #ifdef KPATHSEA
 #include <kpathsea/c-ctype.h>
@@ -45,16 +46,17 @@ specerror(const char *s)
           && !kpse_tex_hush ("special")
 #endif
           ) {
-//AP--begin
+#ifndef XDVIPSK
+      error("more errors in special, being ignored . . .");
+      error("(perhaps dvips doesn't support your macro package?)");
+#else
       writelogrecord(s);
-//      error("more errors in special, being ignored . . .");
-//      error("(perhaps dvips doesn't support your macro package?)");
       fprintf(stderr, "%s\n", "more errors in special, being ignored . . .");
       fprintf(stderr, "%s\n", "(perhaps dvips doesn't support your macro package?)");
-//AP--end
+#endif /* XDVIPSK */
       specialerrors--;
    }
-//AP--begin
+#ifdef XDVIPSK
    else if (specialerrors < 0
 #ifdef KPATHSEA
     && !kpse_tex_hush("special")
@@ -62,7 +64,7 @@ specerror(const char *s)
      ) {
      writelogrecord(s);
    }
-//AP--end
+#endif /* XDVIPSK */
 }
 
 static void
@@ -303,7 +305,7 @@ GetKeyVal(char *str, int *tno) /* returns NULL if none found, else next scan poi
      /* str : starting point for scan */
      /* tno : table entry number of keyword, or -1 if keyword not found */
 {
-   char *s;
+   unsigned char *s;
    register int i;
    register char t;
 
@@ -391,10 +393,11 @@ predospecial(integer numbytes, Boolean scanning)
    if (numbytes < 0 || numbytes > maxstring - nextstring) {
       if (numbytes < 0 || numbytes > (INT_MAX - 1000) / 2 ) {
          error("! Integer overflow in predospecial");
-//AP--begin
+#ifndef XDVIPSK
+         exit(1);
+#else
          dvips_exit(1);
-//         exit(1);
-//AP--end
+#endif /* XDVIPSK */
       }
       p = nextstring = mymalloc(1000 + 2 * numbytes);
       maxstring = nextstring + 2 * numbytes + 700;
@@ -585,7 +588,7 @@ case '!':
       return;
    }
    break;
-//AP--begin
+#ifdef XDVIPSK
 case 'm':
    if (strncmp(p, "mapline", 7)==0) {
          char *specinfo, *downloadinfo;
@@ -717,7 +720,7 @@ case 'm':
       getpsinfo_spec(p, repl);
    }
    break;
-//AP--end
+#endif /* XDVIPSK */
 default:
    break;
    }
@@ -788,7 +791,7 @@ if (HPS_FLAG && NEED_NEW_BOX) {
       fprintf_str(stderr, "Processing special: %s\n", p);
 #endif
 
-//AP--begin
+#ifdef XDVIPSK
    if (VTEX_SPEC_MODE) {
 	   if ((strncmp(p, "mt:", 3) == 0) || (strncmp(p, "vtex:", 5) == 0) ||
 		   (strncmp(p, "MC:", 3) == 0) || (strncmp(p, "BMC:", 4) == 0) ||
@@ -796,7 +799,7 @@ if (HPS_FLAG && NEED_NEW_BOX) {
 		   return;
 	   }
    }
-//AP--end
+#endif /* XDVIPSK */
 
    switch (*p) {
 case 'o':
@@ -1099,12 +1102,12 @@ case '"':
    cmdout("\n@endspecial");
    return;
    break;
-//AP--begin
+#ifdef XDVIPSK
 case 'm':
    if (strncmp(p, "mapline", 7)==0) return;
    else if (strncmp(p, "mapfile", 7)==0) return;
    break;
-//AP--end
+#endif /* XDVIPSK */
 default:
    break;
    }
@@ -1118,11 +1121,12 @@ default:
  case -1: /* for compatibility with old conventions, we allow a file name
            * to be given without the 'psfile=' keyword */
          if (!psfile[0] && maccess(KeyStr)==0) /* yes we can read it */
-//AP--begin
+#ifdef XDVIPSK
            {
-//             strcpy(psfile,KeyStr);
-//         else {
-//AP--end
+#else
+             strcpy(psfile,KeyStr);
+         else {
+#endif /* XDVIPSK */
            if (strlen(KeyStr) < 40) {
               sprintf(errbuf,
                       "Unknown keyword (%s) in \\special will be ignored",
@@ -1133,10 +1137,10 @@ default:
                               KeyStr);
            }
            specerror(errbuf);
-//AP--begin
+#ifdef XDVIPSK
          cmdout("@endspecial");
          return;
-//AP--end
+#endif /* XDVIPSK */
          }
          break;
  case 0: case 1: case 2: /* psfile */
@@ -1144,12 +1148,11 @@ default:
            sprintf(errbuf, "More than one \\special %s given; %.40s ignored",
                     "psfile", ValStr);
            specerror(errbuf);
-//AP--begin
+#ifdef XDVIPSK
            cmdout("@endspecial");
            return;
-//AP--end
-         }
-         else {
+#endif /* XDVIPSK */
+         } else {
            if (strlen(ValStr) >= PSFILESIZ) {
                sprintf(errbuf, 
            "! PS filename (%.20s...) in \\special longer than %d characters",
@@ -1187,10 +1190,11 @@ default:
          systemtype = (psfile[0]=='`');
          figcopyfile(psfile+systemtype, systemtype);
       } else {
-//AP--begin
-//         fprintf (stderr, "dvips: iff2ps and tek2ps are not supported.\n");
+#ifndef XDVIPSK
+         fprintf (stderr, "dvips: iff2ps and tek2ps are not supported.\n");
+#else
          error("dvips: iff2ps and tek2ps are not supported.");
-//AP--end
+#endif /* XDVIPSK */
       }
    } else if (psfilewanted
 #ifdef KPATHSEA
@@ -1219,10 +1223,11 @@ bbdospecial(int nbytes)
    if (nbytes < 0 || nbytes > maxstring - nextstring) {
       if (nbytes < 0 || nbytes > (INT_MAX - 1000) / 2 ) {
          error("! Integer overflow in bbdospecial");
-//AP--begin
+#ifndef XDVIPSK
+         exit(1);
+#else
          dvips_exit(1);
-//         exit(1);
-//AP--end
+#endif /* XDVIPSK */
       }
       p = nextstring = mymalloc(1000 + 2 * nbytes);
       maxstring = nextstring + 2 * nbytes + 700;

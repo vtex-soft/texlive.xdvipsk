@@ -14,10 +14,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see  <http://www.gnu.org/licenses/>.  */
 
-//AP--begin
-//#include "dvips.h"
+#ifndef XDVIPSK
+#include "dvips.h"
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   The external declarations:
  */
@@ -264,9 +265,9 @@ static FILE *enc_file;
 
 static void pdftex_fail(const char *fmt, ...)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     va_list args;
     va_start(args, fmt);
     fputs("\nError: module writet1", stderr);
@@ -277,24 +278,27 @@ static void pdftex_fail(const char *fmt, ...)
     fputs_str(print_buf, stderr);
     fputs("\n ==> Fatal error occurred, the output PS file is not finished!\n", stderr);
     va_end(args);
-//AP--begin
+#ifndef XDVIPSK
+    exit(-1);
+#else
 	sprintf(buf, "! Module writet1 (file %s) %s", cur_file_name, print_buf);
 	writelogrecord(buf);
 	dvips_exit(-1);
-//    exit(-1);
-//AP--end
+#endif /* XDVIPSK */
 }
 
 static void pdftex_warn(const char *fmt, ...)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     va_list args;
     va_start(args, fmt);
-//AP--begin
+#ifndef XDVIPSK
+    fputs("\nWarning: module writet1 of dvips", stderr);
+#else
 	fputs("\nWarning: module writet1 of xdvips", stderr);
-//AP--end
+#endif /* XDVIPSK */
     if (cur_file_name)
         fprintf_str(stderr, " (file %s)", cur_file_name);
     fputs(": ", stderr);
@@ -302,10 +306,10 @@ static void pdftex_warn(const char *fmt, ...)
     fputs_str(print_buf, stderr);
     fputs("\n", stderr);
     va_end(args);
-//AP--begin
+#ifdef XDVIPSK
 	sprintf(buf, "Module writet1 of xdvips (file %s) %s", cur_file_name, print_buf);
 	writelogrecord(buf);
-//AP--end
+#endif /* XDVIPSK */
 }
 
 #define HEXLINE_WIDTH 64
@@ -578,10 +582,10 @@ static void t1_putline(void)
     char *p = t1_line_array;
     if (t1_line_ptr - t1_line_array <= 1)
         return;
-//AP--begin
+#ifdef XDVIPSK
 	if ((strncmp(p, "%!", 2) == 0) || (strncmp(p, "%%", 2) == 0))
 		return;
-//AP--end
+#endif /* XDVIPSK */
     if (t1_eexec_encrypt) {
         while (p < t1_line_ptr)
             t1_outhex(eencrypt(*p++)); /* dvips outputs hex, unlike pdftex */
@@ -1412,19 +1416,21 @@ static void t1_flush_cs(boolean is_subr)
     xfree(line_end);
 }
 
-//AP--begin
-//static void t1_mark_glyphs(void)
+#ifndef XDVIPSK
+static void t1_mark_glyphs(void)
+#else
 static void t1_mark_glyphs(boolean fullfont)
-//AP--end
+#endif /* XDVIPSK */
 {
     int i;
     char *charset = extra_charset();
     char *g, *s, *r;
     cs_entry *ptr;
-//AP--begin
-//	if (t1_synthetic || embed_all_glyphs(tex_font)) { /* mark everything */
+#ifndef XDVIPSK
+    if (t1_synthetic || embed_all_glyphs(tex_font)) { /* mark everything */
+#else
 	if (t1_synthetic || embed_all_glyphs(tex_font) || fullfont) { /* mark everything */
-//AP--end
+#endif /* XDVIPSK */
         if (cs_tab != NULL)
             for (ptr = cs_tab; ptr < cs_ptr; ptr++)
                 if (ptr->valid)
@@ -1489,10 +1495,11 @@ static void t1_check_unusual_charstring(void)
     }
 }
 
-//AP--begin
-//static void t1_subset_charstrings(void)
+#ifndef XDVIPSK
+static void t1_subset_charstrings(void)
+#else
 static void t1_subset_charstrings(boolean fullfont)
-//AP--end
+#endif /* XDVIPSK */
 {
     cs_entry *ptr;
 
@@ -1520,10 +1527,11 @@ static void t1_subset_charstrings(boolean fullfont)
         t1_getline();
     }
     cs_dict_end = xstrdup(t1_line_array);
-//AP--begin
-//	t1_mark_glyphs();
+#ifndef XDVIPSK
+    t1_mark_glyphs();
+#else
 	t1_mark_glyphs(fullfont);
-//AP--end
+#endif /* XDVIPSK */
     if (subr_tab != NULL) {
         if (cs_token_pair == NULL)
             pdftex_fail
@@ -1588,15 +1596,16 @@ static void writet1(void)
     cc_init();
     cs_init();
     t1_read_subrs();
-//AP--begin
-//	t1_subset_charstrings();
+#ifndef XDVIPSK
+    t1_subset_charstrings();
+#else
 	t1_subset_charstrings(0);
-//AP--end
+#endif /* XDVIPSK */
     t1_subset_end();
     t1_close_font_file(">");
 }
 
-//AP--begin
+#ifdef XDVIPSK
 boolean t1_write_full(char *fontfile, unsigned char *g)
 {
 	read_encoding_only = false;
@@ -1616,7 +1625,7 @@ boolean t1_write_full(char *fontfile, unsigned char *g)
 	t1_close_font_file(">");
 	return 1;
 }
-//AP--end
+#endif /* XDVIPSK */
 
 boolean t1_subset_2(char *fontfile, unsigned char *g, char *extraGlyphs)
 {

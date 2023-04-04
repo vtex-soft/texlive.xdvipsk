@@ -27,9 +27,9 @@
 #define HEADERFILE "tex.pro"
 #define CHEADERFILE "texc.pro"
 #define PSFONTHEADER "texps.pro"
-//AP--begin
+#ifdef XDVIPSK
 #define CIDFONTHEADER "texcid.pro"
-//AP--end
+#endif
 #define IFONTHEADER "finclude.pro"
 #define SPECIALHEADER "special.pro"
 #define COLORHEADER "color.pro"  /* IBM: color */
@@ -41,11 +41,11 @@
 #ifdef HPS
 #define HPSHEADER "hps.pro"
 #endif
-//AP--begin
+#ifdef XDVIPSK
 #define OTFMAPFILEEXT ".opentype.map"
 #define OTFENCDFILEEXT ".encodings.map"
 #define OTFMAPFILEDIR ".xdvipsk/"
-//AP--end
+#endif
 #ifndef KPATHSEA
 /* arguments to fopen */
 #define READ            "r"

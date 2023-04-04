@@ -8,10 +8,11 @@
  *   in any distribution, commercial or otherwise, so long as
  *   copyright notice be preserved on all copies.
  */
-//AP--begin
-//#include "dvips.h"
+#ifndef XDVIPSK
+#include "dvips.h"
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #include "t1part.h"
 #ifndef SEEK_SET
 #define SEEK_SET (0)
@@ -74,12 +75,13 @@ static void OutHEX(FILE *);
 static int Afm(void);
 static int LoadVector(int, CHAR *);
 static int ChooseVect(CHAR *);
-//AP--begin
+#ifndef XDVIPSK
+static void ErrorOfScan(int err);
+static void NameOfProgram(void);
+#else
 static void NameOfProgram(char **buf);
 static void ErrorOfScan(int err, char **buf);
-//static void ErrorOfScan(int err);
-//static void NameOfProgram(void);
-//AP--end
+#endif /* XDVIPSK */
 
 typedef struct
 {
@@ -504,12 +506,13 @@ getmem(unsigned size)
     void *tmp;
     if ((tmp = calloc(1, size)) == NULL)
     {
-//AP--begin
+#ifndef XDVIPSK
+        fprintf(stderr,"Error allocating memory\n");
+        exit(1);
+#else
 		error("! Error allocating memory");
 		dvips_exit(1);
-//        fprintf(stderr,"Error allocating memory\n");
-//        exit(1);
-//AP--end
+#endif /* XDVIPSK */
     }
     return tmp;
 }
@@ -920,9 +923,9 @@ UnDefineStr(void)
 static void
 ScanSubrs(int i)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     int err_num;
     int word_type = 0;
     int len_dup;
@@ -962,16 +965,17 @@ ScanSubrs(int i)
 
                     if(num_err<0)
                     {
-//AP--begin
+#ifndef XDVIPSK
+                        ErrorOfScan(num_err);
+                        fprintf(stderr,"in %d Subr string", number - 1);
+                        exit(1);
+#else
 						ErrorOfScan(num_err, &buf);
 						sprintf(err_buf, "! %sin %d Subr string", buf, number - 1);
 						free(buf);
 						error(err_buf);
 						dvips_exit(1);
-//                        ErrorOfScan(num_err);
-//                        fprintf(stderr,"in %d Subr string", number - 1);
-//                        exit(1);
-//AP--end
+#endif /* XDVIPSK */
                     }
                     if(test>1)
                         PassToken();
@@ -987,18 +991,19 @@ ScanSubrs(int i)
         }
         else
         {
-//AP--begin
+#ifndef XDVIPSK
+            ErrorOfScan(0);
+            fprintf(stderr,
+            "Token 'def' not found in %d Subr string ", number - 1);
+            exit(1);
+#else
 			ErrorOfScan(0, &buf);
 			sprintf(err_buf,
 				"! %sToken 'def' not found in %d Subr string ", buf, number - 1);
 			free(buf);
 			error(err_buf);
 			dvips_exit(1);
-//            ErrorOfScan(0);
-//            fprintf(stderr,
-//            "Token 'def' not found in %d Subr string ", number - 1);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
     }
 }
@@ -1007,11 +1012,11 @@ static void
 ViewReturnCall(int num_err, int top, int *pstack,
                int j, int depth)
 {
-//AP--begin
+    int k,m;
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
 	int x;
-//AP--end
-   int k,m;
+#endif /* XDVIPSK */
 
 #ifdef DEBUG
     if((dd(D_CALL_SUBR))&&(num_err>0))
@@ -1027,26 +1032,29 @@ ViewReturnCall(int num_err, int top, int *pstack,
 
 #endif
 
-//AP--begin
+#ifdef XDVIPSK
 	x = 0;
-//AP--end
+#endif /* XDVIPSK */
     if(num_err<0)
     {
         if(grow==1)
         {
             grow=0;
             fprintf(stderr, "\n            ERROR: ");
-//AP--begin
+#ifndef XDVIPSK
+            ErrorOfScan(num_err);
+#else
 			ErrorOfScan(num_err, &buf);
 			x = 1;
-//            ErrorOfScan(num_err);
-//AP--end
+#endif /* XDVIPSK */
         }
         else
             fprintf(stderr,   "             Back: ");
     }
 
-//AP--begin
+#ifndef XDVIPSK
+    fprintf(stderr, " %d Subr \n", top);
+#else
 	if (x) {
 		sprintf(err_buf, "! %s %d Subr", buf, top);
 		free(buf);
@@ -1054,7 +1062,7 @@ ViewReturnCall(int num_err, int top, int *pstack,
 	}
 	else
 		fprintf(stderr, " %d Subr \n", top);
-//AP--end
+#endif /* XDVIPSK */
 
     fprintf(stderr," %dth level> STACK: ", level);
 
@@ -1090,9 +1098,9 @@ ViewReturnCall(int num_err, int top, int *pstack,
 static int
 DeCodeStr(int num, int numseac)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     unsigned int loccr;
     unsigned char byte;
     static int j;
@@ -1119,13 +1127,13 @@ DeCodeStr(int num, int numseac)
 
         if(tmpnum==last_subr)
         {
-//AP--begin
+#ifndef XDVIPSK
 			sprintf(err_buf, "! %d Subr not found", num);
 			error(err_buf);
 			dvips_exit(1);
 //            fprintf(stderr, " Error: %d Subr not found \n", num);
 //            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
         if(label[tmpnum].select==FLG_BINARY)
         {
@@ -1189,15 +1197,17 @@ DeCodeStr(int num, int numseac)
         else if (byte == ESCAPE)
         {
             byte = CDeCrypt(*loc++, &loccr);
+#ifndef XDVIPSK
+            if (byte > MAX_ESCAPE)
+                fprintf_str(stderr,
+            "Error: not_defined_e%d in %s", byte, psfontfile);
+#else
             if (byte > MAX_ESCAPE) {
-//AP--begin
 				sprintf(err_buf,
 				"! not_defined_e%d in %s", byte, psfontfile);
 				error(errbuf);
-//				fprintf(stderr,
-//					"Error: not_defined_e%d in %s", byte, psfontfile);
 			}
-//AP--end
+#endif /* XDVIPSK */
             else
             {
                 switch(byte)
@@ -1379,9 +1389,9 @@ static void
 ScanChars(int i)
 {
 
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     int word_type=0;
     int found;
     int str_len;
@@ -1483,29 +1493,31 @@ ScanChars(int i)
 
                 if(num_err<0)
                 {
-//AP--begin
+#ifndef XDVIPSK
+                    ErrorOfScan(num_err);
+                    fprintf_str(stderr,"in Char string of '%s'", tmp_token);
+                    exit(1);
+#else
 					ErrorOfScan(num_err, &buf);
 					sprintf(err_buf, "! %sin Char string of '%s'", buf, tmp_token);
 					free(buf);
 					error(err_buf);
 					dvips_exit(1);
-//                    ErrorOfScan(num_err);
-//                    fprintf(stderr,"in Char string of '%s'", tmp_token);
-//                    exit(1);
-//AP--end
+#endif /* XDVIPSK */
                 }
                 number++;
             }
         }
         else
         {
-//AP--begin
+#ifndef XDVIPSK
+            fprintf_str(stderr,
+           "\n File <%s> ended before all chars have been found.", psfontfile);
+#else
 			sprintf(err_buf,
 				"! File <%s> ended before all chars have been found.", psfontfile);
 			error(err_buf);
-//            fprintf(stderr,
-//           "\n File <%s> ended before all chars have been found.", psfontfile);
-//AP--end
+#endif /* XDVIPSK */
 
             fprintf(stderr,
             "\n We scan %d Chars from %d",
@@ -1516,10 +1528,11 @@ ScanChars(int i)
             {
                 fprintf_str(stderr, "\n Last seen token was '%s'\n", tmp_token);
             }
-//AP--begin
+#ifndef XDVIPSK
+            exit(1);
+#else
 			dvips_exit(1);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
     }
 
@@ -1539,13 +1552,14 @@ ScanChars(int i)
                 }
                 if(num_err<0)
                 {
-//AP--begin
+#ifndef XDVIPSK
+                    fprintf(stderr," Warning: %d char not choose during SEAC\n",
+                    label[counter].num);
+#else
 					sprintf(err_buf, "Warning: %d char not choose during SEAC",
 						label[counter].num);
 					error(err_buf);
-//                    fprintf(stderr," Warning: %d char not choose during SEAC\n",
-//                    label[counter].num);
-//AP--end
+#endif /* XDVIPSK */
                 }
                 else
                 {
@@ -1562,11 +1576,12 @@ ScanChars(int i)
 
     if(CharCount!=0)
     {
-//AP--begin
+#ifndef XDVIPSK
+        fprintf(stderr," WARNING: Not all chars found.");
+#else
 		sprintf(err_buf, "WARNING: Not all chars found.");
 		error(err_buf);
-//        fprintf(stderr," WARNING: Not all chars found.");
-//AP--end
+#endif /* XDVIPSK */
         PrintChar(FirstCharW);
 
     }
@@ -1583,9 +1598,9 @@ LastLook(void)
 static int
 FindKeyWord(int First_Key, int lastkey)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     int word_type=0;
     int i;
     int tmp_num=0;
@@ -1603,17 +1618,18 @@ FindKeyWord(int First_Key, int lastkey)
                         tmp_num = GetNum();
                         if(tmp_num<0)
                         {
-//AP--begin
+#ifndef XDVIPSK
+                            fprintf_str(stderr,
+                            "\n ERROR: Number not found for '%s' in <%s>",
+                            Key[i].name, psfontfile);
+                            exit(1);
+#else
 							sprintf(err_buf,
 								"! Number not found for '%s' in <%s>",
 								Key[i].name, psfontfile);
 							error(err_buf);
 							dvips_exit(1);
-//                            fprintf(stderr,
-//                            "\n ERROR: Number not found for '%s' in <%s>",
-//                            Key[i].name, psfontfile);
-//                            exit(1);
-//AP--end
+#endif /* XDVIPSK */
                         }
                         keyword[current].oldnum = tmp_num;
                         keyword[current].length=strlen((char *) token);
@@ -1625,20 +1641,22 @@ FindKeyWord(int First_Key, int lastkey)
         }
         else
         {
-//AP--begin
+#ifndef XDVIPSK
+            fprintf_str(stderr,
+            "\n ERROR: In <%s> keyword not found:", psfontfile);
+#else
 			sprintf(err_buf,
 				"! In <%s> keyword not found:", psfontfile);
 			error(err_buf);
-//            fprintf(stderr,
-//            "\n ERROR: In <%s> keyword not found:", psfontfile);
-//AP--end
+#endif /* XDVIPSK */
 
             for(i=First_Key; i<=lastkey; i++)
                 fprintf_str(stderr,"\n %dth > '%s' ",i,Key[i].name);
-//AP--begin
+#ifndef XDVIPSK
+            exit(1);
+#else
 			dvips_exit(1);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
     }
 }
@@ -1932,9 +1950,9 @@ CharEncoding(void)
 static void
 FindEncoding(void)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     int num_err=0;
     int tmpnum;
 
@@ -1973,18 +1991,19 @@ FindEncoding(void)
         num_err= CharEncoding();
         if(num_err<0)
         {
-//AP--begin
+#ifndef XDVIPSK
+            ErrorOfScan(num_err);
+            fprintf_str(stderr,
+            "\n ERROR in encoding vector in <%s>",  psfontfile);
+            exit(1);
+#else
 			ErrorOfScan(num_err, &buf);
 			sprintf(err_buf,
 				"! %sin encoding vector in <%s>", buf, psfontfile);
 			free(buf);
 			error(err_buf);
 			dvips_exit(1);
-//            ErrorOfScan(num_err);
-//            fprintf(stderr,
-//            "\n ERROR in encoding vector in <%s>",  psfontfile);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
     }
 }
@@ -1997,9 +2016,9 @@ static void
 CheckChoosing(void)
 {
 
-//AP--begin
+#ifdef XDVIPSK
 	char err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     CHAR *TmpChar;
     int err_num, i;
 
@@ -2015,15 +2034,16 @@ CheckChoosing(void)
         }
         else
         {
-//AP--begin
+#ifndef XDVIPSK
+            fprintf_str(stderr,
+            "WARNING: '/Encoding' not found in <%s>\n", psfontfile);
+            exit(1);
+#else
 			sprintf(err_buf,
 				"WARNING: '/Encoding' not found in <%s>\n", psfontfile);
 			error(err_buf);
 			dvips_exit(1);
-//            fprintf(stderr,
-//            "WARNING: '/Encoding' not found in <%s>\n", psfontfile);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         }
     }
 
@@ -2050,18 +2070,19 @@ CheckChoosing(void)
 
         if(err_num<0)
         {
-//AP--begin
+#ifdef XDVIPSK
 			sprintf(err_buf,
 				"Warning: after loading AFM file only %d chars found instead %d for <%s>",
 				CharCount, GridCount, psfontfile);
 			error(err_buf);
-//            fprintf(stderr,
-//            "\n Warning: after loading AFM file \n");
+#else
+            fprintf(stderr,
+            "\n Warning: after loading AFM file \n");
 
-//            fprintf_str(stderr,
-//            " only %d chars found instead %d for <%s>\n",
-//            CharCount, GridCount, psfontfile);
-//AP--end
+            fprintf_str(stderr,
+            " only %d chars found instead %d for <%s>\n",
+            CharCount, GridCount, psfontfile);
+#endif /* XDVIPSK */
         }
 
    }
@@ -2499,9 +2520,9 @@ parsing of own vector */
 static int
 Afm(void)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     unsigned char afmfile[100];
     FILE  *fafm;
     int err_num=0;
@@ -2536,16 +2557,17 @@ Afm(void)
 
     if ((fafm = psfopen((char *) afmfile, "r")) == NULL)
     {
-//AP--begin
+#ifndef XDVIPSK
+        NameOfProgram();
+        perror((char *) afmfile);
+        return -1;
+#else
 		NameOfProgram(&buf);
 		sprintf(err_buf, "! %s: Open error", buf);
 		free(buf);
 		error_with_perror(err_buf, (char *)afmfile);
 		dvips_exit(-1);
-//        NameOfProgram();
-//        perror((char *) afmfile);
-//        return -1;
-//AP--end
+#endif /* XDVIPSK */
     }
 
     for(j=0;;)
@@ -2608,9 +2630,9 @@ int
 FontPart(FILE *fout, unsigned char *fontfile,
 	 unsigned char *vectfile)
 {
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     FILE  *fin=0;
     int   num;
     int   rc;
@@ -2645,10 +2667,11 @@ FontPart(FILE *fout, unsigned char *fontfile,
 
         }
         else
-//AP--begin
+#ifndef XDVIPSK
+            exit(1);
+#else
 			dvips_exit(1);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
     }
 
     if(vectfile)
@@ -2665,77 +2688,82 @@ FontPart(FILE *fout, unsigned char *fontfile,
         case PFA:
             if ((fin = psfopen((char *) fontfile, "r"))==NULL)
             {
-//AP--begin
+#ifndef XDVIPSK
+                NameOfProgram();
+                perror((char *) fontfile);
+                return -1;
+#else
 				NameOfProgram(&buf);
 				sprintf(err_buf, "! %s: Open error", buf);
 				free(buf);
 				error_with_perror(err_buf, (char *)fontfile);
 				dvips_exit(-1);
-//                NameOfProgram();
-//                perror((char *) fontfile);
-//                return -1;
-//AP--end
+#endif /* XDVIPSK */
             }
             rc = PartialPFA(fin,fout);
             if (rc == FALSE)
             {
-//AP--begin
+#ifndef XDVIPSK
+                NameOfProgram();
+                (void) fprintf_str(stderr,
+                "Error: %s is not a valid PFA file\n", fontfile);
+                return -1;
+#else
 				NameOfProgram(&buf);
 				sprintf(err_buf, "! %s: is not a valid PFA file", buf);
 				free(buf);
 				error_with_perror(err_buf, (char *)fontfile);
 				dvips_exit(-1);
-//                NameOfProgram();
-//                (void) fprintf(stderr,
-//                "Error: %s is not a valid PFA file\n", fontfile);
-//                return -1;
-//AP--end
+#endif /* XDVIPSK */
             }
 
             break;
         case PFB:
             if ((fin = psfopen((char *) fontfile, OPEN_READ_BINARY))==NULL)
             {
-//AP--begin
+#ifndef XDVIPSK
+                NameOfProgram();
+                perror((char *) fontfile);
+                return -1;
+#else
 				NameOfProgram(&buf);
 				sprintf(err_buf, "! %s: Open error", buf);
 				free(buf);
 				error_with_perror(err_buf, (char *)fontfile);
 				dvips_exit(-1);
-//                NameOfProgram();
-//                perror((char *) fontfile);
-//                return -1;
-//AP--end
+#endif /* XDVIPSK */
             }
             rc = PartialPFB(fin,fout);
             if (rc==FALSE)
             {
-//AP--begin
+#ifndef XDVIPSK
+                NameOfProgram();
+                (void) fprintf_str(stderr,
+                "Error: %s is not a valid PFB file\n", fontfile);
+                return -1;
+#else
 				NameOfProgram(&buf);
 				sprintf(err_buf, "! %s: is not a valid PFB file", buf);
 				free(buf);
 				error_with_perror(err_buf, (char *)fontfile);
 				dvips_exit(-1);
-				//                NameOfProgram();
-//                (void) fprintf(stderr,
-//                "Error: %s is not a valid PFB file\n", fontfile);
-//                return -1;
-//AP--end
+#endif /* XDVIPSK */
             }
             break;
         case -1:
-//AP--begin
+#ifndef XDVIPSK
+            NameOfProgram();
+            fprintf_str(stderr,
+            "Error: %s has neither PFA nor PFB extension", fontfile);
+            return -1;
+#else
 			NameOfProgram(&buf);
 			sprintf(err_buf,
 				"! %s: %s has neither PFA nor PFB extension", buf, fontfile);
 			free(buf);
 			error(err_buf);
 			dvips_exit(-1);
-//            NameOfProgram();
-//            fprintf(stderr,
-//            "Error: %s has neither PFA nor PFB extension", fontfile);
-//            return -1;
-//AP--end
+#endif /* XDVIPSK */
     }
 
     UnDefineCharsW();
@@ -2765,9 +2793,9 @@ static int
 LoadVector(int num, CHAR *TmpChar)
 {
 
-//AP--begin
+#ifdef XDVIPSK
 	char *buf, err_buf[1024];
-//AP--end
+#endif /* XDVIPSK */
     FILE  *fvect;
     int i = 0;
     int j = 0;
@@ -2778,16 +2806,17 @@ LoadVector(int num, CHAR *TmpChar)
 
     if ((fvect = psfopen((char *) psvectfile, "r")) == NULL)
     {
-//AP--begin
+#ifndef XDVIPSK
+        NameOfProgram();
+        perror((char *) psvectfile);
+        return -1;
+#else
 		NameOfProgram(&buf);
 		sprintf(err_buf, "! %s: Open error", buf);
 		free(buf);
 		error_with_perror(err_buf, (char *)psvectfile);
 		dvips_exit(-1);
-//        NameOfProgram();
-//        perror((char *) psvectfile);
-//        return -1;
-//AP--end
+#endif /* XDVIPSK */
     }
 
     for(;;)
@@ -2849,15 +2878,16 @@ LoadVector(int num, CHAR *TmpChar)
         if((index_grid!=256)&&(CharCount!=256))
         {
             fclose(fvect);
-//AP--begin
+#ifndef XDVIPSK
+            fprintf_str(stderr,"Error during Load Vector in <%s>  \n",
+            psvectfile);
+            fprintf(stderr,
+                    "Found %d chars instead 256\n", max(index_grid,CharCount));
+#else
 			sprintf(err_buf, "! Error during Load Vector in <%s>. Found %d chars instead 256",
 				psvectfile, max(index_grid, CharCount));
 			error(err_buf);
-//            fprintf(stderr,"Error during Load Vector in <%s>  \n",
-//            psvectfile);
-//            fprintf(stderr,
-//                    "Found %d chars instead 256\n", max(index_grid,CharCount));
-//AP--end
+#endif /* XDVIPSK */
             return -3;
         }
 
@@ -2869,27 +2899,29 @@ LoadVector(int num, CHAR *TmpChar)
         else
         {
             fclose(fvect);
-//AP--begin
+#ifndef XDVIPSK
+            fprintf_str(stderr,
+                     "\n Warning: Vector from <%s> for <%s> doesn't load\n",
+            psvectfile, psfontfile);
+#else
 			sprintf(err_buf,
 				"Warning: Vector from <%s> for <%s> doesn't load\n",
 				psvectfile, psfontfile);
 			error(err_buf);
-//            fprintf(stderr,
-//                     "\n Warning: Vector from <%s> for <%s> doesn't load\n",
-//            psvectfile, psfontfile);
-//AP--end
+#endif /* XDVIPSK */
             return -1;
         }
     }
     else
     {
-//AP--begin
+#ifndef XDVIPSK
+        fprintf_str(stderr,"\n Error: ending token 'def' not found in <%s> \n",
+        psvectfile);
+#else
 		sprintf(err_buf, "! ending token 'def' not found in <%s> \n",
 			psvectfile);
 		error(err_buf);
-//        fprintf(stderr,"\n Error: ending token 'def' not found in <%s> \n",
-//        psvectfile);
-//AP--end
+#endif /* XDVIPSK */
         return -2;
     }
 }
@@ -2918,88 +2950,99 @@ ChooseVect(CHAR *tmpChar)
 }
 
 static void
-//AP--begin
+#ifndef XDVIPSK
+ErrorOfScan(int err)
+#else
 ErrorOfScan(int err, char **buf)
-//ErrorOfScan(int err)
-//AP--end
+#endif /* XDVIPSK */
 {
-//AP--begin
+#ifdef XDVIPSK
 	*buf = mymalloc(64);
 	memset(*buf, 0, 64);
-//AP--end
+#endif /* XDVIPSK */
     switch(err)
     {
 
         case 0: break;
 
         case ERR_FIRST_NUM:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " First number not found ");
+#else
 			strcpy(*buf, " First number not found ");
-//            fprintf(stderr, " First number not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
         case ERR_SECOND_NUM:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " Second number not found ");
+#else
 			strcpy(*buf, " Second number not found ");
-//            fprintf(stderr, " Second number not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
 
         case ERR_FIRST_TOK:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " First token not found ");
+#else
 			strcpy(*buf, " First token not found ");
-//            fprintf(stderr, " First token not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
 
         case ERR_SECOND_TOK:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " Second token not found ");
+#else
 			strcpy(*buf, " Second token not found ");
-//            fprintf(stderr, " Second token not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
 
         case ERR_STACK:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " End of stack ");
+#else
 			strcpy(*buf, " End of stack ");
-//            fprintf(stderr, " End of stack ");
-//AP--end
+#endif /* XDVIPSK */
             break;
 
         case ERR_NUM_CHAR:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " Number of char not found ");
+#else
 			strcpy(*buf, " Number of char not found ");
-//            fprintf(stderr, " Number of char not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
 
         case ERR_NAME_CHAR:
-//AP--begin
+#ifndef XDVIPSK
+            fprintf(stderr, " Name of char not found ");
+#else
 			strcpy(*buf, " Name of char not found ");
-//            fprintf(stderr, " Name of char not found ");
-//AP--end
+#endif /* XDVIPSK */
             break;
     }
 }
 
 static void
-//AP--begin
+#ifndef XDVIPSK
+NameOfProgram(void)
+#else
 NameOfProgram(char **buf)
-//NameOfProgram(void)
-//AP--end
+#endif /* XDVIPSK */
 {
 #ifdef DVIPS
-//AP--begin
+#ifndef XDVIPSK
+    fprintf(stderr,"This is DVIPS, t1part module \n");
+#else
 	*buf = mymalloc(64);
 	strcpy(*buf,"This is DVIPS, t1part module ");
-//    fprintf(stderr,"This is DVIPS, t1part module \n");
-//AP--end
+#endif /* XDVIPSK */
 #else
-//AP--begin
+#ifndef XDVIPSK
+    fprintf(stderr,"This is t1part, %s by Sergey Lesenko\n", version);
+#else
 	*buf = mymalloc(64);
 	sprintf(*buf, "This is t1part, %s by Sergey Lesenko\n", version);
-//    fprintf(stderr,"This is t1part, %s by Sergey Lesenko\n", version);
-//AP--end
+#endif /* XDVIPSK */
 #endif
 }
 

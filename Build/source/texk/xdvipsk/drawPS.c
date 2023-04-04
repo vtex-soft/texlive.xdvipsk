@@ -79,10 +79,11 @@ char RCSid[] =
 
   */
 
-//AP--begin
-//#include "dvips.h"
+#ifndef XDVIPSK
+#include "dvips.h"
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 #ifdef TPIC                     /* rest of the file !! */
 

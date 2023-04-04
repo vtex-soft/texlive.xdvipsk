@@ -3,10 +3,11 @@
  *   case statement insures we maintain sync with the dvi file by collecting
  *   the necessary parameters; but font definitions must be processed normally.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The external declarations:

@@ -2,10 +2,11 @@
  *   Here's the code to load a VF file into memory.
  *   Any resemblance between this file and loadfont.c is purely uncoincidental.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include <kpathsea/c-pathmx.h>
 #include <kpathsea/concatn.h>
@@ -179,24 +180,28 @@ virtualfont(register fontdesctype *curfnt)
    if (kindfont==VF_OMEGA) {
       no_of_chars = VF_MEM_UNIT;
       curfnt->maxchars=VF_MEM_UNIT;
-//AP--begin
-//      free(curfnt->chardesc);
-//      curfnt->chardesc = (chardesctype *)
-//                         mymalloc(VF_MEM_UNIT * (integer)sizeof(chardesctype));
+#ifndef XDVIPSK
+      free(curfnt->chardesc);
+      curfnt->chardesc = (chardesctype *)
+                         mymalloc(VF_MEM_UNIT * (integer)sizeof(chardesctype));
+#else
 	  delete_all_chardesc(curfnt);
 	  curfnt->chardesc_hh = NULL;
+#endif /* XDVIPSK */
    }
-//   for (i=0; i<no_of_chars; i++) {
-//      curfnt->chardesc[i].TFMwidth = 0;
-//      curfnt->chardesc[i].packptr = NULL;
-//      curfnt->chardesc[i].pixelwidth = 0;
-//      curfnt->chardesc[i].flags = 0;
-//      curfnt->chardesc[i].flags2 = 0;
-//   }
+#ifndef XDVIPSK
+   for (i=0; i<no_of_chars; i++) {
+      curfnt->chardesc[i].TFMwidth = 0;
+      curfnt->chardesc[i].packptr = NULL;
+      curfnt->chardesc[i].pixelwidth = 0;
+      curfnt->chardesc[i].flags = 0;
+      curfnt->chardesc[i].flags2 = 0;
+   }
+#else
    for (i = 0; i<no_of_chars; i++) {
 	   add_chardesc(curfnt, i);
    }
-//AP--end
+#endif /* XDVIPSK */
    if (vfbyte()!=247)
       badvf("expected pre");
    if (vfbyte()!=202)
@@ -256,36 +261,40 @@ virtualfont(register fontdesctype *curfnt)
          cc = vfquad();
          if (cc>=no_of_chars && cc<MAX_CODE) {
             j = VF_MEM_UNIT * ((integer)(cc/VF_MEM_UNIT) + 1);
-//AP--begin
-//            curfnt->chardesc = (chardesctype *)xrealloc(curfnt->chardesc,
-//                       sizeof(chardesctype)*j);
-//            for (i=no_of_chars; i<j; i++) {
-//               curfnt->chardesc[i].TFMwidth = 0;
-//               curfnt->chardesc[i].packptr = NULL;
-//               curfnt->chardesc[i].pixelwidth = 0;
-//               curfnt->chardesc[i].flags = 0;
-//               curfnt->chardesc[i].flags2 = 0;
-//            }
-			no_of_chars = j;
-			curfnt->maxchars = no_of_chars;
+#ifndef XDVIPSK
+            curfnt->chardesc = (chardesctype *)xrealloc(curfnt->chardesc,
+                         sizeof(chardesctype)*j);
+            for (i=no_of_chars; i<j; i++) {
+               curfnt->chardesc[i].TFMwidth = 0;
+               curfnt->chardesc[i].packptr = NULL;
+               curfnt->chardesc[i].pixelwidth = 0;
+               curfnt->chardesc[i].flags = 0;
+               curfnt->chardesc[i].flags2 = 0;
+            }
+#endif
+            no_of_chars = j;
+            curfnt->maxchars=no_of_chars;
+#ifdef XDVIPSK
 			for (i = 256; i<no_of_chars; i++) {
 				add_chardesc(curfnt, i);
 			}
-//AP--end
+#endif /* XDVIPSK */
          }
          else if (cc<0 || cc>=no_of_chars) badvf("character code out of range");
-//AP--begin
-//         cd = curfnt->chardesc + cc;
+#ifndef XDVIPSK
+         cd = curfnt->chardesc + cc;
+#else
 		 cd = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
          cd->TFMwidth = scalewidth(vfquad(), scaledsize);
       } else {
          length = cmd + 2;
          cc = vfbyte();
-//AP--begin
-//         cd = curfnt->chardesc + cc;
+#ifndef XDVIPSK
+         cd = curfnt->chardesc + cc;
+#else
 		 cd = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
          cd->TFMwidth = scalewidth(vftrio(), scaledsize);
       }
       maxcc = (maxcc<cc) ? cc : maxcc;
@@ -334,14 +343,14 @@ virtualfont(register fontdesctype *curfnt)
    fclose(vffile);
    curfnt->loaded = 2;
    if (maxcc+1<no_of_chars) {
-//AP--begin
+#ifndef XDVIPSK
 //      curfnt->chardesc = (chardesctype *)
 //         xrealloc(curfnt->chardesc,
 //                  (maxcc+1) * (integer)sizeof(chardesctype));
 	   for (i = maxcc + 1; i<no_of_chars; i++) {
 		   delete_chardesc(curfnt, i);
 	   }
-//AP--end
+#endif /* XDVIPSK */
       curfnt->maxchars=maxcc+1;
    }
    return (1);

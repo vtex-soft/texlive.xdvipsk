@@ -29,10 +29,11 @@
 #ifndef STANDALONE
 #include <kpathsea/config.h>
 #endif
-//AP--begin
-//#include "dvips.h"
+#ifndef XDVIPSK
+#include "dvips.h"
+#else
 #include "xdvips.h"
-//AP--end
+#endif /* XDVIPSK */
 #include "protos.h"
 /*
  *   Do we use this functionality?  If 0, then no; if 1, then yes, but
@@ -494,10 +495,11 @@ int downloadbmencoding(const char *name, double scale, fontdesctype *curfnt) {
  *   PostScript vector, and complain if this is not the case.
  */
    for (i=0; i<256 && i<curfnt->maxchars; i++) {
-      //AP--begin
-      //if ((curfnt->chardesc[i].flags2 & EXISTS) &&
+#ifndef XDVIPSK
+      if ((curfnt->chardesc[i].flags2 & EXISTS) &&
+#else
       if ((curfnt->chardesc_hh[i].flags2 & EXISTS) &&
-      //AP--end
+#endif /* XDVIPSK */
                                 !(bme->existsbm[i>>3] & (1 << (i & 7)))) {
          fprintf_str(stderr,
 "Can't use PostScript encoding vector for font %s; character %d has no name.\n",

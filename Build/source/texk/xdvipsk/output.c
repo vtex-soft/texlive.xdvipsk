@@ -6,16 +6,17 @@
  *   mail messages and many mailers mutilate longer lines.
  */
 #define LINELENGTH (72)
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #include <ctype.h>
 #include <stdlib.h>
 
-//AP--begin
+#ifdef XDVIPSK
 #define BUFFSIZE 10485760        //10MB buffer
-//AP--end
+#endif /* XDVIPSK */
 
 #ifdef OS2
 #ifdef _MSC_VER
@@ -58,9 +59,9 @@ extern FILE *generic_fsyscp_fopen(const char *name, const char *mode);
  *   The external declarations:
  */
 #include "protos.h"
-//AP--begin
+#ifdef XDVIPSK
 extern Boolean TURBO_MODE;
-//AP--end
+#endif /* XDVIPSK */
 
 char preamblecomment[256]; /* usually "TeX output ..." */
 integer rdir = 0, fdir = 0;
@@ -73,10 +74,10 @@ static void print_composefont(void);
 static void setdir(int d);
 static int JIStoSJIS(int c);
 
-//AP--begin
+#ifdef XDVIPSK
 static Boolean textStrokeFlag = 0;
 static char textstrokecmd[LINELENGTH];
-//AP--end
+#endif /* XDVIPSK */
 
 static Boolean any_dir = 0; /* did we output any direction commands? */
 static Boolean jflag = 0;
@@ -146,7 +147,7 @@ static int infigure;
 static char possibleDSCLine[81],
        *dscLinePointer = possibleDSCLine, *dscLineEnd = possibleDSCLine + 80;
 
-//AP--begin
+#ifdef XDVIPSK
 /*  syscopyfile() is called instead of copyfile()
 *  by figcopyfile(), if TURBO_MODE (syst. level I/O) is chosen
 */
@@ -200,7 +201,7 @@ syscopyfile(char *s)
       SET_BINARY(fileno(bitfile));
    (void)fprintf(bitfile, "\n%%%%EndDocument\n");
 }
-//AP--end
+#endif /* XDVIPSK */
 
 void
 copyfile_general(const char *s, struct header_list *cur_header)
@@ -249,19 +250,19 @@ copyfile_general(const char *s, struct header_list *cur_header)
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#else /* VMCMS */
+#else /* ! VMCMS */
       sprintf(errbuf,
     "Couldn't find figure file %s with MVS name %s; continuing.", s, trunc_s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#endif /* VMCMS */
-#else /* VMCMS || MVSXA */
+#endif /* ! VMCMS */
+#else /*  ! (VMCMS || MVSXA) */
       sprintf(errbuf, "Could not find figure file %.500s; continuing.", s);
       if (secure == 2) {
          strcat(errbuf, "\nNote that an absolute path or a relative path with .. are denied in -R2 mode.");
       }
-#endif /* VMCMS || MVSXA */
+#endif /* !(VMCMS || MVSXA) */
       break;
 #ifndef VMCMS
 #ifndef MVSXA
@@ -374,13 +375,13 @@ copyfile_general(const char *s, struct header_list *cur_header)
                         error("premature EOF in MS-DOS font file");
                         len = 0;
                      } else {
-                if (c == '\r') { /* Mac- or DOS-style text file */
+                        if (c == '\r') { /* Mac- or DOS-style text file */
                            putc('\n', bitfile);
-               if ((c = getc(f)) == '\n') /* DOS-style text */
-                  len--; /* consume, but don't generate NL */
-               else
-                  ungetc(c, f);
-            }
+                        if ((c = getc(f)) == '\n') /* DOS-style text */
+                           len--; /* consume, but don't generate NL */
+                        else
+                           ungetc(c, f);
+                     }
                         else
                            putc(c, bitfile);
                         len--;
@@ -421,7 +422,7 @@ copyfile_general(const char *s, struct header_list *cur_header)
                break;
             }
          }
-         msdosdone:
+msdosdone:
          prevc = 0;
       } else {
 /* begin DOS EPS code */
@@ -575,17 +576,17 @@ copyfile_general(const char *s, struct header_list *cur_header)
                         dosepsend--;
                         if (c == '\n' || c == '\r') {
                            putc(c, bitfile);
-               if (c == '\r') { /* DOS-style text file? */
-                  c = getc(f);
+                        if (c == '\r') { /* DOS-style text file? */
+                           c = getc(f);
+                           dosepsend--;
+                           if (c == '\n') {
+                              putc(c, bitfile);
+                              c = getc(f);
                               dosepsend--;
-                  if (c == '\n') {
-                     putc(c, bitfile);
-                     c = getc(f);
-                                 dosepsend--;
-                  }
-               } else {
-                  c = getc(f);
-                              dosepsend--;
+                           }
+                        } else {
+                           c = getc(f);
+                           dosepsend--;
                            }
                         }
                         if (c != '%') {
@@ -770,11 +771,11 @@ void
 figcopyfile(char *s, int systemtype)
 {
    infigure = systemtype ? 2 : 1;
-//AP--begin
+#ifdef XDVIPSK
    if (TURBO_MODE){
        syscopyfile(s) ; 
    } else
-//AP--end
+#endif /* XDVIPSK */
    copyfile(s);
    infigure = 0;
 }
@@ -798,7 +799,7 @@ specialout(char c)
 void
 stringend(void)
 {
-//AP--begin
+#ifdef XDVIPSK
    int tmp_jflag;
    if (textStrokeFlag) {
 	   tmp_jflag = jflag;
@@ -806,7 +807,7 @@ stringend(void)
 	   cmdout("ct_np");
 	   jflag = tmp_jflag;
    }
-//AP--end
+#endif /* XDVIPSK */
    if (linepos + instring >= LINELENGTH - 2) {
       putc('\n', bitfile);
       linepos = 0;
@@ -816,7 +817,7 @@ stringend(void)
    fputs(strbuffer, bitfile);
    putc(')', bitfile);
    linepos += instring + 2;
-//AP--begin
+#ifdef XDVIPSK
    if (textStrokeFlag) {
      if (linepos + instring >= LINELENGTH - 2) {
         putc('\n', bitfile);
@@ -833,7 +834,7 @@ stringend(void)
      putc(' ', bitfile);
 	 linepos++;
    }
-//AP--end
+#endif /* XDVIPSK */
    lastspecial = 1;
    instring = 0;
    strbp = strbuffer;
@@ -847,9 +848,9 @@ stringend(void)
 int
 T1Char(int c)
 {
-//AP--begin
+#ifdef XDVIPSK
   chardesctype *cd;
-//AP--end
+#endif /* XDVIPSK */
   int tmpchr = c;
   if (shiftlowchars && curfnt->resfont) {
     if ((tmpchr <= 0x20)&&(tmpchr>=0)) {
@@ -864,11 +865,12 @@ T1Char(int c)
       tmpchr = 0xC4;
     }
   }
-//AP--begin
+#ifndef XDVIPSK
+  if (curfnt->chardesc[tmpchr].flags2 & EXISTS)
+#else
   cd = find_chardesc(curfnt,tmpchr);
-//if (curfnt->chardesc[tmpchr].flags2 & EXISTS)
   if (cd->flags2 & EXISTS)
-//AP--end
+#endif /* XDVIPSK */
     tmpchr = c;
   return tmpchr;
 }
@@ -964,7 +966,7 @@ jscout(int c, char *fs)   /* string character out */
    strbuffer[0] = '\0';
 }
 
-//AP--begin
+#ifdef XDVIPSK
 static void
 scout2Octal(unsigned short c)
 {
@@ -1026,7 +1028,7 @@ scout2Octal(unsigned short c)
      }
    }
 }
-//AP--end
+#endif /* XDVIPSK */
 
 void
 cmdout(const char *s)
@@ -1477,13 +1479,13 @@ topoints(integer i)
    i += 65780L;
    return (i / 6578176L)*100 + (i % 6578176) * 100 / 6578176;
 }
-//AP--begin
+#ifdef XDVIPSK
 static double
 topointshires(integer i)
 {
     return (double)i / 65781.76;
 }
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   Send out the special paper stuff.  If `hed' is non-zero, only
  *   send out lines starting with `!' else send all other lines out.
@@ -1616,17 +1618,18 @@ initprinter(sectiontype *sect)
          if (isepsf)
             fprintf(bitfile, "%%!PS-Adobe-2.0 EPSF-2.0\n");
          else
-//AP--begin
-//          fprintf(bitfile, "%%!PS-Adobe-2.0\n");
+#ifndef XDVIPSK
+            fprintf(bitfile, "%%!PS-Adobe-2.0\n");
+#else
             fprintf(bitfile, "%%!PS-Adobe-3.0\n");
-//AP--end
+#endif /* XDVIPSK */
       }
       if (tryepsf && isepsf == 0)
          error("We tried, but couldn't make it EPSF.");
       fprintf(bitfile, "%%%%Creator: %s\n", banner + 8);
-//AP--begin
+#ifdef XDVIPSK
       fprintf(bitfile, "%%%%+        %s\n", banner3);
-//AP--end
+#endif /* XDVIPSK */
       if (*titlename)
          fprintf(bitfile, "%%%%Title: %s\n", titlename);
       else if (*iname)
@@ -1653,16 +1656,16 @@ initprinter(sectiontype *sect)
          fprintf(bitfile, "%%%%Orientation: Landscape\n");
          fprintf(bitfile, "%%%%BoundingBox: 0 0 %d %d\n",
               topoints(finpapsiz->xsize), topoints(finpapsiz->ysize));
-//AP--begin
+#ifdef XDVIPSK
          fprintf(bitfile, "%%%%HiResBoundingBox: 0 0 %.4f %.4f\n",
               topointshires(finpapsiz->xsize), topointshires(finpapsiz->ysize));
-//AP--end
+#endif /* XDVIPSK */
       } else if (isepsf)
          fprintf(bitfile, "%%%%BoundingBox: %s\n", isepsf);
       else {
          fprintf(bitfile, "%%%%BoundingBox: 0 0 %d %d\n",
               topoints(finpapsiz->xsize), topoints(finpapsiz->ysize));
-//AP--begin
+#ifdef XDVIPSK
          fprintf(bitfile, "%%%%HiResBoundingBox: 0 0 %.4f %.4f\n",
               topointshires(finpapsiz->xsize), topointshires(finpapsiz->ysize));
       }
@@ -1670,7 +1673,7 @@ initprinter(sectiontype *sect)
          fprintf(bitfile, "%%%%LanguageLevel: 3\n");
          fprintf(bitfile, "%%%%DocumentNeededResources: procset CIDInit 1.0 0\n");
       }
-//AP--end
+#endif /* XDVIPSK */
       tell_needed_fonts();
       paperspec(finpapsiz->specdat, 1);
       fprintf(bitfile, "%%%%EndComments\n");
@@ -1743,13 +1746,13 @@ initprinter(sectiontype *sect)
       fprintf(bitfile, "/SafetyEnclosure save def\n");
    print_composefont();
    if (! headers_off) {
-//AP--begin
+#ifdef XDVIPSK
       fprintf(bitfile, "%%%%BeginProlog\n");
       if (usesOTFfonts) {
          fprintf(bitfile, "%%%%IncludeResource: procset CIDInit 1.0 0\n");
          fprintf(bitfile, "/pdfmark where {pop} {userdict /pdfmark /cleartomark load put} ifelse\n");
       }
-//AP--end
+#endif /* XDVIPSK */
       send_headers();
    }
 }
@@ -1815,7 +1818,7 @@ setup(void) {
 void
 cleanprinter(void)
 {
-//AP--begin
+#ifdef XDVIPSK
    otfcmaptype *current, *tmp;
    char cmaps_dict_name[260], *s;
    int n;
@@ -1846,7 +1849,7 @@ cleanprinter(void)
      fprintf(bitfile, "[ {tounc_array} {%s} /APPEND pdfmark\n", cmaps_dict_name);
      fprintf(bitfile, "[ {Catalog} << /LuaTexCmaps {tounc_array} >> /PUT pdfmark\n");
    }
-//AP--end
+#endif /* XDVIPSK */
    fprintf(bitfile, "\n");
    fprintf(bitfile, "userdict /end-hook known{end-hook}if\n");
    if (safetyenclose)
@@ -1996,14 +1999,14 @@ drawchar(chardesctype *c, int cc)
       jflag = 1;
       hvpos();
       jflag = savejflag;
-//AP--begin
+#ifdef XDVIPSK
       textStrokeFlag = 0;
-//AP--end
+#endif /* XDVIPSK */
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       scout2(cc);
    }
-//AP--begin
+#ifdef XDVIPSK
    else if (curfnt->iswide && curfnt->codewidth == 2) {
       if (jflag) {
          if (!dir){
@@ -2032,11 +2035,11 @@ drawchar(chardesctype *c, int cc)
 	  }
       scout2Octal(c->cid);
    }
-//AP--end
+#endif /* XDVIPSK */
    else if (curfnt->iswide) {
-//AP--begin
+#ifdef XDVIPSK
       textStrokeFlag = 0;
-//AP--end
+#endif /* XDVIPSK */
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       jscout(cc, curfnt->resfont->PSname);
@@ -2056,9 +2059,9 @@ drawchar(chardesctype *c, int cc)
          rvv = vv;
       }
       else hvpos();
-//AP--begin
+#ifdef XDVIPSK
       textStrokeFlag = 0;
-//AP--end
+#endif /* XDVIPSK */
       if (lastfont != curfnt->psname)
          fontout(curfnt->psname);
       scout((unsigned char)cc);
@@ -2085,17 +2088,19 @@ tell_needed_fonts(void) {
             fprintf(bitfile, "\n%%%%+");
             roomleft = LINELENGTH - 3;
          } else {
-//AP--begin
-//          fprintf(bitfile, "%%%%DocumentFonts:");
+#ifndef XDVIPSK
+          fprintf(bitfile, "%%%%DocumentFonts:");
+#else
             fprintf(bitfile, "%%%%DocumentSuppliedResources:");
-//AP--end
+#endif /* XDVIPSK */
             roomleft = LINELENGTH - 16;
          }
       }
-//AP--begin
-//    fprintf(bitfile, " %s", q);
+#ifndef XDVIPSK
+    fprintf(bitfile, " %s", q);
+#else
       fprintf(bitfile, " font %s", q);
-//AP--end
+#endif /* XDVIPSK */
       roomleft -= strlen(q) + 1;
    }
    fprintf(bitfile, "\n");

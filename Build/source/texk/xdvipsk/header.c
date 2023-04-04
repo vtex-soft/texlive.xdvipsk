@@ -11,10 +11,11 @@
  *   include.  Then, when the time comes, we simply copy those
  *   headers down.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 struct header_list *header_head;
 /*
  *   The external declarations:
@@ -167,10 +168,10 @@ void
 send_headers(void) {
    struct header_list *p = header_head;
    char *q;
-//AP--begin
+#ifdef XDVIPSK
    Boolean old_removecomments = removecomments;
    removecomments = 1;
-//AP--end
+#endif /* XDVIPSK */
 
    while (0 != (q=get_name(&p))) {
 #ifdef DEBUG
@@ -185,7 +186,7 @@ send_headers(void) {
       copyfile_general(q, CUR_head);
    }
    infont = NULL;
-//AP--begin
+#ifdef XDVIPSK
    removecomments = old_removecomments;
-//AP--end
+#endif /* XDVIPSK */
 }

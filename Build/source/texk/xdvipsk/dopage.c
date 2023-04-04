@@ -2,10 +2,11 @@
  *   Main page drawing procedure.  Interprets the page commands.  A simple
  *   (if lengthy) case statement interpreter.  
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #include <math.h>
 /*
  *   The external declarations:
@@ -87,10 +88,11 @@ case 138: goto beginloop; /* nop command does nuttin */
  *   dropping through to the normal character setting routines.  This
  */
 case 135: /* put3 */
-//AP--begin
-//   if (noptex) error("! synch");
+#ifndef XDVIPSK
+   if (noptex) error("! synch");
+#else
    if (noptex && noluatex) error("! synch");
-//AP--end
+#endif /* XDVIPSK */
    mychar = dvibyte();
    mychar = (mychar << 8) + dvibyte();
    mychar = (mychar << 8) + dvibyte();
@@ -104,18 +106,21 @@ case 130: /* set3 */
    charmove = 1;
    goto dochar;
 case 134: /* put2 */
-//AP--begin
-//   if (noomega && noptex) error("! synch");
+#ifndef XDVIPSK
+   if (noomega && noptex) error("! synch");
+#else
    if (noomega && noptex && noluatex) error("! synch");
-//AP--end
+#endif /* XDVIPSK */
    mychar = dvibyte();
    mychar = (mychar << 8) + dvibyte();
    charmove = 0;
    goto dochar;
 case 129: /* set2 */
-//   if (noomega && noptex) error("! synch");
+#ifndef XDVIPSK
+   if (noomega && noptex) error("! synch");
+#else
    if (noomega && noptex && noluatex) error("! synch");
-//AP--end
+#endif /* XDVIPSK */
    mychar = dvibyte();
    mychar = (mychar << 8) + dvibyte();
    charmove = 1;
@@ -140,9 +145,10 @@ dochar:
        NEED_NEW_BOX = 0;
        }
 #endif
-//AP--begin
-//   if (mychar<curfnt->maxchars)
-//      cd = &(curfnt->chardesc[mychar]);
+#ifndef XDVIPSK
+   if (mychar<curfnt->maxchars)
+      cd = &(curfnt->chardesc[mychar]);
+#else
    if (mychar<curfnt->maxchars) {
       cd = find_chardesc(curfnt, mychar);
       if (cd == NULL) {
@@ -150,7 +156,7 @@ dochar:
         cd = find_chardesc(curfnt, mychar);
       }
    }
-//AP--end
+#endif /* XDVIPSK */
    if (!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) {
       if (mychar>=curfnt->maxchars || !(cd->flags & EXISTS)) {
       /* try fallback */
@@ -160,10 +166,11 @@ dochar:
               "Fallback pTeX vf:%s char=%d(0x%06x) to %s\n",
                curfnt->name, mychar, mychar, curfnt->localfonts->desc->name);
 #endif /* DEBUG */
-//AP--begin
-//         cd = curfnt->localfonts->desc->chardesc;
+#ifndef XDVIPSK
+         cd = curfnt->localfonts->desc->chardesc;
+#else
          cd = curfnt->localfonts->desc->chardesc_hh;
-//AP--end
+#endif /* XDVIPSK */
          if (charmove) {
             if (!dir) {
                sp->hh = hh + cd->pixelwidth;
@@ -493,7 +500,7 @@ verticalmotion:
    /* printf("Doing vertical motion: p = %i, v = %i, vv = %i\n",p,v,vv); */
 		/* printf("inHTMLregion %i\n", inHTMLregion); */
      if (HPS_FLAG && inHTMLregion) NEED_NEW_BOX = 1 /* vertical_in_hps() */;
-#endif   
+#endif
       goto beginloop;
 /*
  *   Horizontal motion is analogous. We know the exact width of each

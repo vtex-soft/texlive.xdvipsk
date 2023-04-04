@@ -1,6 +1,6 @@
-# $Id: kpse-pkgs.m4 49640 2019-01-08 18:57:53Z karl $
+# $Id: kpse-pkgs.m4 64168 2022-08-22 21:33:05Z lscarso $
 # Private Autoconf macros for the TeX Live (TL) tree.
-# Copyright 2016-2019 Karl Berry <tex-live@tug.org>
+# Copyright 2016-2020 Karl Berry <tex-live@tug.org>
 # Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 #
 # This file is free software; the copyright holder
@@ -25,6 +25,7 @@
 # Each library must precede required other libraries (if any).
 AC_DEFUN([KPSE_LIBS_PKGS], [dnl
 m4_define([kpse_libs_pkgs], [dnl
+pplib
 libtiff
 harfbuzz
 icu
@@ -32,12 +33,12 @@ teckit
 graphite2
 zziplib
 xpdf
-poppler
 mpfr
 gmp
 cairo
 pixman
 gd
+potrace
 freetype2
 libjpeg
 libpng
@@ -60,6 +61,8 @@ AC_REQUIRE([KPSE_LIBS_PREPARE])[]dnl
 AC_REQUIRE([KPSE_KPATHSEA_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_PTEXENC_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZLIB_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_PPLIB_SYSTEM_FLAGS])[]dnl
+AC_REQUIRE([KPSE_POTRACE_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBPAPER_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBJPEG_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_LIBPNG_SYSTEM_FLAGS])[]dnl
@@ -70,7 +73,6 @@ AC_REQUIRE([KPSE_PIXMAN_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_CAIRO_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GMP_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_MPFR_SYSTEM_FLAGS])[]dnl
-AC_REQUIRE([KPSE_POPPLER_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_XPDF_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_ZZIPLIB_SYSTEM_FLAGS])[]dnl
 AC_REQUIRE([KPSE_GRAPHITE2_SYSTEM_FLAGS])[]dnl
@@ -97,6 +99,7 @@ texdoctk
 tpic2pdftex
 vlna
 xindy
+xml2pmx
 xpdfopen
 ])]) # KPSE_UTILS_PKGS
 

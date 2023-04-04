@@ -5,10 +5,11 @@
  *   They simply get and return bytes in batches of one, two, three, and four,
  *   updating the current position as necessary.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 /*
  *   The external declarations:
  */

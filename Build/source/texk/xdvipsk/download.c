@@ -3,10 +3,11 @@
  * hacked by SPQR 8.95 to allow for non-partial downloading
  *
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 #ifndef DOWNLOAD_USING_PDFTEX
 #define DOWNLOAD_USING_PDFTEX
 #endif
@@ -204,10 +205,11 @@ lfontout(int n)
  *   And the download procedure.
  */
 void
-//AP--begin
-//download(charusetype *p, int psfont)
+#ifndef XDVIPSK
+download(charusetype *p, int psfont)
+#else
 download(charusetype *p)
-//AP--end
+#endif /* XDVIPSK */
 {
    double scale;
    int seq;
@@ -219,21 +221,22 @@ download(charusetype *p)
    char name[10];
    lastccout = -5;
    name[0] = '/';
-//AP--begin
-//   makepsname(name + 1, psfont);
+#ifndef XDVIPSK
+   makepsname(name + 1, psfont);
+#else
    name[1] = 0;
    if (p->fd->resfont) {
       makepsname(name + 1, p->fd->psname);
    }
-//AP--end
+#endif /* XDVIPSK */
    curfnt = p->fd;
-//AP--begin
-//   curfnt->psname = psfont;
-//AP--end
+#ifndef XDVIPSK
+   curfnt->psname = psfont;
+#endif /* XDVIPSK */
    if (curfnt->resfont) {
       struct resfont *rf = curfnt->resfont;
       int non_empty=0;
-//AP--begin
+#ifdef XDVIPSK
       if (rf->otftype) {
           cmdout(name);
 		  if (rf->specialinstructions[0] == '{')
@@ -253,7 +256,7 @@ download(charusetype *p)
           rf->sent = 1;
           return;
       }
-//AP--end
+#endif /* XDVIPSK */
       for (b=0; b<16; b++)
         if(p->bitmap[b] !=0)
             non_empty =1;
@@ -261,11 +264,12 @@ download(charusetype *p)
         return;
       cmdout(name);
 /* following code re-arranged - Rob Hutchings 1992Apr02 */
-//AP--begin
+#ifndef XDVIPSK
+      c = curfnt->chardesc + 255;
+#else
       cc = 255;
-//      c = curfnt->chardesc + 255;
       c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
       numcc = 0;
       i = 0;
       for (b=15; b>=0; b--) {
@@ -283,11 +287,12 @@ download(charusetype *p)
                i++;
                c->flags &= ~EXISTS;
             }
+#ifndef XDVIPSK
+            c--;
+#else
             cc--;
-//AP--begin
-//            c--;
             c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
          }
       }
       if (i > 0) {
@@ -359,30 +364,31 @@ download(charusetype *p)
       numout((integer)curfnt->dpi);
       numout((integer)curfnt->loadeddpi);
       if (curfnt->alreadyscaled == 0) {
-//AP--begin
-//         for (b=0, c=curfnt->chardesc; b<256; b++, c++)
-//            c->pixelwidth = (c->pixelwidth * 
-//      (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
+#ifndef XDVIPSK
+         for (b=0, c=curfnt->chardesc; b<256; b++, c++)
+            c->pixelwidth = (c->pixelwidth * 
+      (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
+#else
           for (b = 0; b<256; b++) {
               c = find_chardesc(curfnt, b);
               c->pixelwidth = (c->pixelwidth *
                   (long)curfnt->dpi * 2 + curfnt->loadeddpi) / (2 * curfnt->loadeddpi);
           }
-//AP--end
+#endif /* XDVIPSK */
          curfnt->alreadyscaled = 1;
       }
       cmdout("dfs");
    } else
       cmdout("df");
-//AP--begin
-//   c = curfnt->chardesc;
-//AP--end
+#ifndef XDVIPSK
+   c = curfnt->chardesc;
+#endif /* XDVIPSK */
    cc = 0;
    for (b=0; b<16; b++) {
       for (bit=32768; bit; bit>>=1) {
-//AP--begin
+#ifdef XDVIPSK
           c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
          if (p->bitmap[b] & bit) {
             downchar(c, (shalfword)cc);
             c->flags |= EXISTS;
@@ -498,20 +504,21 @@ downpsfont(charusetype *p, charusetype *all)
     struct resfont *rf;
     int cc;
     int j;
-    //AP--begin
+#ifdef XDVIPSK
     luacharmap *map;
     charusetype *all_gl = all;
-    //AP--end
+#endif /* XDVIPSK */
 
     curfnt = p->fd;
     rf = curfnt->resfont;
     if (rf == 0 || rf->Fontfile == NULL)
        return;
     for (; all->fd; all++)
-//AP--begin
-//      if (all->fd->resfont &&
-//           strcmp(rf->PSname, all->fd->resfont->PSname) == 0)
-//          break;
+#ifndef XDVIPSK
+       if (all->fd->resfont &&
+           strcmp(rf->PSname, all->fd->resfont->PSname) == 0)
+          break;
+#else
 	  if (rf->otftype) {
           if (all->fd->resfont && all->fd->resfont->otftype &&
              (strcmp(rf->PSname, all->fd->resfont->PSname) == 0))
@@ -522,7 +529,7 @@ downpsfont(charusetype *p, charusetype *all)
              (strcmp(rf->PSname, all->fd->resfont->PSname) == 0))
            break;
       }
-//AP--end
+#endif /* XDVIPSK */
     if (all != p)
        return;
     if (rf->sent == 2) /* sent as header, from a PS file */
@@ -533,7 +540,7 @@ downpsfont(charusetype *p, charusetype *all)
     }
     if (all->fd == 0)
        error("! internal error in downpsfont");
-//AP--begin
+#ifdef XDVIPSK
     if (rf->otftype) {
         map = (luacharmap *)mymalloc((integer)sizeof(luacharmap));
         map->luamap_idx = rf->luamap_idx;
@@ -567,13 +574,14 @@ downpsfont(charusetype *p, charusetype *all)
             fprintf(bitfile, "%%%%EndFont \n");
         return;
     }
-    //    if (!partialdownload) {
-    if (!t1_partialdownload || !rf->partialdownload) {
-        /*
+#endif /* XDVIPSK */
+#ifndef XDVIPSK
+    if (!partialdownload) {
         infont = all->fd->resfont->PSname;
         copyfile(all->fd->resfont->Fontfile);
         infont = 0;
-        */
+#else
+    if (!t1_partialdownload || !rf->partialdownload) {
 #ifdef DOWNLOAD_USING_PDFTEX
         for (cc = 0; cc<256; cc++)
             grid[cc] = 1;
@@ -598,8 +606,8 @@ downpsfont(charusetype *p, charusetype *all)
         copyfile(all->fd->resfont->Fontfile);
         infont = 0;
 #endif
+#endif /* XDVIPSK */
         return;
-//AP--end
     }
     for (cc=0; cc<256; cc++)
        grid[cc] = 0;
@@ -607,20 +615,22 @@ downpsfont(charusetype *p, charusetype *all)
     clearExtraGlyphList();
 #endif
     for (; all->fd; all++) {
-//AP--begin
-//        if (all->fd->resfont == 0 ||
+#ifndef XDVIPSK
+        if (all->fd->resfont == 0 ||
+#else
         if ((all->fd->resfont == 0) || all->fd->resfont->otftype ||
-//AP--end
+#endif /* XDVIPSK */
             strcmp(rf->PSname, all->fd->resfont->PSname))
            continue;
         curfnt = all->fd;
 #ifdef DOWNLOAD_USING_PDFTEX
         if (curfnt->resfont->Vectfile) {
        char **glyphs = getEncoding(curfnt->resfont->Vectfile);
-//AP--begin
-//           c = curfnt->chardesc + 255;
+#ifndef XDVIPSK
+           c = curfnt->chardesc + 255;
+#else
            c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
            cc = 255;
            for (b=15; b>=0; b--) {
                for (bit=1; bit; bit<<=1) {
@@ -628,18 +638,20 @@ downpsfont(charusetype *p, charusetype *all)
                       addGlyph(glyphs[cc]);
                    }
                    cc--;
-//AP--begin
-//                   c--;
+#ifndef XDVIPSK
+                   c--;
+#else
                    c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
                }
             }
         } else {
 #endif
-//AP--begin
-//           c = curfnt->chardesc + 255;
+#ifndef XDVIPSK
+           c = curfnt->chardesc + 255;
+#else
            c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
            cc = 255;
            for (b=15; b>=0; b--) {
                for (bit=1; bit; bit<<=1) {
@@ -647,10 +659,11 @@ downpsfont(charusetype *p, charusetype *all)
                        grid[cc]=1;
                    }
                    cc--;
-//AP--begin
-//                   c--;
+#ifndef XDVIPSK
+                   c--;
+#else
                    c = find_chardesc(curfnt, cc);
-//AP--end
+#endif /* XDVIPSK */
                }
             }
 #ifdef DOWNLOAD_USING_PDFTEX
@@ -677,10 +690,11 @@ downpsfont(charusetype *p, charusetype *all)
 #else
         if(FontPart(bitfile, rf->Fontfile, rf->Vectfile) < 0)
 #endif
-//AP--begin
+#ifndef XDVIPSK
+            exit(1);
+#else
             dvips_exit(1);
-//            exit(1);
-//AP--end
+#endif /* XDVIPSK */
         if (!quiet) {
            if (strlen(realnameoffile) + prettycolumn > STDOUTSIZE) {
               fprintf(stderr, "\n");
@@ -698,22 +712,22 @@ void
 dopsfont(sectiontype *fs)
 {
     charusetype *cu;
-//AP--begin
+#ifdef XDVIPSK
     int psfont;
-//AP--end
+#endif /* XDVIPSK */
 
     cu = (charusetype *) (fs + 1);
-//AP--begin
+#ifdef XDVIPSK
     psfont = 1;
-//AP--end
+#endif /* XDVIPSK */
 #ifdef DOWNLOAD_USING_PDFTEX
     while (cu->fd) {
        if (cu->psfused)
           cu->fd->psflag = EXISTS;
-//AP--begin
+#ifdef XDVIPSK
        cu->fd->psname = psfont;
        psfont++;
-//AP--end
+#endif /* XDVIPSK */
        downpsfont(cu++, (charusetype *)(fs + 1));
     }
 #else
@@ -722,10 +736,10 @@ dopsfont(sectiontype *fs)
     while (cu->fd) {
        if (cu->psfused)
           cu->fd->psflag = EXISTS;
-//AP--begin
+#ifdef XDVIPSK
        cu->fd->psname = psfont;
        psfont++;
-//AP--end
+#endif /* XDVIPSK */
        downpsfont(cu++, (charusetype *)(fs + 1));
     }
     loadbase = ~FLG_LOAD_BASE;

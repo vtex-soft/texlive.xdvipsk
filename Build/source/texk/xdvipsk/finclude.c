@@ -9,10 +9,11 @@
  * for that font, it is added (with add_header).
  * 11/1996 Aaron Sawdey
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif
 #ifdef KPATHSEA
 #include <kpathsea/c-ctype.h>
 #else
@@ -127,10 +128,11 @@ includechars(fontdesctype *f, char *s)
       for (b=8; b!=0; b>>=1) {
          if ((d&b)!=0) {
             pagecost ++;
-//AP--begin
-//          (void) prescanchar(&f->chardesc[c]);
+#ifndef XDVIPSK
+          (void) prescanchar(&f->chardesc[c]);
+#else
 			(void)prescanchar(find_chardesc(f, c));
-//AP--end
+#endif
          }
          if (++c==256) return;
       }

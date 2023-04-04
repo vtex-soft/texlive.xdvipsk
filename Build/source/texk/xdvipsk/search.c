@@ -5,10 +5,11 @@
  *   indicate substitution of the default path list at that point.
  *   This source file assumes KPATHSEA is defined.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif
 
 #ifndef KPATHSEA
 "goodbye, search.c can only be compiled with -DKPATHSEA"

@@ -1,5 +1,9 @@
 #ifndef _PROTOS_H_
 
+#ifndef XDVIPSK
+/* see dvips.h for copyright notice */
+#endif /* XDVIPSK */
+
 #define _PROTOS_H_
 
 /* some types need declaration before being used */
@@ -14,14 +18,14 @@ struct tcd;
 /* prototypes for functions from bbox.c */
 extern void findbb(int bop);
 
-//AP--begin
+#ifdef XDVIPSK
 /* prototypes for functions from charcode.c */
 extern chardesctype *add_chardesc(fontdesctype *f, int charcode);
 extern chardesctype *find_chardesc(fontdesctype *f, int charcode);
 extern void delete_chardesc(fontdesctype *f, int charcode);
 extern void delete_all_chardesc(fontdesctype *f);
 extern void sort_by_charcode(fontdesctype *f);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from bitmapenc.c */
 extern void bmenc_startsection(void) ;
@@ -55,10 +59,11 @@ extern float *bbdospecial(int nbytes);
 /* prototypes for functions from download.c */
 quarterword *unpack_bb(chardesctype *c, integer *cwidth, integer *cheight,
                                         integer *xoff, integer *yoff) ;
-//AP--begin
-//extern void download(charusetype *p, int psfont);
+#ifndef XDVIPSK
+extern void download(charusetype *p, int psfont);
+#else
 extern void download(charusetype *p);
-//AP--end
+#endif /* XDVIPSK */
 extern void makepsname(char *s, int n);
 extern void lfontout(int n);
 extern void dopsfont(sectiontype *fs);
@@ -99,10 +104,10 @@ extern char *mymalloc(int n);
 extern void checkstrings(void);
 extern char *newstring(const char *s);
 extern void *revlist(void *p);
-//AP--begin
+#ifdef XDVIPSK
 extern void dvips_exit(int code);
 extern void writelogrecord(const char *s);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from emspecial.c */
 extern void emclear(void);
@@ -149,13 +154,13 @@ extern int pkquad(void);
 extern int pktrio(void);
 extern void loadfont(fontdesctype *curfnt);
 
-//AP--begin
+#ifdef XDVIPSK
 /* prototypes for functions from luamap.c */
 extern void LuaMap_cache_init(void);
 extern luamaptype *LuaMap_cache_get(int id);
 extern int LuaMap_cache_find(const char *luamap_name);
 extern void LuaMap_cache_close(void);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from makefont.c */
 extern void makefont(char *name, int dpi, int bdpi);
@@ -216,12 +221,12 @@ extern int residentfont(fontdesctype *curfnt);
 extern Boolean getdefaults(const char *s);
 extern void getpsinfo(const char *name);
 extern void checkenv(int which);
-//AP--begin
+#ifdef XDVIPSK
 extern void getotfinfo(const char *dviname);
 extern void add_entry_spec(char *TeXname, char *PSname, char *Fontfile,
 					char *Vectfile, char *specinfo, char *downloadinfo, boolean partial, boolean isOTF, quarterword embolden, boolean replace);
 extern void getpsinfo_spec(const char *name, boolean replace);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from scalewidth.c */
 extern int scalewidth(int a, int b);
@@ -242,13 +247,13 @@ extern FILE *pksearch(char *path, const char *file, const char *mode, char *n, h
 extern FILE *my_real_fopen(const char *n, const char *t);
 extern int close_file(FILE *f);
 
-//AP--begin
+#ifdef XDVIPSK
 /* prototypes for functions from sfntload.c */
 #ifndef KPATHSEA
 extern char *expandfilename(const char *src);
 #endif /* KPATHSEA */
 extern int sfntload(fontdesctype *curfnt);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from skippage.c */
 extern void skippage(void);
@@ -272,17 +277,17 @@ extern long unpack(unsigned char *pack, unsigned short *raster,
 /* prototypes for functions from virtualfont.c */
 extern Boolean virtualfont(fontdesctype *curfnt);
 
-//AP--begin
+#ifdef XDVIPSK
 /* prototypes for functions from writecid.c */
 extern int writecid(charusetype *p);
-//AP--end
+#endif /* XDVIPSK */
 
 /* prototypes for functions from writet1.c */
 extern char **load_enc_file(char *);
 extern boolean t1_subset_2(char *, unsigned char *, char *);
-//AP--begin
+#ifdef XDVIPSK
 extern boolean t1_write_full(char *, unsigned char *);
-//AP--end
+#endif /* XDVIPSK */
 
 /*********** global variables ***********/
 
@@ -311,11 +316,10 @@ extern fontdesctype *fonthead;
 extern fontdesctype *curfnt;
 extern sectiontype *sections;
 extern Boolean partialdownload;
-//AP--begin
-//extern Boolean partialdownload;
+#ifdef XDVIPSK
 extern Boolean t1_partialdownload;
 extern Boolean cid_partialdownload;
-//AP--end
+#endif /* XDVIPSK */
 extern Boolean manualfeed;
 extern Boolean landscaperotate;
 extern Boolean compressed;
@@ -371,11 +375,11 @@ extern integer hh, vv;
 extern Boolean noomega;
 extern Boolean noptex;
 extern Boolean lastpsizwins;
-//AP--begin
+#ifdef XDVIPSK
 extern Boolean noluatex;
 extern Boolean noToUnicode;
 extern Boolean VTEX_SPEC_MODE;
-//AP--end
+#endif /* XDVIPSK */
 extern const char *infont;
 #ifndef KPATHSEA
 extern char *tfmpath;
@@ -403,10 +407,10 @@ extern char **gargv;
 extern int totalpages;
 extern Boolean reverse;
 extern Boolean usesPSfonts;
-//AP--begin
+#ifdef XDVIPSK
 extern Boolean usesOTFfonts;
 extern otfcmaptype *OTF_list;
-//AP--end
+#endif /* XDVIPSK */
 extern Boolean usesspecial;
 extern Boolean headers_off;
 extern Boolean usescolor;
@@ -425,9 +429,11 @@ extern Boolean includesfonts;
 extern fontdesctype *fonthd[MAXFONTHD];
 extern int nextfonthd;
 extern char xdig[256];
-//AP--begin
+#ifndef XDVIPSK
+extern char banner[], banner2[];
+#else
 extern char banner[], banner2[], banner3[];
-//AP--end
+#endif /* XDVIPSK */
 extern Boolean noenv;
 extern Boolean dopprescan;
 extern int dontmakefont;

@@ -5,10 +5,11 @@
  *   first page. Otherwise it returns 1 if no problems were found,
  *   or 2 if it thinks the first page of a section may overflow memory.
  */
-//AP--begin
-//#include "dvips.h" /* The copyright notice in that file is included too! */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-//AP--end
+#endif /* XDVIPSK */
 
 /*
  *   The external declarations:
@@ -111,9 +112,9 @@ preselectfont(fontdesctype *f)
 short
 scanpage(void)
 {
-//AP--begin
+#ifdef XDVIPSK
    char buf[1024];
-//AP--end
+#endif /* XDVIPSK */
    register shalfword cmd;
    register chardesctype *cd;
    register fontmaptype *cfnt = 0;
@@ -172,10 +173,11 @@ case 147: case 152: case 161: case 166: /* w0, x0, y0, z0 */
 case 138: case 141: case 142: /* nop, push, pop */
          break;
 case 130: case 135: /* set3, put3 */
-//AP--begin
-//        if (noptex) {
+#ifndef XDVIPSK
+         if (noptex) {
+#else
 		if (noptex && noluatex) {
-//AP--end
+#endif /* XDVIPSK */
             sprintf(errbuf,
                "! DVI file contains unexpected pTeX command (%d)",cmd);
             error(errbuf);
@@ -184,10 +186,11 @@ case 130: case 135: /* set3, put3 */
          mychar = (mychar << 8) + dvibyte();
          goto dochar;
 case 129: case 134: /* set2, put2 */
-//AP--begin
-//         if (noomega && noptex) {
+#ifndef XDVIPSK
+         if (noomega && noptex) {
+#else
 		 if (noomega && noptex && noluatex) {
-//AP--end
+#endif /* XDVIPSK */
             sprintf(errbuf,
                "! DVI file contains unexpected command (%d)",cmd);
             error(errbuf);
@@ -221,10 +224,11 @@ dochar:
             frp->curf = curfnt;
             if (++frp == &frames[MAXFRAME] )
                error("! virtual recursion stack overflow");
-//AP--begin
-//            cd = curfnt->chardesc + mychar;
+#ifndef XDVIPSK
+            cd = curfnt->chardesc + mychar;
+#else
 			cd = find_chardesc(curfnt, mychar);
-//AP--end
+#endif /* XDVIPSK */
             if (mychar>=curfnt->maxchars || cd->packptr == NULL) {
                if (!noptex && mychar<0x1000000 && curfnt->kind == VF_PTEX) { /* fallback */
 #ifdef DEBUG
@@ -242,6 +246,11 @@ dochar:
                   curfnt = NULL;
                else if (!preselectfont(ffont0->desc))
                   goto outofmem;
+               --frp;
+               curfnt = frp->curf;
+               ffont = frp->ff;
+               curlim = frp->curl;
+               curpos = frp->curp;
             } else {
                curpos = cd->packptr + 2;
                curlim = curpos + (256*(long)(*cd->packptr)+(*(cd->packptr+1)));
@@ -253,15 +262,16 @@ dochar:
             }
          } else {
             pagecost++;
-//AP--begin
-//            if (!prescanchar(curfnt->chardesc + mychar))
+#ifndef XDVIPSK
+            if (!prescanchar(curfnt->chardesc + mychar))
+#else
 			cd = find_chardesc(curfnt, mychar);
 			if (cd == NULL) {
 				mychar = '?';
 				cd = find_chardesc(curfnt, mychar);
 			}
 			if (!prescanchar(cd))
-//AP--end
+#endif /* XDVIPSK */
                goto outofmem;
          }
          break;
@@ -313,17 +323,19 @@ endofpage:
       return(0);
     }  /* IBM: color */
 #ifdef SHORTINT
-//AP--begin
+#ifndef XDVIPSK
+      fprintf(stderr, "Page %ld may be too complex to print\n", pagenum);
+#else
    sprintf(buf, "Page %d may be too complex to print", pagenum);
    error(buf);
-//      fprintf(stderr, "Page %ld may be too complex to print\n", pagenum);
-//AP--end
+#endif /* XDVIPSK */
 #else   /* ~SHORTINT */
-//AP--begin
+#ifndef XDVIPSK
+      fprintf(stderr, "Page %d may be too complex to print\n", pagenum);
+#else
    sprintf(buf, "Page %d may be too complex to print", pagenum);
    error(buf);
-//      fprintf(stderr, "Page %d may be too complex to print\n", pagenum);
-//AP--end
+#endif /* XDVIPSK */
 #endif  /* ~SHORTINT */
 /*
  *   This case should be rare indeed.  Even with only 200K of virtual memory,
