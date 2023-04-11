@@ -1,17 +1,17 @@
 SHELL=/bin/bash
 
 tldest=../../Master
-tlsource=tug.org::tldevsrc/Master
+tlsource=tug.org::tldevsrc/Master/texmf-dist
 
 default: help 
 
 dvipsdef: dvips.def dvips.def.sed
 	sed -zf dvips.def.sed <dvips.def> dvips.def.xdvipsk
-	mv dvips.def.xdvipsk $(tldest)/texmf-dist/tex/latex/graphics-def/dvips.def 
+	mv dvips.def.xdvipsk $(tldest)/texmf-config/tex/latex/graphics-def/dvips.def 
 	rm -rf dvips.def dvips.def.sed
 
 dvips.def:
-	rsync -avz $(tlsource)/texmf-dist/tex/latex/graphics-def/dvips.def .
+	rsync -avz $(tlsource)/tex/latex/graphics-def/dvips.def .
 
 dvips.def.sed:
 	@echo 's+\\special{em: graph #1,\\Gin@urx bp}%+\\special{em: graph #1,\\number\\Gin@req@width sp}%+g' >dvips.def.sed
@@ -24,16 +24,16 @@ dvips.def.sed:
 
 luaotfload: luaotfload.lua luaotfload.lua.sed luaotfload-database.lua luaotfload-database.lua.sed
 	sed -zf luaotfload.lua.sed <luaotfload.lua> luaotfload.lua.xdvipsk
-	mv luaotfload.lua.xdvipsk $(tldest)/texmf-dist/tex/luatex/luaotfload/luaotfload.lua
+	mv luaotfload.lua.xdvipsk $(tldest)/texmf-config/tex/luatex/luaotfload/luaotfload.lua
 	sed -zf luaotfload-database.lua.sed <luaotfload-database.lua> luaotfload-database.lua.xdvipsk
-	mv luaotfload-database.lua.xdvipsk $(tldest)/texmf-dist/tex/luatex/luaotfload/luaotfload-database.lua
+	mv luaotfload-database.lua.xdvipsk $(tldest)/texmf-config/tex/luatex/luaotfload/luaotfload-database.lua
 	rm -rf luaotfload.lua luaotfload.lua.sed luaotfload-database.lua luaotfload-database.lua.sed
 
 luaotfload.lua:
-	rsync -avz $(tlsource)/texmf-dist/tex/luatex/luaotfload/luaotfload.lua .
+	rsync -avz $(tlsource)/tex/luatex/luaotfload/luaotfload.lua .
 
 luaotfload-database.lua:
-	rsync -avz $(tlsource)/texmf-dist/tex/luatex/luaotfload/luaotfload-database.lua .
+	rsync -avz $(tlsource)/tex/luatex/luaotfload/luaotfload-database.lua .
 
 luaotfload.lua.sed:
 	@echo 's+loadmodule "dvi"+-- !breaks xvipsk! loadmodule "dvi"+g' >luaotfload.lua.sed

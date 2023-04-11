@@ -112,10 +112,10 @@
      \ifdim\Gin@ury bp=\z@
         \special{em: graph #1}%
      \else
-        \special{em: graph #1,\Gin@urx bp}%
+        \special{em: graph #1,\number\Gin@req@width sp}%
      \fi
   \else
-        \special{em: graph #1,\Gin@urx bp,\Gin@ury bp}%
+        \special{em: graph #1,\number\Gin@req@width sp,\number\Gin@req@height sp}%
   \fi
  }%
 }
