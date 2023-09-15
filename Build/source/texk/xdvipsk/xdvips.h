@@ -20,6 +20,10 @@
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
 "Based on dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
+#else
+#define BANNER \
+"This is dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
+#define BANNER2 "(www.radicaleye.com)"
 #endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include "config.h"
@@ -221,6 +225,9 @@ typedef struct tfd {
 #define VF_TEX   (1)
 #define VF_OMEGA (2)
 #define VF_PTEX  (3)
+#define TFM_TEX   (0x000)
+#define OFM_OMEGA (0x100)
+#define JFM_PTEX  (0x200)
 
 /*  A fontmap associates a fontdesc with a font number.
  */

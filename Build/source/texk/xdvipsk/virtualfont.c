@@ -242,9 +242,18 @@ virtualfont(register fontdesctype *curfnt)
          if (!noptex && id==0) {
             tfmopen(curfnt->localfonts->desc); /* We check if parent is jfm or not. */
             id = tfm16();
-            fclose(tfmfile);
             if (id == 9 || id == 11)
                curfnt->kind = VF_PTEX;
+            else if (id == 0 && !noomega) {
+               int font_level;
+               integer ec;
+               font_level = tfm16();
+               tfm32(); tfm32(); tfm32(); /* li, hd, bc */
+               ec = tfm32();
+               if (font_level==1 && ec>=0x2E00)  /* We interpret the ofm is for pTeX */
+                  curfnt->kind = VF_PTEX;
+            }
+            fclose(tfmfile);
          }
       }
       fm = newf;
@@ -344,9 +353,10 @@ virtualfont(register fontdesctype *curfnt)
    curfnt->loaded = 2;
    if (maxcc+1<no_of_chars) {
 #ifndef XDVIPSK
-//      curfnt->chardesc = (chardesctype *)
-//         xrealloc(curfnt->chardesc,
-//                  (maxcc+1) * (integer)sizeof(chardesctype));
+      curfnt->chardesc = (chardesctype *)
+         xrealloc(curfnt->chardesc,
+                  (maxcc+1) * (integer)sizeof(chardesctype));
+#else
 	   for (i = maxcc + 1; i<no_of_chars; i++) {
 		   delete_chardesc(curfnt, i);
 	   }

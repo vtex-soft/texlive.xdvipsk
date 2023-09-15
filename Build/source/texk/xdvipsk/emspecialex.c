@@ -13,6 +13,10 @@
 #include "protos.h"
 #include "bitmap.h"
 
+#if defined(WIN32)
+#include "wingdi.h"
+#endif
+
 #define WIDTHBYTES(bits)    (((bits) + 31) / 32 * 4)
 #define PALVERSION   0x300
 #define tobyte(x) ((x/8) + (x%8 ? 1 : 0))

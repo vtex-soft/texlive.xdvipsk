@@ -12,8 +12,11 @@ AM_CFLAGS = $(WARNING_CFLAGS) -D_FORTIFY_SOURCE=1
 
 ##AM_LDFLAGS = -lstdc++
 #AM_LDFLAGS = -Wl,-Map,xdvipsk.map
-
 bin_PROGRAMS = xdvipsk
+
+if cross
+  MINGW_INCLUDES = -I$(abs_top_srcdir)/mingw/include
+endif
 
 xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
 
@@ -116,6 +119,11 @@ xdvipsk_SOURCES = \
 $(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 
 xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++
+if cross
+   xdvipsk_SOURCES += mingw/include/wingdi.h
+   xdvipsk_LDFLAGS = -fno-lto -fno-use-linker-plugin -static -static-libgcc -static-libstdc++ --disable-shared
+   xdvipsk_LDADD += -lgdi32
+endif
 
 noinst_LIBRARIES = libdvipsgraph.a
 
@@ -152,13 +160,14 @@ libdvipsgraph_a_dependencies += $(LIBPNG_DEPEND)
 libdvipsgraph_a_dependencies += $(LIBJPEG_DEPEND)
 libdvipsgraph_a_dependencies += $(LIBTIFF_DEPEND)
 
-$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
+#$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
+$(libdvipsgraph_a_OBJECTS): config.force
 
 AM_CXXFLAGS = @AM_CXXFLAGS@
 
 libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES)
 
-libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
+#libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
 
 ###############################################################################
 # THE LIBRARIES TO BUILD
@@ -174,8 +183,6 @@ libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_L
 @LIBJPEG_RULE@
 ## Rebuild libtiff
 @LIBTIFF_RULE@
-
-enc_DATA = dvips-all.enc
 
 # Files not to be distributed
 include $(srcdir)/../../am/dist_hook.am

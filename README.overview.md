@@ -1,6 +1,6 @@
 # Overview
 
-## *xdvipsk*: extended dvips (TeXLive 2022)
+## *xdvipsk*: extended dvips (TeXLive 2023)
 
 It has three base extensions:
 * one allows flexible inclusion of bitmap images
@@ -17,7 +17,7 @@ The extended `dvips` now accepts `BMP`, `PCX`, `TIFF`, `JPEG` and `PNG` formats 
 able to perform the same actions as with `EPS` images:  
 - scaling, rotating, trim, viewport
 
-The extended `dvisp.def` driver for graphics package does not yet
+The `xdvispk.def` (extended `dvips.def`) driver for graphics package does not yet
 implement the operations of clipping, trimming and viewport.
 
 `xdvipsk` needs information about `OpenType` fonts used in `DVI` files in the form
@@ -46,7 +46,7 @@ declarations and is registered in `graphics.sty`.
 
 As `xdvipsk` accepts images in formats `BMP`, `JPEG`, `PCX`, `PNG`
 and `TIFF`, they should all be declared in the form of graphic inclusion rules
-in the driver file, most likely `dvips.def`:
+in the driver file, most likely `xdvipsk.def`:
 ```latex
     \@namedef{Gin@rule@.tif}#1{{bmp}{.tif.bb}{#1}}
     \@namedef{Gin@rule@.tiff}#1{{bmp}{.tiff.bb}{#1}}
@@ -314,5 +314,6 @@ For these, we are quite close to the TeX Live build environment except for
 extra libraries: `libjpeg`, `libtiff` for `xdvipsk`,
 and `libmupdf` for new utility `make2unc`.
 Other needed libraries are taken from TeX Live distributions.
+Latest `Windows` binaries are cross compiled with `mingw`.
 
-The current `xdvipsk` version is based on `dvips 2022.1`, `web2c + kpathsea 6.3.4`, `TeXLive 2022`.
+The current `xdvipsk` version is based on `dvips 2023.1`, `web2c + kpathsea 6.3.6/dev`, `TeXLive 2024`.

@@ -1128,11 +1128,12 @@ DeCodeStr(int num, int numseac)
         if(tmpnum==last_subr)
         {
 #ifndef XDVIPSK
+            fprintf(stderr, " Error: %d Subr not found \n", num);
+            exit(1);
+#else
 			sprintf(err_buf, "! %d Subr not found", num);
 			error(err_buf);
 			dvips_exit(1);
-//            fprintf(stderr, " Error: %d Subr not found \n", num);
-//            exit(1);
 #endif /* XDVIPSK */
         }
         if(label[tmpnum].select==FLG_BINARY)

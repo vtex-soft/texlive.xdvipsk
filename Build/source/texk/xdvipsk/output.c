@@ -1662,7 +1662,11 @@ initprinter(sectiontype *sect)
 #endif /* XDVIPSK */
       } else if (isepsf)
          fprintf(bitfile, "%%%%BoundingBox: %s\n", isepsf);
+#ifndef XDVIPSK
+      else
+#else
       else {
+#endif /* XDVIPSK */
          fprintf(bitfile, "%%%%BoundingBox: 0 0 %d %d\n",
               topoints(finpapsiz->xsize), topoints(finpapsiz->ysize));
 #ifdef XDVIPSK
@@ -1745,8 +1749,10 @@ initprinter(sectiontype *sect)
    if (safetyenclose)
       fprintf(bitfile, "/SafetyEnclosure save def\n");
    print_composefont();
+#ifndef XDVIPSK
+   if (! headers_off)
+#else
    if (! headers_off) {
-#ifdef XDVIPSK
       fprintf(bitfile, "%%%%BeginProlog\n");
       if (usesOTFfonts) {
          fprintf(bitfile, "%%%%IncludeResource: procset CIDInit 1.0 0\n");
@@ -1754,7 +1760,9 @@ initprinter(sectiontype *sect)
       }
 #endif /* XDVIPSK */
       send_headers();
+#ifdef XDVIPSK
    }
+#endif /* XDVIPSK */
 }
 void
 setup(void) {
@@ -2097,7 +2105,7 @@ tell_needed_fonts(void) {
          }
       }
 #ifndef XDVIPSK
-    fprintf(bitfile, " %s", q);
+      fprintf(bitfile, " %s", q);
 #else
       fprintf(bitfile, " font %s", q);
 #endif /* XDVIPSK */

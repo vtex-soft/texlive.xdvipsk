@@ -1,0 +1,18 @@
+\documentclass{article}
+\RequirePackage{luafonts}
+%
+\special{mapline: ptmr8r Times-Italic <8r.enc <ptmri8a.pfb " TeXBase1Encoding ReEncodeFont "}
+\font\fakedrm=ptmr8r %% replaced by italic
+\special{mapline: +ptmri8r Times-Bold <8r.enc <ptmb8a.pfb " TeXBase1Encoding ReEncodeFont "} %% generates warning
+\special{mapline: foo Times-BoldItalic <8r.enc <ptmbi8a.pfb " TeXBase1Encoding ReEncodeFont "}
+\font\foo=foo
+%
+\begin{document}
+
+{fakedrm: \fakedrm testas}
+
+{it:\textit{test}}
+ 
+{foo:\foo test}
+
+\end{document}

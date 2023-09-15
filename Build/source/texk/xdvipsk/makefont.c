@@ -1,5 +1,9 @@
 /* makefont.c */
+#ifndef XDVIPSK
+#include "dvips.h" /* The copyright notice in that file is included too! */
+#else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
+#endif
 #include <math.h>
 /*
  *   The external declarations:

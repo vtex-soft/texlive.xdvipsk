@@ -29,7 +29,9 @@ dosection(sectiontype *s, int c)
    int np;
    int k;
    integer thispage = 0;
-#ifdef XDVIPSK
+#ifndef XDVIPSK
+   char buf[300]; /* really 253 */
+#else
    char buf[514];
 #endif /* XDVIPSK */
 
@@ -51,7 +53,9 @@ dosection(sectiontype *s, int c)
    numout((integer)VDPI);
    /* possibly lines in eps files are supposed to be <= 255;
       not worth testing the limits merely to output a long file name. */
-#ifdef XDVIPSK
+#ifndef XDVIPSK
+   snprintf(buf, sizeof(buf), "(%.250s)", fulliname);
+#else
    snprintf(buf, sizeof(buf), "(%.500s)", fulliname);
 #endif /* XDVIPSK */
    cmdout(buf);

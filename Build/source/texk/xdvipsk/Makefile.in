@@ -15,7 +15,6 @@
 @SET_MAKE@
 
 
-
 VPATH = @srcdir@
 am__is_gnu_make = { \
   if test -z '$(MAKELEVEL)'; then \
@@ -91,6 +90,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = xdvipsk$(EXEEXT)
+@cross_TRUE@am__append_1 = mingw/include/wingdi.h
+@cross_TRUE@am__append_2 = -lgdi32
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-common.m4 \
@@ -116,7 +117,7 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = c-auto.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(encdir)"
+am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
@@ -125,10 +126,7 @@ am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libdvipsgraph_a_AR = $(AR) $(ARFLAGS)
-am__DEPENDENCIES_1 =
-libdvipsgraph_a_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+libdvipsgraph_a_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_libdvipsgraph_a_OBJECTS =  \
 	graphlib/libdvipsgraph_a-bitmap.$(OBJEXT) \
@@ -150,6 +148,31 @@ am_libdvipsgraph_a_OBJECTS =  \
 	graphlib/libdvipsgraph_a-tiffLogLuv.$(OBJEXT) \
 	graphlib/libdvipsgraph_a-toFloat.$(OBJEXT)
 libdvipsgraph_a_OBJECTS = $(am_libdvipsgraph_a_OBJECTS)
+am__xdvipsk_SOURCES_DIST = bbox.c bitmapenc.c charcode.c color.c \
+	config.h debug.h dopage.c dosection.c dospecial.c download.c \
+	dpicheck.c drawPS.c dviinput.c emspecialex.c finclude.c \
+	fontdef.c header.c hps.c loadfont.c luamap.c makefont.c \
+	output.c papersiz.c paths.h pprescan.c prescan.c protos.h \
+	protos_add.h ptexmac.h repack.c resident.c scalewidth.c \
+	scanpage.c search.c sfntload.c skippage.c t1part.c t1part.h \
+	tfmload.c unpack.c utarray.h uthash.h virtualfont.c writecid.c \
+	writet1.c xdvips.c xdvips.h otflib/cff.c otflib/cff.h \
+	otflib/cff_dict.c otflib/cff_dict.h otflib/cff_limits.h \
+	otflib/cff_stdstr.h otflib/cff_types.h otflib/cidsysinfo.c \
+	otflib/cidsysinfo.h otflib/cidtype0.c otflib/cidtype0.h \
+	otflib/cidtype2.c otflib/cidtype2.h otflib/cmap.c \
+	otflib/cmap.h otflib/cmap_p.h otflib/cmap_write.c \
+	otflib/cmap_write.h otflib/cs_type2.c otflib/cs_type2.h \
+	otflib/dpxfile.c otflib/dpxfile.h otflib/dpxutil.c \
+	otflib/dpxutil.h otflib/error.c otflib/error.h otflib/mem.c \
+	otflib/mem.h otflib/mfileio.c otflib/mfileio.h \
+	otflib/numbers.c otflib/numbers.h otflib/sfnt.c otflib/sfnt.h \
+	otflib/system.h otflib/tt_aux.c otflib/tt_aux.h \
+	otflib/tt_cmap.c otflib/tt_cmap.h otflib/tt_glyf.c \
+	otflib/tt_glyf.h otflib/tt_post.c otflib/tt_post.h \
+	otflib/tt_table.c otflib/tt_table.h otflib/unicode.c \
+	otflib/unicode.h mingw/include/wingdi.h
+am__objects_1 =
 am_xdvipsk_OBJECTS = xdvipsk-bbox.$(OBJEXT) \
 	xdvipsk-bitmapenc.$(OBJEXT) xdvipsk-charcode.$(OBJEXT) \
 	xdvipsk-color.$(OBJEXT) xdvipsk-dopage.$(OBJEXT) \
@@ -186,15 +209,20 @@ am_xdvipsk_OBJECTS = xdvipsk-bbox.$(OBJEXT) \
 	otflib/xdvipsk-tt_glyf.$(OBJEXT) \
 	otflib/xdvipsk-tt_post.$(OBJEXT) \
 	otflib/xdvipsk-tt_table.$(OBJEXT) \
-	otflib/xdvipsk-unicode.$(OBJEXT)
+	otflib/xdvipsk-unicode.$(OBJEXT) $(am__objects_1)
 xdvipsk_OBJECTS = $(am_xdvipsk_OBJECTS)
+am__DEPENDENCIES_1 =
 xdvipsk_DEPENDENCIES = libdvipsgraph.a $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+xdvipsk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(xdvipsk_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -311,40 +339,12 @@ am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
 SOURCES = $(libdvipsgraph_a_SOURCES) $(xdvipsk_SOURCES)
-DIST_SOURCES = $(libdvipsgraph_a_SOURCES) $(xdvipsk_SOURCES)
+DIST_SOURCES = $(libdvipsgraph_a_SOURCES) $(am__xdvipsk_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
-am__vpath_adj = case $$p in \
-    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-    *) f=$$p;; \
-  esac;
-am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
-am__install_max = 40
-am__nobase_strip_setup = \
-  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
-am__nobase_strip = \
-  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
-am__nobase_list = $(am__nobase_strip_setup); \
-  for p in $$list; do echo "$$p $$p"; done | \
-  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
-  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
-    if (++n[$$2] == $(am__install_max)) \
-      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
-    END { for (dir in files) print dir, files[dir] }'
-am__base_list = \
-  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
-  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
-am__uninstall_files_from_dir = { \
-  test -z "$$files" \
-    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
-    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
-         $(am__cd) "$$dir" && rm -f $$files; }; \
-  }
-DATA = $(enc_DATA)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP) \
 	c-auto.in
 # Read a list of newline-separated strings from the standard input,
@@ -366,6 +366,7 @@ am__define_uniq_tagged_files = \
 AM_RECURSIVE_TARGETS = cscope
 am__DIST_COMMON = $(srcdir)/../../am/dist_hook.am \
 	$(srcdir)/Makefile.in $(srcdir)/c-auto.in \
+	$(top_srcdir)/../../build-aux/ar-lib \
 	$(top_srcdir)/../../build-aux/compile \
 	$(top_srcdir)/../../build-aux/config.guess \
 	$(top_srcdir)/../../build-aux/config.sub \
@@ -377,7 +378,7 @@ am__DIST_COMMON = $(srcdir)/../../am/dist_hook.am \
 	../../build-aux/config.sub ../../build-aux/depcomp \
 	../../build-aux/install-sh ../../build-aux/ltmain.sh \
 	../../build-aux/missing ../../build-aux/texinfo.tex \
-	../../build-aux/ylwrap AUTHORS ChangeLog NEWS README TODO
+	../../build-aux/ylwrap README
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -432,6 +433,7 @@ EGREP = @EGREP@
 ETAGS = @ETAGS@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 GREP = @GREP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -550,104 +552,35 @@ top_srcdir = @top_srcdir@
 GRAPHLIB_INCLUDES = $(srcdir)/graphlib
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS 
 AM_CFLAGS = $(WARNING_CFLAGS) -D_FORTIFY_SOURCE=1
+@cross_TRUE@MINGW_INCLUDES = -I$(abs_top_srcdir)/mingw/include
 xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
-xdvipsk_SOURCES = \
-	protos.h \
-	bbox.c \
-	bitmapenc.c \
-	charcode.c \
-	color.c \
-	config.h \
-	debug.h \
-	dopage.c \
-	dosection.c \
-	dospecial.c \
-	download.c \
-	dpicheck.c \
-	drawPS.c \
-	dviinput.c \
-	emspecialex.c \
-	finclude.c \
-	fontdef.c \
-	header.c \
-	hps.c \
-	loadfont.c \
-	luamap.c \
-	makefont.c \
-	output.c \
-	papersiz.c \
-	paths.h \
-	pprescan.c \
-	prescan.c \
-	protos_add.h \
-	ptexmac.h \
-	repack.c \
-	resident.c \
-	scalewidth.c \
-	scanpage.c \
-	search.c \
-	sfntload.c \
-	skippage.c \
-	t1part.c \
-	t1part.h \
-	tfmload.c \
-	unpack.c \
-	utarray.h \
-	uthash.h \
-	virtualfont.c \
-	writecid.c \
-	writet1.c \
-	xdvips.c \
-	xdvips.h \
-	otflib/cff.c \
-	otflib/cff.h \
-	otflib/cff_dict.c \
-	otflib/cff_dict.h \
-	otflib/cff_limits.h \
-	otflib/cff_stdstr.h \
-	otflib/cff_types.h \
-	otflib/cidsysinfo.c \
-	otflib/cidsysinfo.h \
-	otflib/cidtype0.c \
-	otflib/cidtype0.h \
-	otflib/cidtype2.c \
-	otflib/cidtype2.h \
-	otflib/cmap.c \
-	otflib/cmap.h \
-	otflib/cmap_p.h \
-	otflib/cmap_write.c \
-	otflib/cmap_write.h \
-	otflib/cs_type2.c \
-	otflib/cs_type2.h \
-	otflib/dpxfile.c \
-	otflib/dpxfile.h \
-	otflib/dpxutil.c \
-	otflib/dpxutil.h \
-	otflib/error.c \
-	otflib/error.h \
-	otflib/mem.c \
-	otflib/mem.h \
-	otflib/mfileio.c \
-	otflib/mfileio.h \
-	otflib/numbers.c \
-	otflib/numbers.h \
-	otflib/sfnt.c \
-	otflib/sfnt.h \
-	otflib/system.h \
-	otflib/tt_aux.c \
-	otflib/tt_aux.h \
-	otflib/tt_cmap.c \
-	otflib/tt_cmap.h \
-	otflib/tt_glyf.c \
-	otflib/tt_glyf.h \
-	otflib/tt_post.c \
-	otflib/tt_post.h \
-	otflib/tt_table.c \
-	otflib/tt_table.h \
-	otflib/unicode.c \
-	otflib/unicode.h
-
-xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++
+xdvipsk_SOURCES = bbox.c bitmapenc.c charcode.c color.c config.h \
+	debug.h dopage.c dosection.c dospecial.c download.c dpicheck.c \
+	drawPS.c dviinput.c emspecialex.c finclude.c fontdef.c \
+	header.c hps.c loadfont.c luamap.c makefont.c output.c \
+	papersiz.c paths.h pprescan.c prescan.c protos.h protos_add.h \
+	ptexmac.h repack.c resident.c scalewidth.c scanpage.c search.c \
+	sfntload.c skippage.c t1part.c t1part.h tfmload.c unpack.c \
+	utarray.h uthash.h virtualfont.c writecid.c writet1.c xdvips.c \
+	xdvips.h otflib/cff.c otflib/cff.h otflib/cff_dict.c \
+	otflib/cff_dict.h otflib/cff_limits.h otflib/cff_stdstr.h \
+	otflib/cff_types.h otflib/cidsysinfo.c otflib/cidsysinfo.h \
+	otflib/cidtype0.c otflib/cidtype0.h otflib/cidtype2.c \
+	otflib/cidtype2.h otflib/cmap.c otflib/cmap.h otflib/cmap_p.h \
+	otflib/cmap_write.c otflib/cmap_write.h otflib/cs_type2.c \
+	otflib/cs_type2.h otflib/dpxfile.c otflib/dpxfile.h \
+	otflib/dpxutil.c otflib/dpxutil.h otflib/error.c \
+	otflib/error.h otflib/mem.c otflib/mem.h otflib/mfileio.c \
+	otflib/mfileio.h otflib/numbers.c otflib/numbers.h \
+	otflib/sfnt.c otflib/sfnt.h otflib/system.h otflib/tt_aux.c \
+	otflib/tt_aux.h otflib/tt_cmap.c otflib/tt_cmap.h \
+	otflib/tt_glyf.c otflib/tt_glyf.h otflib/tt_post.c \
+	otflib/tt_post.h otflib/tt_table.c otflib/tt_table.h \
+	otflib/unicode.c otflib/unicode.h $(am__append_1)
+xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LIBTIFF_LIBS) \
+	$(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++ \
+	$(am__append_2)
+@cross_TRUE@xdvipsk_LDFLAGS = -fno-lto -fno-use-linker-plugin -static -static-libgcc -static-libstdc++ --disable-shared
 noinst_LIBRARIES = libdvipsgraph.a
 libdvipsgraph_a_dependencies = $(ZLIB_DEPEND) $(LIBPNG_DEPEND) \
 	$(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
@@ -679,8 +612,6 @@ libdvipsgraph_a_SOURCES = \
     graphlib/utilities.h
 
 libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES)
-libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
-enc_DATA = dvips-all.enc
 NEVER_DIST = `find . $(NEVER_NAMES)`
 NEVER_NAMES = -name .svn
 NEVER_NAMES_SUB = -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'
@@ -889,7 +820,7 @@ otflib/xdvipsk-unicode.$(OBJEXT): otflib/$(am__dirstamp) \
 
 xdvipsk$(EXEEXT): $(xdvipsk_OBJECTS) $(xdvipsk_DEPENDENCIES) $(EXTRA_xdvipsk_DEPENDENCIES) 
 	@rm -f xdvipsk$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(xdvipsk_OBJECTS) $(xdvipsk_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(xdvipsk_LINK) $(xdvipsk_OBJECTS) $(xdvipsk_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -2102,27 +2033,6 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
-install-encDATA: $(enc_DATA)
-	@$(NORMAL_INSTALL)
-	@list='$(enc_DATA)'; test -n "$(encdir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(encdir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(encdir)" || exit 1; \
-	fi; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(encdir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(encdir)" || exit $$?; \
-	done
-
-uninstall-encDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(enc_DATA)'; test -n "$(encdir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(encdir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -2359,9 +2269,9 @@ distcleancheck: distclean
 	       exit 1; } >&2
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(LIBRARIES) $(DATA) c-auto.h
+all-am: Makefile $(PROGRAMS) $(LIBRARIES) c-auto.h
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(encdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -2497,7 +2407,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-encDATA
+install-data-am:
 
 install-dvi: install-dvi-am
 
@@ -2620,7 +2530,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-encDATA
+uninstall-am: uninstall-binPROGRAMS
 
 .MAKE: all install-am install-strip
 
@@ -2633,22 +2543,24 @@ uninstall-am: uninstall-binPROGRAMS uninstall-encDATA
 	distclean-hdr distclean-libtool distclean-tags distcleancheck \
 	distdir distuninstallcheck dvi dvi-am html html-am info \
 	info-am install install-am install-binPROGRAMS install-data \
-	install-data-am install-dvi install-dvi-am install-encDATA \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-ps install-ps-am install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
-	uninstall-encDATA
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
 
 $(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 
-$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
+#$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
+$(libdvipsgraph_a_OBJECTS): config.force
+
+#libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
 
 ###############################################################################
 # THE LIBRARIES TO BUILD

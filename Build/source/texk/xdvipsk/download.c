@@ -625,13 +625,14 @@ downpsfont(charusetype *p, charusetype *all)
         curfnt = all->fd;
 #ifdef DOWNLOAD_USING_PDFTEX
         if (curfnt->resfont->Vectfile) {
-       char **glyphs = getEncoding(curfnt->resfont->Vectfile);
+	   char **glyphs = getEncoding(curfnt->resfont->Vectfile);
 #ifndef XDVIPSK
            c = curfnt->chardesc + 255;
-#else
-           c = find_chardesc(curfnt, cc);
 #endif /* XDVIPSK */
            cc = 255;
+#ifdef XDVIPSK
+           c = find_chardesc(curfnt, cc);
+#endif /* XDVIPSK */
            for (b=15; b>=0; b--) {
                for (bit=1; bit; bit<<=1) {
                    if (all->bitmap[b] & bit) {

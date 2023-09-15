@@ -129,7 +129,7 @@ includechars(fontdesctype *f, char *s)
          if ((d&b)!=0) {
             pagecost ++;
 #ifndef XDVIPSK
-          (void) prescanchar(&f->chardesc[c]);
+            (void) prescanchar(&f->chardesc[c]);
 #else
 			(void)prescanchar(find_chardesc(f, c));
 #endif

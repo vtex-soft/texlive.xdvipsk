@@ -1,10 +1,11 @@
-# *xdvipsk*: extended dvips (TeXLive 2022)
+# *xdvipsk*: extended dvips (TeXLive 2023)
 
-It has two base extensions:
+It has three base extensions:
 
  * one allows flexible inclusion of bitmap images
  * another extension solves a quite long-standing task -- adds OpenType font support
 to `dvips` 
+* accepts font map `\special` commands with prefixes `mapfile` and `mapline` 
 
 Source code repository at:
 

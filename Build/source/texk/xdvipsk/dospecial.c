@@ -43,9 +43,9 @@ specerror(const char *s)
       specialerrors--;
    } else if (specialerrors == 0
 #ifdef KPATHSEA
-          && !kpse_tex_hush ("special")
+	      && !kpse_tex_hush ("special")
 #endif
-          ) {
+	      ) {
 #ifndef XDVIPSK
       error("more errors in special, being ignored . . .");
       error("(perhaps dvips doesn't support your macro package?)");
@@ -482,66 +482,66 @@ case 'h':
       while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
          p++;
       if(*p == '{') {
-         p++;
-         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-            p++;
-         q = p;
-         while (*p != '}' && *p != 0)
-            p++;
-         r = p-1;
-         while ((*r <= ' ' || *r == ')') && r >= q)
-            r--;
-         if (*p != 0) p++;
-         r[1] = 0; /* q is the file name */
-         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-            p++;
-         if(strncmp(p, "pre", 3) == 0) {
-            int bracecount = 1, num_bytes = 0;
-            while(*p != '{' && *p != 0)
-               p++;
-            if (*p != 0) p++;
-            for(r = p; *r != 0; r++) {
-               if (*r == '{') bracecount++;
-               else if (*r == '}') bracecount--;
-               if (bracecount == 0) break;
-               num_bytes++;
-            }
-            pre = (char *)malloc(num_bytes+1);
-            r = pre;
-            for (j=0; j < num_bytes; j++)
-               *r++ = *p++;
-            *r = 0;
-            if (*p != 0) p++;
-         }
-         while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
-            p++;
-         if(strncmp(p, "post", 4) == 0) {
-            int bracecount = 1, num_bytes = 0;
-            while(*p != '{' && *p != 0)
-               p++;
-            if (*p != 0) p++;
-            for(r = p; *r != 0; r++) {
-               if (*r == '{') bracecount++;
-               else if (*r == '}') bracecount--;
-               if (bracecount == 0) break;
-               num_bytes++;
-            }
-            post = (char *)malloc(num_bytes+1);
-            r = post;
-            for (j=0; j < num_bytes; j++)
-               *r++ = *p++;
-            *r = 0;
-         }
-         if (strlen(q) > 0)
-            add_header_general(q, pre, post);
+	 p++;
+	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+	    p++;
+	 q = p;
+	 while (*p != '}' && *p != 0)
+	    p++;
+	 r = p-1;
+	 while ((*r <= ' ' || *r == ')') && r >= q)
+	    r--;
+	 if (*p != 0) p++;
+	 r[1] = 0; /* q is the file name */
+	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+	    p++;
+	 if(strncmp(p, "pre", 3) == 0) {
+	    int bracecount = 1, num_bytes = 0;
+	    while(*p != '{' && *p != 0)
+	       p++;
+	    if (*p != 0) p++;
+	    for(r = p; *r != 0; r++) {
+	       if (*r == '{') bracecount++;
+	       else if (*r == '}') bracecount--;
+	       if (bracecount == 0) break;
+	       num_bytes++;
+	    }
+	    pre = (char *)malloc(num_bytes+1);
+	    r = pre;
+	    for (j=0; j < num_bytes; j++)
+	       *r++ = *p++;
+	    *r = 0;
+	    if (*p != 0) p++;
+	 }
+	 while ((*p <= ' ' || *p == '=' || *p == '(') && *p != 0)
+	    p++;
+	 if(strncmp(p, "post", 4) == 0) {
+	    int bracecount = 1, num_bytes = 0;
+	    while(*p != '{' && *p != 0)
+	       p++;
+	    if (*p != 0) p++;
+	    for(r = p; *r != 0; r++) {
+	       if (*r == '{') bracecount++;
+	       else if (*r == '}') bracecount--;
+	       if (bracecount == 0) break;
+	       num_bytes++;
+	    }
+	    post = (char *)malloc(num_bytes+1);
+	    r = post;
+	    for (j=0; j < num_bytes; j++)
+	       *r++ = *p++;
+	    *r = 0;
+	 }
+	 if (strlen(q) > 0)
+	    add_header_general(q, pre, post);
       } else {
-         q = p;  /* we will remove enclosing parentheses */
-         p = p + strlen(p) - 1;
-         while ((*p <= ' ' || *p == ')') && p >= q)
-            p--;
-         p[1] = 0;
-         if (p >= q)
-            add_header(q);
+	 q = p;  /* we will remove enclosing parentheses */
+	 p = p + strlen(p) - 1;
+	 while ((*p <= ' ' || *p == ')') && p >= q)
+	    p--;
+	 p[1] = 0;
+	 if (p >= q)
+	    add_header(q);
       }
    }
    break;
@@ -695,6 +695,7 @@ case 'm':
          if (slen > 0 && downbuf[slen] == ' ') {
             downbuf[slen] = 0;
          }
+         nextstring = p + 1; 
          if (TeXname) {
             TeXname = newstring(TeXname);
             PSname = newstring(PSname);
@@ -790,7 +791,6 @@ if (HPS_FLAG && NEED_NEW_BOX) {
    if (dd(D_SPECIAL))
       fprintf_str(stderr, "Processing special: %s\n", p);
 #endif
-
 #ifdef XDVIPSK
    if (VTEX_SPEC_MODE) {
 	   if ((strncmp(p, "mt:", 3) == 0) || (strncmp(p, "vtex:", 5) == 0) ||
@@ -800,7 +800,6 @@ if (HPS_FLAG && NEED_NEW_BOX) {
 	   }
    }
 #endif /* XDVIPSK */
-
    switch (*p) {
 case 'o':
    if (strncmp(p, "om:", 3)==0) {       /* Omega specials ignored */
@@ -1120,13 +1119,14 @@ default:
       switch (j) {
  case -1: /* for compatibility with old conventions, we allow a file name
            * to be given without the 'psfile=' keyword */
-         if (!psfile[0] && maccess(KeyStr)==0) /* yes we can read it */
-#ifdef XDVIPSK
-           {
-#else
+         if (!psfile[0] && maccess(KeyStr)==1) { /* yes we can read it */
+             if (strlen(KeyStr) >= PSFILESIZ) {
+               sprintf(errbuf, 
+           "! Bare filename (%.20s...) in \\special longer than %d characters",
+                       KeyStr, PSFILESIZ);
+             }
              strcpy(psfile,KeyStr);
-         else {
-#endif /* XDVIPSK */
+         } else {
            if (strlen(KeyStr) < 40) {
               sprintf(errbuf,
                       "Unknown keyword (%s) in \\special will be ignored",
@@ -1157,7 +1157,7 @@ default:
                sprintf(errbuf, 
            "! PS filename (%.20s...) in \\special longer than %d characters",
                        ValStr, PSFILESIZ);
-           error(errbuf);
+	       error(errbuf);
            }
            strcpy(psfile, ValStr);
          }
@@ -1198,9 +1198,9 @@ default:
       }
    } else if (psfilewanted
 #ifdef KPATHSEA
-          && !kpse_tex_hush ("special")
+	      && !kpse_tex_hush ("special")
 #endif
-      )
+	      )
       specerror("No \\special psfile was given; figure will be blank");
 
    cmdout("@endspecial");
@@ -1259,8 +1259,8 @@ bbdospecial(int nbytes)
       j = 0;
       while ((p=GetKeyVal(p, &j))) {
          if (j >= 0 && j < NKEYS && KeyTab[j].Type == Number) {
-            seen[j]++;
-            valseen[j] = ValNum;
+	    seen[j]++;
+	    valseen[j] = ValNum;
          }
       }
       /*
@@ -1284,9 +1284,9 @@ bbdospecial(int nbytes)
          vsize = valseen[13] - valseen[11];
       if (seen[14] || seen[15]) {
          if (seen[14] && seen[15] == 0) {
-            hscale = vscale = valseen[14] / (10.0 * hsize);
+	    hscale = vscale = valseen[14] / (10.0 * hsize);
          } else if (seen[15] && seen[14] == 0) {
-            hscale = vscale = valseen[15] / (10.0 * vsize);
+	    hscale = vscale = valseen[15] / (10.0 * vsize);
          } else {
             hscale = valseen[14] / (10.0 * hsize);
             vscale = valseen[15] / (10.0 * vsize);

@@ -21,6 +21,7 @@ dnl Common code for all programs using libkpathsea.
 KPSE_COMMON([xdvipsk])
 KPSE_CANONICAL_HOST
 AC_CANONICAL_HOST
+AM_CONDITIONAL([cross], [test "x$cross_compiling" = xyes])
 
 ARCH_LIBS_DIR="win32"
 AS_CASE([$host_os],
@@ -55,7 +56,7 @@ KPSE_LIBPNG_FLAGS
 KPSE_LIBJPEG_FLAGS
 KPSE_LIBTIFF_FLAGS
 
-AC_HEADER_STDC
+#AC_HEADER_STDC
 
 echo timestamp >config.force
 

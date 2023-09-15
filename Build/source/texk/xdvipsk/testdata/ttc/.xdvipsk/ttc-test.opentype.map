@@ -1,0 +1,26 @@
+[Avenir.ttc](0):mode=node;		Avenir-Book	Avenir Book	>./Avenir.ttc
+[Avenir.ttc](0):mode=node;script=DFLT;language=dflt;		Avenir-Book	Avenir Book	>./Avenir.ttc
+[Avenir.ttc](1):mode=node;		Avenir-BookOblique	Avenir Book Oblique	>./Avenir.ttc
+[Avenir.ttc](1):mode=node;script=DFLT;language=dflt;		Avenir-BookOblique	Avenir Book Oblique	>./Avenir.ttc
+[Avenir.ttc](10):mode=node;		Avenir-Oblique	Avenir Oblique	>./Avenir.ttc
+[Avenir.ttc](10):mode=node;script=DFLT;language=dflt;		Avenir-Oblique	Avenir Oblique	>./Avenir.ttc
+[Avenir.ttc](11):mode=node;		Avenir-Roman	Avenir Roman	>./Avenir.ttc
+[Avenir.ttc](11):mode=node;script=DFLT;language=dflt;		Avenir-Roman	Avenir Roman	>./Avenir.ttc
+[Avenir.ttc](2):mode=node;		Avenir-Black	Avenir Black	>./Avenir.ttc
+[Avenir.ttc](2):mode=node;script=latn;language=dflt;		Avenir-Black	Avenir Black	>./Avenir.ttc
+[Avenir.ttc](3):mode=node;		Avenir-BlackOblique	Avenir Black Oblique	>./Avenir.ttc
+[Avenir.ttc](3):mode=node;script=latn;language=dflt;		Avenir-BlackOblique	Avenir Black Oblique	>./Avenir.ttc
+[Avenir.ttc](4):mode=node;		Avenir-Heavy	Avenir Heavy	>./Avenir.ttc
+[Avenir.ttc](4):mode=node;script=latn;language=dflt;		Avenir-Heavy	Avenir Heavy	>./Avenir.ttc
+[Avenir.ttc](5):mode=node;		Avenir-HeavyOblique	Avenir Heavy Oblique	>./Avenir.ttc
+[Avenir.ttc](5):mode=node;script=DFLT;language=dflt;		Avenir-HeavyOblique	Avenir Heavy Oblique	>./Avenir.ttc
+[Avenir.ttc](6):mode=node;		Avenir-Light	Avenir Light	>./Avenir.ttc
+[Avenir.ttc](6):mode=node;script=DFLT;language=dflt;		Avenir-Light	Avenir Light	>./Avenir.ttc
+[Avenir.ttc](7):mode=node;		Avenir-LightOblique	Avenir Light Oblique	>./Avenir.ttc
+[Avenir.ttc](7):mode=node;script=DFLT;language=dflt;		Avenir-LightOblique	Avenir Light Oblique	>./Avenir.ttc
+[Avenir.ttc](8):mode=node;		Avenir-Medium	Avenir Medium	>./Avenir.ttc
+[Avenir.ttc](8):mode=node;script=DFLT;language=dflt;		Avenir-Medium	Avenir Medium	>./Avenir.ttc
+[Avenir.ttc](9):mode=node;		Avenir-MediumOblique	Avenir Medium Oblique	>./Avenir.ttc
+[Avenir.ttc](9):mode=node;script=DFLT;language=dflt;		Avenir-MediumOblique	Avenir Medium Oblique	>./Avenir.ttc
+[lmroman10-bold]:+tlig;		LMRoman10-Bold	LMRoman10-Bold	>$SELFAUTOPARENT/texmf-dist/fonts/opentype/public/lm/lmroman10-bold.otf
+[lmroman10-regular]:+tlig;		LMRoman10-Regular	LMRoman10-Regular	>$SELFAUTOPARENT/texmf-dist/fonts/opentype/public/lm/lmroman10-regular.otf

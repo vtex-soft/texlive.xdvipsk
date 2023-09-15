@@ -1,4 +1,4 @@
-# xdvipsk (dvips 2022.1, web2c+kpathsea 6.3.4) (TeXLive 2022)
+# xdvipsk (dvips 2023.1, web2c+kpathsea 6.3.6/dev) (TeXLive 2024)
 
 ## New options
 
@@ -45,9 +45,9 @@
     -J  Download only needed characters from OT fonts. Default `on`.
 
     -W  Extended search mode for image files indicated by `em:graph` specials:
-            when no file with the specified name is found, the file names with
-            other extensions - `.pcx`,`.bmp`,`.tif`,`.jpg`,`.png` - are tried.
-            Default `off`.
+        when no file with the specified name is found, the file names with
+        other extensions - `.pcx`,`.bmp`,`.tif`,`.jpg`,`.png` - are tried.
+        Default `off`.
 
     -noluatex  Mode of disabled LuaTeX extensions. Switches off support of
         OpenType fonts. Default `on`.
@@ -70,15 +70,16 @@
 
   *  do not stop on unknown `\special`
 
+  *  accepts font map `\special` commands with prefixes `mapfile` and `mapline`
+     (`pdftex` primitive analoques)
+
 ## Dependencies
 
-### The libraries necessary for graphic handling
+### The extra libraries necessary for graphic handling
 
 ```
     jpeglib - version 9.2.0
-    libpng  - version 1.6.37
     libtiff - version 4.0.8
-    zlib    - version 1.2.11
 ```
 
 ## New modules
@@ -105,11 +106,14 @@
 
 ```
     emspecial.c
+    flib.c (to be failed with C preprocessor macro FONTLIB defined)
 ```
 
 ## Changed modules
 
 ```
+    dvips.c (moved to xdvips.c)
+    dvips.h (moved to xdvips.h)
     protos.h
     paths.h
     dvips.h
@@ -134,11 +138,11 @@
     writet1.c
 ```
 
-All changes are tagged with markers:
+All changes are identified by the C preprocessor macro XDVIPS definition:
 
 ```
-    //AP--begin
-    //AP--end
+    \#ifdef XDVIPSK
+    \#endif
 ```
 
 ## Development

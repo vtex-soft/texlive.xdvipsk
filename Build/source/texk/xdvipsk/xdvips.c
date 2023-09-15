@@ -283,6 +283,8 @@ char banner[] = BANNER;        /* our startup message */
 char banner2[] = BANNER2;      /* our second startup message */
 #ifdef XDVIPSK
 char banner3[] = BANNER3;  /* our third startup message */
+const char *xdvipsk_bug_address =
+  "Email dvips related bug reports to tex-k@tug.org.\nEmail xdvipsk related bug reports to tex-dev@vtex.lt.\n";
 #endif /* XDVIPSK */
 Boolean noenv = 0;             /* ignore PRINTER envir variable? */
 Boolean dopprescan = 0;        /* do we do a scan before the prescan? */
@@ -330,15 +332,31 @@ extern char *getcwd ();
 
 static const char *helparr[] = {
 #ifndef VMCMS
+#ifndef XDVIPSK
 "Usage: dvips [OPTION]... FILENAME[.dvi]",
 #else
+"Usage: xdvipsk [OPTION]... FILENAME[.dvi]",
+#endif
+#else
 "    VM/CMS Usage:",
+#ifndef XDVIPSK
 "           dvips fname [ftype [fmode]] [options]",
+#else
+"           xdvipsk fname [ftype [fmode]] [options]",
+#endif
 "or",
+#ifndef XDVIPSK
 "           dvips fname[.ftype[.fmode]] [options]",
+#else
+"           xdvipsk fname [ftype [fmode]] [options]",
+#endif
 #endif
 "Convert DVI input files to PostScript.",
 "See http://tug.org/dvips/ for the full manual and other information.",
+#ifdef XDVIPSK
+"See https://github.com/vtex-soft/texlive.xdvipsk for the specific xdvipsk ",
+"information and source.",
+#endif
 "",
 "Options:",
 "-a*  Conserve memory, not time       -A   Print only odd (TeX) pages",
@@ -365,7 +383,7 @@ static const char *helparr[] = {
 "-j*  Download fonts partially",
 #else
 "-h f Add header file                 -H*  Turbo mode for PS graphics",
-"-i*  Separate file per section       -I*  Resize mode for emTeX graphics",
+"-i*  Separate file per section       -I p Resize mode for emTeX graphics",
 "-j*  Download T1 fonts partially     -J*  Download OpenType fonts partially",
 #endif /* XDVIPSK */
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
@@ -411,7 +429,9 @@ static const char *helparr[] = {
 /*"-   Interactive query of options", */
 "    # = number   f = file   s = string  * = suffix, `0' to turn off",
 "    c = comma-separated dimension pair (e.g., 3.2in,-32.1cm)",
-"    l = comma-separated list of page ranges (e.g., 1-4,7-9)", 0};
+"    l = comma-separated list of page ranges (e.g., 1-4,7-9)",
+"    p = comma-separated pixel-form:filter pairs (e.g. RGB:t,CMYK:r),",
+"        `0' to turn off", 0};
 
 void
 help(int status)
@@ -423,7 +443,11 @@ help(int status)
 
    putc ('\n', f);
 #ifdef KPATHSEA
+#ifndef XDVIPSK
    fputs (kpse_bug_address, f);
+#else
+   fputs (xdvipsk_bug_address, f);
+#endif /* XDVIPSK */
 #endif
 }
 
@@ -1787,8 +1811,13 @@ default:
 	 SET_BINARY(fileno(stdin));
    } else {
 #ifdef KPATHSEA
+#ifndef XDVIPSK
       fprintf (stderr, "dvips: Missing DVI file argument (or -f).\n");
       fprintf (stderr, "dvips: Try --help for more information.\n");
+#else
+      fprintf (stderr, "xdvipsk: Missing DVI file argument (or -f).\n");
+      fprintf (stderr, "xdvipsk: Try --help for more information.\n");
+#endif /* XDVIPSK */
 #else
       help(1);
 #endif

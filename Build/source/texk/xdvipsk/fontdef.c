@@ -29,7 +29,7 @@ newfontdesc(integer cksum, integer scsize, integer dssize,
 
    fp = (fontdesctype *)mymalloc((integer)sizeof(fontdesctype));
 #ifndef XDVIPSK
-   fp->chardesc = (chardesctype *)mymalloc(256 * (integer)sizeof(chardesctype));
+   fp->chardesc = (chardesctype *)mymalloc(256*(integer)sizeof(chardesctype));
 #else
    fp->chardesc_hh = NULL;
 #endif
