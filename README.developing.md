@@ -1,4 +1,4 @@
-# xdvipsk (dvips 2023.1, web2c+kpathsea 6.3.6/dev) (TeXLive 2024)
+# xdvipsk (dvips+lua 2023.1, web2c+kpathsea 6.3.6/dev) (TeXLive 2024)
 
 ## New options
 
@@ -44,6 +44,9 @@
 
     -J  Download only needed characters from OT fonts. Default `on`.
 
+    -lua `Lua` script file with optional functions: `prescan_specials(p)` and
+        `scan_specials(p)` - to be used for extra processing `dvi specials`
+
     -W  Extended search mode for image files indicated by `em:graph` specials:
         when no file with the specified name is found, the file names with
         other extensions - `.pcx`,`.bmp`,`.tif`,`.jpg`,`.png` - are tried.
@@ -73,6 +76,8 @@
   *  accepts font map `\special` commands with prefixes `mapfile` and `mapline`
      (`pdftex` primitive analoques)
 
+  *  `Lua` callbacks for `dvi` specials
+  
 ## Dependencies
 
 ### The extra libraries necessary for graphic handling
@@ -138,7 +143,7 @@
     writet1.c
 ```
 
-All changes are identified by the C preprocessor macro XDVIPS definition:
+All changes are identified by the C preprocessor macro XDVIPSK definition:
 
 ```
     \#ifdef XDVIPSK

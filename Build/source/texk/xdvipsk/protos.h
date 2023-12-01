@@ -107,6 +107,7 @@ extern void *revlist(void *p);
 #ifdef XDVIPSK
 extern void dvips_exit(int code);
 extern void writelogrecord(const char *s);
+extern void morestrings(void);
 #endif /* XDVIPSK */
 
 /* prototypes for functions from emspecial.c */
@@ -482,6 +483,11 @@ extern quarterword *mraster;
 /* global variables from resident.c */
 extern struct header_list *ps_fonts_used;
 extern const char *psmapfile;
+#ifdef XDVIPSK
+extern const char *luascript;
+extern Boolean lua_prescan_specials;
+extern Boolean lua_scan_specials;
+#endif
 
 /* global variables from search.c */
 extern int to_close;

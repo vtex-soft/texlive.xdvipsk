@@ -16,7 +16,7 @@
 
 #ifdef XDVIPSK
 #define BANNER \
-"This is xdvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
+"This is xdvips(k)+lua " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"
 #define BANNER2 "(www.vtex.lt)"
 #define BANNER3 \
 "Based on dvips(k) " VERSION " (" TL_VERSION ")  Copyright 2023 Radical Eye Software"

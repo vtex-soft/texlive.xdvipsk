@@ -14,8 +14,6 @@ Overlapping file `Build/source/m4/kpse-pkgs.m4` should be merged eventually.
 
 `Build/source/texk/xdvipsk`
 
-`Build/utils/make2unc`
-
 `Build/source/libs/libjpeg`
 
 > Used in `Build/source/texk/xdvipsk`
@@ -54,14 +52,23 @@ Overlapping file `Build/source/m4/kpse-pkgs.m4` should be merged eventually.
     ../configure --disable-all-pkgs --without-x --disable-xetex --disable-xindy --enable-xdvipsk -C CFLAGS=-g CXXFLAGS=-g
     make
 
-    ../configure --disable-all-pkgs --without-x --disable-xetex --disable-xindy --enable-make2unc -C CFLAGS=-g CXXFLAGS=-g
-    make
-    
-    LDFLAGS="-fno-lto -fno-use-linker-plugin -static-libgcc -static-libstdc++" ../configure \
-    --host=x86_64-w64-mingw32 --build=x86_64-apple-darwin --disable-all-pkgs --without-x \
-    --disable-xetex --disable-xindy --enable-make2unc --enable-missing -C CFLAGS=-g CXXFLAGS=-g
-    
     ../configure --host=x86_64-w64-mingw32 --build=x86_64-apple-darwin --disable-all-pkgs --without-x --disable-xetex --disable-xindy \
     --enable-xdvipsk -C CFLAGS=-g CXXFLAGS=-g 
 ```
 
+### Build in `Windows`
+
+Visual Studio 2019 project files are provided in `texk/xdvipsk/windows`.
+
+Due `github` restrictions on file size some libs are tar gzip'ed.
+So, before building unzip folowwing files:
+
+```
+    texk/xdvipsk/thirdparty/libmupdf/win32/libmupdfd.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win32/libmupdf.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win64/libmupdfd.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win32/libthirdparty.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win64/libthirdpartyd.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win64/libmupdf.lib.tgz
+    texk/xdvipsk/thirdparty/libmupdf/win64/libthirdparty.lib.tgz
+```

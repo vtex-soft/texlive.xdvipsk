@@ -21,6 +21,7 @@ Options:
 -k*  Print crop marks                -K*  Pull comments from inclusions
 -l # Last page                       -L*  Last special papersize wins
 -landscaperotate*  Allow landscape to print rotated on portrait papersizes
+-lua s Lua script file name
 -m*  Manual feed                     -M*  Don't make fonts
 -mode s Metafont device name
 -n # Maximum number of pages         -N*  No structured comments

@@ -40,6 +40,8 @@ AS_CASE([$host_os],
 )
 AC_SUBST([ARCH_LIBS_DIR])
 
+KPSE_LUA53_DEFINES
+
 AC_CONFIG_HEADERS([c-auto.h:c-auto.in])
 
 AC_CHECK_SIZEOF([int])
@@ -51,18 +53,14 @@ AC_DEFINE([TL_VERSION], ["TeX Live tex_live_version()"],
           [Define to the current TeX Live version string.])
 
 KPSE_KPATHSEA_FLAGS
+KPSE_LUA53_FLAGS
 KPSE_ZLIB_FLAGS
 KPSE_LIBPNG_FLAGS
 KPSE_LIBJPEG_FLAGS
 KPSE_LIBTIFF_FLAGS
-
-#AC_HEADER_STDC
+KPSE_ICU_FLAGS
 
 echo timestamp >config.force
-
-# For dvips-all.enc.
-encdir='${datarootdir}/texmf-dist/fonts/enc/dvips/base'
-AC_SUBST([encdir])
 
 # distribute additional compiler and linker flags
 # --> set these variables instead of CXXFLAGS or LDFLAGS

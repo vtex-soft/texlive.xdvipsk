@@ -5,20 +5,39 @@
 ## Copyright 2009-2015 Peter Breitenlohner <tex-live@tug.org>
 ## You may freely use, modify and/or distribute this file.
 ##
-GRAPHLIB_INCLUDES = $(srcdir)/graphlib
+GRAPHLIB_INCLUDES = -I$(srcdir)/graphlib
+OTFLIB_INCLUDES = -I$(srcdir)/otflib
+
+## liblua53
+##
+LUA_INCLUDES = $(LUA53_INCLUDES) $(LUA53_DEFINES)
+LUA_LIBS = $(LUA53_LIBS)
+LUA_DEPEND = $(LUA53_DEPEND)
+
+MUPDF_INCLUDES = -I$(abs_top_srcdir)/thirdparty/libmupdf/include
+MUPDF_DEPEND = $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-third.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-pkcs7.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-threads.a
+
+MUPDF_LIBS = $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf.a \
+             $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-third.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-pkcs7.a \
+             $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-threads.a
 
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS 
 AM_CFLAGS = $(WARNING_CFLAGS) -D_FORTIFY_SOURCE=1
 
-##AM_LDFLAGS = -lstdc++
-#AM_LDFLAGS = -Wl,-Map,xdvipsk.map
-bin_PROGRAMS = xdvipsk
-
 if cross
+  bin_PROGRAMS = xdvipsk
   MINGW_INCLUDES = -I$(abs_top_srcdir)/mingw/include
+else
+  bin_PROGRAMS = xdvipsk make2unc
+  ## Rebuild icu
+  @ICU_RULE@
 endif
 
-xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
+xdvipsk_CPPFLAGS = $(OTFLIB_INCLUDES) $(GRAPHLIB_INCLUDES) $(LUA_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
 
 xdvipsk_SOURCES = \
 	bbox.c \
@@ -116,9 +135,9 @@ xdvipsk_SOURCES = \
 	otflib/unicode.c \
 	otflib/unicode.h
 
-$(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
+$(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(LUA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 
-xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++
+xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LUA_LIBS) $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++
 if cross
    xdvipsk_SOURCES += mingw/include/wingdi.h
    xdvipsk_LDFLAGS = -fno-lto -fno-use-linker-plugin -static -static-libgcc -static-libstdc++ --disable-shared
@@ -127,7 +146,7 @@ endif
 
 noinst_LIBRARIES = libdvipsgraph.a
 
-libdvipsgraph_a_dependencies =
+libdvipsgraph_a_dependencies = $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 libdvipsgraph_a_SOURCES = \
     graphlib/bitmap.cpp \
     graphlib/bitmap.h \
@@ -155,19 +174,16 @@ libdvipsgraph_a_SOURCES = \
     graphlib/toFloat.h \
     graphlib/utilities.h
 
-libdvipsgraph_a_dependencies += $(ZLIB_DEPEND)
-libdvipsgraph_a_dependencies += $(LIBPNG_DEPEND)
-libdvipsgraph_a_dependencies += $(LIBJPEG_DEPEND)
-libdvipsgraph_a_dependencies += $(LIBTIFF_DEPEND)
-
-#$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
 $(libdvipsgraph_a_OBJECTS): config.force
 
 AM_CXXFLAGS = @AM_CXXFLAGS@
 
 libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES)
 
-#libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
+make2unc_CXXFLAGS =  $(MUPDF_INCLUDES) $(ICU_INCLUDES) -DUNIX -DSHIFTLOWCHARS -std=c++11
+make2unc_SOURCES = make2unc-src/make2unc.cpp
+make2unc_LDADD = $(MUPDF_LIBS) $(ICU_LIBS) $(ICU_LIBS_EXTRA)
+$(make2unc_OBJECTS): $(MUPDF_DEPEND) $(ICU_DEPEND)
 
 ###############################################################################
 # THE LIBRARIES TO BUILD
@@ -175,6 +191,8 @@ libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDE
 
 ## Rebuild libkpathsea
 @KPATHSEA_RULE@
+## Rebuild liblua53
+@LUA53_RULE@
 ## Rebuild libz
 @ZLIB_RULE@
 ## Rebuild libpng

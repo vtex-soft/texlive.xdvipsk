@@ -398,6 +398,9 @@ configstring(char *s, int nullok)
 /*
  *   Now we have the getdefaults routine.
  */
+#ifdef XDVIPSK
+const char *luascript = LUASCRIPTFILE;
+#endif
 const char *psmapfile = PSMAPFILE;
 Boolean
 getdefaults(const char *s)
@@ -647,10 +650,23 @@ case 'O' :
          break;
 case 'l':
          p = was_inline + 1 ;
+#ifndef XDVIPSK
          if (strncmp(p, "andscaperotate", 14) != 0)
             error("! in config file line starting with l was not landscaperotate") ;
          p += 14 ;
          landscaperotate = (*p != '0') ;
+#else
+         if (strncmp(p, "andscaperotate", 14) != 0) {
+            if (strncmp(p, "uascript ", 9) != 0) {
+               error("! in config file line starting with l was not landscaperotate or luascript") ;
+            } else {
+               luascript = configstring(was_inline+9, 0);
+            }
+         } else {
+            p += 14 ;
+            landscaperotate = (*p != '0') ;
+         }
+#endif /* XDVIPSK */
          break ;
 #ifdef FONTLIB
 case 'L' :

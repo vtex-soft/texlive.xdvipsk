@@ -5,6 +5,8 @@
 #include "dvips.h" /* The copyright notice in that file is included too! */
 #else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
+#define VERSION "2023.1"
+#define TL_VERSION "TeX Live 2024"
 #endif /* XDVIPSK */
 #ifdef KPATHSEA
 #include <kpathsea/c-pathch.h>
@@ -37,7 +39,7 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #define GLOBAL globaldef
 #ifdef __GNUC__
 #include "climsgdef.h"	/* created by hand, extracted from STARLET.MLB */
-			/* and put in GNU_CC:[INCLUDE.LOCAL]           */
+/* and put in GNU_CC:[INCLUDE.LOCAL]           */
 #include "ctype.h"
 #include "descrip.h"
 #else
@@ -55,18 +57,18 @@ extern char *strtok(); /* some systems don't have this in strings.h */
 #if defined(WIN32) && defined(KPATHSEA)
 FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 {
-  FILE *f;
+	FILE *f;
 
-  f = fsyscp_fopen (filename, mode);
+	f = fsyscp_fopen (filename, mode);
 
-  if (f == NULL && file_system_codepage != win32_codepage) {
-    int tmpcp = file_system_codepage;
-    file_system_codepage = win32_codepage;
-    f = fsyscp_fopen (filename, mode);
-    file_system_codepage = tmpcp;
-  }
+	if (f == NULL && file_system_codepage != win32_codepage) {
+		int tmpcp = file_system_codepage;
+		file_system_codepage = win32_codepage;
+		f = fsyscp_fopen (filename, mode);
+		file_system_codepage = tmpcp;
+	}
 
-  return f;
+	return f;
 }
 #undef fopen
 #define fopen(file, fmode)  generic_fsyscp_fopen(file, fmode)
@@ -81,6 +83,9 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 #endif
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 #endif /* XDVIPSK */
 
 /*
@@ -178,6 +183,9 @@ Boolean noluatex = 0;        /* LuaTeX extensions are enabled */
 Boolean noToUnicode = 0;     /* ToUnicode Cmap file for OpenType font generation are enabled */
 Boolean TURBO_MODE = 0;      /* Write direct EPS files to PS stream */
 Boolean RESIZE_MODE = 0;     /* Enable emTeX graphics to rescale */
+Boolean lua_prescan_specials = 0;
+Boolean lua_scan_specials = 0;
+lua_State *L;
 #if defined(WIN32)
 char RESIZE_FILTER_BW = 'w';  /* Default rescale filter for BW emTeX graphics */
 char RESIZE_FILTER_Gray = 'w';/* Default rescale filter for Gray emTeX graphics */
@@ -389,6 +397,9 @@ static const char *helparr[] = {
 "-k*  Print crop marks                -K*  Pull comments from inclusions",
 "-l # Last page                       -L*  Last special papersize wins",
 "-landscaperotate*  Allow landscape to print rotated on portrait papersizes",
+#ifdef XDVIPSK
+"-lua s Lua script file name",
+#endif /* XDVIPSK */
 "-m*  Manual feed                     -M*  Don't make fonts",
 "-mode s Metafont device name",
 "-n # Maximum number of pages         -N*  No structured comments",
@@ -652,7 +663,11 @@ mymalloc(integer n)
       error("! no memory");
    return p;
 }
+#ifndef XDVIPSK
 static void
+#else
+void
+#endif /* XDVIPSK */
 morestrings(void) {
    strings = mymalloc((integer)STRINGSIZE);
    nextstring = strings;
@@ -908,6 +923,48 @@ void queryresizeargs(char *p)
       }
    }
 }
+
+void load_lua_scripts(const char* luascript)
+{
+   L = luaL_newstate();
+   char *luascriptfile = NULL;
+#ifdef KPATHSEA
+   luascriptfile = (char *)kpse_find_file (luascript, kpse_lua_format, 0);
+#endif
+   if (luascriptfile) {
+      luaL_openlibs(L);
+      int ret = luaL_loadfile(L, luascriptfile);
+      if (ret != 0) {
+          switch (ret) {
+                case LUA_ERRSYNTAX:
+                    fprintf(stderr, "Failed to load lua script file %s:\n\t%s.\n", luascriptfile, "Lua syntax error");
+                    break;
+                case LUA_ERRMEM:
+                    fprintf(stderr, "Failed to load lua_script_file file %s:\n\t%s.\n", luascriptfile, "memory allocation error");
+                    break;
+                case LUA_ERRFILE:
+                    fprintf(stderr, "Failed to load lua_script_file %s:\n\t%s.\n", luascriptfile, "cannot open/read the file");
+                    break;
+          };
+      } else {
+          if (lua_pcall(L, 0, 0, 0) != 0) {
+             fprintf(stderr, "Failed to load lua script file %s: %s", luascriptfile, lua_tostring(L, -1));
+          } else {
+             lua_getglobal(L, "prescan_specials");
+             if lua_isfunction(L, 1) {
+                lua_prescan_specials = 1;
+                }
+             lua_pop(L, 1);
+             lua_getglobal(L, "scan_specials");
+             if lua_isfunction(L, 1) {
+                lua_scan_specials = 1;
+                }
+             lua_pop(L, 1);
+          };
+      };
+      free(luascriptfile);
+   }
+}
 #endif /* XDVIPSK */
 
 /*
@@ -986,7 +1043,7 @@ and the xdvips copyright.\n\
 For more information about these matters, see the files\n\
 named COPYING and xdvips.h.\n\
 Primary author of Dvips: T. Rokicki.");
-        puts("Modifications author: A. Povilaitis.");
+        puts("Modifications authors: A. Povilaitis, S.Tolusis.");
 #endif /* XDVIPSK */
          exit (0);
       }
@@ -1346,6 +1403,10 @@ case 'l':
                   } else {
                      error("! -landscaperotate command ended with junk") ;
                   }
+#ifdef XDVIPSK
+               } else if (STREQ (p, "ua") && argv[i+1]) {
+                 luascript = argv[++i];
+#endif /* XDVIPSK */
                } else {
                   if (*p == 0 && argv[i+1])
                      p = argv[++i];
@@ -1850,6 +1911,7 @@ default:
    }
    usesPSfonts = 0;
    usesOTFfonts = 0;
+   load_lua_scripts(luascript);
 #endif /* XDVIPSK */
 /*
  *   Now we do our main work.
@@ -1990,6 +2052,9 @@ default:
 #ifndef XDVIPSK
    return found_problems ? EXIT_FAILURE : EXIT_SUCCESS;
 #else
+   if (L) {
+       lua_close(L);
+       }
    dvips_exit(0);
 #endif /* XDVIPSK */
    /*NOTREACHED*/
@@ -2005,3 +2070,4 @@ default:
 #ifdef MVSXA  /* IBM: MVS/XA */
 #include "dvipsmvs.h"
 #endif
+

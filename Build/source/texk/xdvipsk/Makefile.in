@@ -89,17 +89,21 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = xdvipsk$(EXEEXT)
+@cross_FALSE@bin_PROGRAMS = xdvipsk$(EXEEXT) make2unc$(EXEEXT)
+@cross_TRUE@bin_PROGRAMS = xdvipsk$(EXEEXT)
 @cross_TRUE@am__append_1 = mingw/include/wingdi.h
 @cross_TRUE@am__append_2 = -lgdi32
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../../m4/kpse-common.m4 \
+	$(top_srcdir)/../../m4/kpse-icu-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-kpathsea-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-libjpeg-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-libpng-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-libtiff-flags.m4 \
+	$(top_srcdir)/../../m4/kpse-lua53-flags.m4 \
 	$(top_srcdir)/../../m4/kpse-warnings.m4 \
+	$(top_srcdir)/../../m4/kpse-win32.m4 \
 	$(top_srcdir)/../../m4/kpse-zlib-flags.m4 \
 	$(top_srcdir)/../../m4/libtool.m4 \
 	$(top_srcdir)/../../m4/ltoptions.m4 \
@@ -148,6 +152,17 @@ am_libdvipsgraph_a_OBJECTS =  \
 	graphlib/libdvipsgraph_a-tiffLogLuv.$(OBJEXT) \
 	graphlib/libdvipsgraph_a-toFloat.$(OBJEXT)
 libdvipsgraph_a_OBJECTS = $(am_libdvipsgraph_a_OBJECTS)
+am_make2unc_OBJECTS = make2unc-src/make2unc-make2unc.$(OBJEXT)
+make2unc_OBJECTS = $(am_make2unc_OBJECTS)
+am__DEPENDENCIES_1 =
+make2unc_DEPENDENCIES = $(MUPDF_LIBS) $(am__DEPENDENCIES_1)
+AM_V_lt = $(am__v_lt_@AM_V@)
+am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+make2unc_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(make2unc_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__xdvipsk_SOURCES_DIST = bbox.c bitmapenc.c charcode.c color.c \
 	config.h debug.h dopage.c dosection.c dospecial.c download.c \
 	dpicheck.c drawPS.c dviinput.c emspecialex.c finclude.c \
@@ -211,15 +226,11 @@ am_xdvipsk_OBJECTS = xdvipsk-bbox.$(OBJEXT) \
 	otflib/xdvipsk-tt_table.$(OBJEXT) \
 	otflib/xdvipsk-unicode.$(OBJEXT) $(am__objects_1)
 xdvipsk_OBJECTS = $(am_xdvipsk_OBJECTS)
-am__DEPENDENCIES_1 =
+am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
 xdvipsk_DEPENDENCIES = libdvipsgraph.a $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-AM_V_lt = $(am__v_lt_@AM_V@)
-am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
-am__v_lt_0 = --silent
-am__v_lt_1 = 
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 xdvipsk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(xdvipsk_LDFLAGS) $(LDFLAGS) -o $@
@@ -280,6 +291,7 @@ am__depfiles_remade = ./$(DEPDIR)/xdvipsk-bbox.Po \
 	graphlib/$(DEPDIR)/libdvipsgraph_a-resize.Po \
 	graphlib/$(DEPDIR)/libdvipsgraph_a-tiffLogLuv.Po \
 	graphlib/$(DEPDIR)/libdvipsgraph_a-toFloat.Po \
+	make2unc-src/$(DEPDIR)/make2unc-make2unc.Po \
 	otflib/$(DEPDIR)/xdvipsk-cff.Po \
 	otflib/$(DEPDIR)/xdvipsk-cff_dict.Po \
 	otflib/$(DEPDIR)/xdvipsk-cidsysinfo.Po \
@@ -338,8 +350,10 @@ AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
 am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
 am__v_CXXLD_0 = @echo "  CXXLD   " $@;
 am__v_CXXLD_1 = 
-SOURCES = $(libdvipsgraph_a_SOURCES) $(xdvipsk_SOURCES)
-DIST_SOURCES = $(libdvipsgraph_a_SOURCES) $(am__xdvipsk_SOURCES_DIST)
+SOURCES = $(libdvipsgraph_a_SOURCES) $(make2unc_SOURCES) \
+	$(xdvipsk_SOURCES)
+DIST_SOURCES = $(libdvipsgraph_a_SOURCES) $(make2unc_SOURCES) \
+	$(am__xdvipsk_SOURCES_DIST)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -435,6 +449,10 @@ EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 FILECMD = @FILECMD@
 GREP = @GREP@
+ICU_CONFIG = @ICU_CONFIG@
+ICU_DEPEND = @ICU_DEPEND@
+ICU_INCLUDES = @ICU_INCLUDES@
+ICU_LIBS = @ICU_LIBS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -461,6 +479,10 @@ LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
+LUA53_DEFINES = @LUA53_DEFINES@
+LUA53_DEPEND = @LUA53_DEPEND@
+LUA53_INCLUDES = @LUA53_INCLUDES@
+LUA53_LIBS = @LUA53_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -515,7 +537,6 @@ datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
-encdir = @encdir@
 exec_prefix = @exec_prefix@
 host = @host@
 host_alias = @host_alias@
@@ -549,11 +570,26 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 ### Makefile.am for the TeX Live subdirectory texk/xdvipsk/
-GRAPHLIB_INCLUDES = $(srcdir)/graphlib
+GRAPHLIB_INCLUDES = -I$(srcdir)/graphlib
+OTFLIB_INCLUDES = -I$(srcdir)/otflib
+LUA_INCLUDES = $(LUA53_INCLUDES) $(LUA53_DEFINES)
+LUA_LIBS = $(LUA53_LIBS)
+LUA_DEPEND = $(LUA53_DEPEND)
+MUPDF_INCLUDES = -I$(abs_top_srcdir)/thirdparty/libmupdf/include
+MUPDF_DEPEND = $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-third.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-pkcs7.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-threads.a
+
+MUPDF_LIBS = $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf.a \
+             $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-third.a \
+               $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-pkcs7.a \
+             $(abs_top_srcdir)/thirdparty/libmupdf/$(ARCH_LIBS_DIR)/libmupdf-threads.a
+
 AM_CPPFLAGS = $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS 
 AM_CFLAGS = $(WARNING_CFLAGS) -D_FORTIFY_SOURCE=1
 @cross_TRUE@MINGW_INCLUDES = -I$(abs_top_srcdir)/mingw/include
-xdvipsk_CPPFLAGS = -I$(srcdir)/otflib -I$(GRAPHLIB_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
+xdvipsk_CPPFLAGS = $(OTFLIB_INCLUDES) $(GRAPHLIB_INCLUDES) $(LUA_INCLUDES) $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES) $(KPATHSEA_INCLUDES) -DUNIX -DKPATHSEA -DSHIFTLOWCHARS -DXDVIPSK
 xdvipsk_SOURCES = bbox.c bitmapenc.c charcode.c color.c config.h \
 	debug.h dopage.c dosection.c dospecial.c download.c dpicheck.c \
 	drawPS.c dviinput.c emspecialex.c finclude.c fontdef.c \
@@ -577,13 +613,12 @@ xdvipsk_SOURCES = bbox.c bitmapenc.c charcode.c color.c config.h \
 	otflib/tt_glyf.c otflib/tt_glyf.h otflib/tt_post.c \
 	otflib/tt_post.h otflib/tt_table.c otflib/tt_table.h \
 	otflib/unicode.c otflib/unicode.h $(am__append_1)
-xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LIBTIFF_LIBS) \
-	$(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) -lstdc++ \
-	$(am__append_2)
+xdvipsk_LDADD = libdvipsgraph.a $(KPATHSEA_LIBS) $(LUA_LIBS) \
+	$(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS) \
+	-lstdc++ $(am__append_2)
 @cross_TRUE@xdvipsk_LDFLAGS = -fno-lto -fno-use-linker-plugin -static -static-libgcc -static-libstdc++ --disable-shared
 noinst_LIBRARIES = libdvipsgraph.a
-libdvipsgraph_a_dependencies = $(ZLIB_DEPEND) $(LIBPNG_DEPEND) \
-	$(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
+libdvipsgraph_a_dependencies = $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 libdvipsgraph_a_SOURCES = \
     graphlib/bitmap.cpp \
     graphlib/bitmap.h \
@@ -612,6 +647,9 @@ libdvipsgraph_a_SOURCES = \
     graphlib/utilities.h
 
 libdvipsgraph_a_CPPFLAGS = $(ZLIB_INCLUDES) $(LIBPNG_INCLUDES) $(LIBJPEG_INCLUDES) $(LIBTIFF_INCLUDES)
+make2unc_CXXFLAGS = $(MUPDF_INCLUDES) $(ICU_INCLUDES) -DUNIX -DSHIFTLOWCHARS -std=c++11
+make2unc_SOURCES = make2unc-src/make2unc.cpp
+make2unc_LDADD = $(MUPDF_LIBS) $(ICU_LIBS) $(ICU_LIBS_EXTRA)
 NEVER_DIST = `find . $(NEVER_NAMES)`
 NEVER_NAMES = -name .svn
 NEVER_NAMES_SUB = -o -name .deps -o -name .dirstamp -o -name '*.$(OBJEXT)'
@@ -769,6 +807,19 @@ libdvipsgraph.a: $(libdvipsgraph_a_OBJECTS) $(libdvipsgraph_a_DEPENDENCIES) $(EX
 	$(AM_V_at)-rm -f libdvipsgraph.a
 	$(AM_V_AR)$(libdvipsgraph_a_AR) libdvipsgraph.a $(libdvipsgraph_a_OBJECTS) $(libdvipsgraph_a_LIBADD)
 	$(AM_V_at)$(RANLIB) libdvipsgraph.a
+make2unc-src/$(am__dirstamp):
+	@$(MKDIR_P) make2unc-src
+	@: > make2unc-src/$(am__dirstamp)
+make2unc-src/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) make2unc-src/$(DEPDIR)
+	@: > make2unc-src/$(DEPDIR)/$(am__dirstamp)
+make2unc-src/make2unc-make2unc.$(OBJEXT):  \
+	make2unc-src/$(am__dirstamp) \
+	make2unc-src/$(DEPDIR)/$(am__dirstamp)
+
+make2unc$(EXEEXT): $(make2unc_OBJECTS) $(make2unc_DEPENDENCIES) $(EXTRA_make2unc_DEPENDENCIES) 
+	@rm -f make2unc$(EXEEXT)
+	$(AM_V_CXXLD)$(make2unc_LINK) $(make2unc_OBJECTS) $(make2unc_LDADD) $(LIBS)
 otflib/$(am__dirstamp):
 	@$(MKDIR_P) otflib
 	@: > otflib/$(am__dirstamp)
@@ -825,6 +876,7 @@ xdvipsk$(EXEEXT): $(xdvipsk_OBJECTS) $(xdvipsk_DEPENDENCIES) $(EXTRA_xdvipsk_DEP
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f graphlib/*.$(OBJEXT)
+	-rm -f make2unc-src/*.$(OBJEXT)
 	-rm -f otflib/*.$(OBJEXT)
 
 distclean-compile:
@@ -885,6 +937,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@graphlib/$(DEPDIR)/libdvipsgraph_a-resize.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@graphlib/$(DEPDIR)/libdvipsgraph_a-tiffLogLuv.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@graphlib/$(DEPDIR)/libdvipsgraph_a-toFloat.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@make2unc-src/$(DEPDIR)/make2unc-make2unc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@otflib/$(DEPDIR)/xdvipsk-cff.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@otflib/$(DEPDIR)/xdvipsk-cff_dict.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@otflib/$(DEPDIR)/xdvipsk-cidsysinfo.Po@am__quote@ # am--include-marker
@@ -2025,6 +2078,20 @@ graphlib/libdvipsgraph_a-toFloat.obj: graphlib/toFloat.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libdvipsgraph_a_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o graphlib/libdvipsgraph_a-toFloat.obj `if test -f 'graphlib/toFloat.cpp'; then $(CYGPATH_W) 'graphlib/toFloat.cpp'; else $(CYGPATH_W) '$(srcdir)/graphlib/toFloat.cpp'; fi`
 
+make2unc-src/make2unc-make2unc.o: make2unc-src/make2unc.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(make2unc_CXXFLAGS) $(CXXFLAGS) -MT make2unc-src/make2unc-make2unc.o -MD -MP -MF make2unc-src/$(DEPDIR)/make2unc-make2unc.Tpo -c -o make2unc-src/make2unc-make2unc.o `test -f 'make2unc-src/make2unc.cpp' || echo '$(srcdir)/'`make2unc-src/make2unc.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) make2unc-src/$(DEPDIR)/make2unc-make2unc.Tpo make2unc-src/$(DEPDIR)/make2unc-make2unc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='make2unc-src/make2unc.cpp' object='make2unc-src/make2unc-make2unc.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(make2unc_CXXFLAGS) $(CXXFLAGS) -c -o make2unc-src/make2unc-make2unc.o `test -f 'make2unc-src/make2unc.cpp' || echo '$(srcdir)/'`make2unc-src/make2unc.cpp
+
+make2unc-src/make2unc-make2unc.obj: make2unc-src/make2unc.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(make2unc_CXXFLAGS) $(CXXFLAGS) -MT make2unc-src/make2unc-make2unc.obj -MD -MP -MF make2unc-src/$(DEPDIR)/make2unc-make2unc.Tpo -c -o make2unc-src/make2unc-make2unc.obj `if test -f 'make2unc-src/make2unc.cpp'; then $(CYGPATH_W) 'make2unc-src/make2unc.cpp'; else $(CYGPATH_W) '$(srcdir)/make2unc-src/make2unc.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) make2unc-src/$(DEPDIR)/make2unc-make2unc.Tpo make2unc-src/$(DEPDIR)/make2unc-make2unc.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='make2unc-src/make2unc.cpp' object='make2unc-src/make2unc-make2unc.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(make2unc_CXXFLAGS) $(CXXFLAGS) -c -o make2unc-src/make2unc-make2unc.obj `if test -f 'make2unc-src/make2unc.cpp'; then $(CYGPATH_W) 'make2unc-src/make2unc.cpp'; else $(CYGPATH_W) '$(srcdir)/make2unc-src/make2unc.cpp'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
@@ -2302,6 +2369,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f graphlib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f graphlib/$(am__dirstamp)
+	-rm -f make2unc-src/$(DEPDIR)/$(am__dirstamp)
+	-rm -f make2unc-src/$(am__dirstamp)
 	-rm -f otflib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f otflib/$(am__dirstamp)
 
@@ -2370,6 +2439,7 @@ distclean: distclean-am
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-resize.Po
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-tiffLogLuv.Po
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-toFloat.Po
+	-rm -f make2unc-src/$(DEPDIR)/make2unc-make2unc.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cff.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cff_dict.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cidsysinfo.Po
@@ -2493,6 +2563,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-resize.Po
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-tiffLogLuv.Po
 	-rm -f graphlib/$(DEPDIR)/libdvipsgraph_a-toFloat.Po
+	-rm -f make2unc-src/$(DEPDIR)/make2unc-make2unc.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cff.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cff_dict.Po
 	-rm -f otflib/$(DEPDIR)/xdvipsk-cidsysinfo.Po
@@ -2554,19 +2625,19 @@ uninstall-am: uninstall-binPROGRAMS
 
 .PRECIOUS: Makefile
 
+@cross_FALSE@  @ICU_RULE@
 
-$(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
+$(xdvipsk_OBJECTS): $(KPATHSEA_DEPEND) $(LUA_DEPEND) $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND)
 
-#$(libdvipsgraph_a_OBJECTS): $(ZLIB_DEPEND) $(LIBPNG_DEPEND) $(LIBJPEG_DEPEND) $(LIBTIFF_DEPEND) config.force
 $(libdvipsgraph_a_OBJECTS): config.force
-
-#libdvipsgraph_a_LIBADD = $(LIBTIFF_LIBS) $(LIBPNG_LIBS) $(ZLIB_LIBS) $(LIBJPEG_LIBS)
+$(make2unc_OBJECTS): $(MUPDF_DEPEND) $(ICU_DEPEND)
 
 ###############################################################################
 # THE LIBRARIES TO BUILD
 ###############################################################################
 
 @KPATHSEA_RULE@
+@LUA53_RULE@
 @ZLIB_RULE@
 @LIBPNG_RULE@
 @LIBJPEG_RULE@

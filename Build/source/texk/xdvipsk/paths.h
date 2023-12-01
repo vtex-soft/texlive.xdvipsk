@@ -45,6 +45,7 @@
 #define OTFMAPFILEEXT ".opentype.map"
 #define OTFENCDFILEEXT ".encodings.map"
 #define OTFMAPFILEDIR ".xdvipsk/"
+#define LUASCRIPTFILE "xdvipsk.lua"
 #endif
 #ifndef KPATHSEA
 /* arguments to fopen */

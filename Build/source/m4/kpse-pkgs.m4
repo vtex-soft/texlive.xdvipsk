@@ -91,7 +91,6 @@ axodraw2
 devnag
 lacheck
 m-tx
-make2unc
 pmx
 ps2eps
 t1utils

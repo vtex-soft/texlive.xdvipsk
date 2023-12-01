@@ -1,12 +1,13 @@
 # Overview
 
-## *xdvipsk*: extended dvips (TeXLive 2023)
+## *xdvipsk*: extended dvips (TeXLive 2023.1)
 
-It has three base extensions:
+It has four base extensions:
 * one allows flexible inclusion of bitmap images
 * another extension solves a quite long-standing task -- adds `OpenType` font support
 to `dvips`
 * accepts font map `\special` commands with prefixes `mapfile` and `mapline` 
+* adds `lua` callbacks for processing `dvi specials`
 
 *xdvipsk* goes `LuaTeX` way in `OpenType` font management:  
 > works on `DVI` files compiled by `LuaTeX` and expects to find the necessary `Unicode` map files, 
@@ -304,6 +305,22 @@ It consists of five columns
 utility `make2unc`, which incorporate the cmaps into the `PDF` files.  The file
 name form is `*article*-cid*num*.tounicode`, where `*num*` is a font index in
 the `DVI` file and is used here to have distinct file names for distinct fonts.
+
+### `Lua` callbacks
+
+`xdvipsk` reads `lua` script file `xdvipsk.lua` if it is found by `kpse` and looks
+for two functions: `prescan_specials(p)` and `scan_specials(p)`. These functions
+are used for processing `dvi specials` in prescan and scan steps accordingly 
+before be processed by `xdvipsk` native mechanism. 
+
+Return values defines processing behaviour:
+
+  - non empty string defines modified `dvi special` to be processed;
+  - true value means processing original `dvi special` in default way;
+  - empty string or false value means skipping `dvi special`.
+
+Default `lua` script file can be changed by command line argument `-lua`
+or command `luascript` in `xdvipsk` config files. 
 
 ### External libraries 
 
