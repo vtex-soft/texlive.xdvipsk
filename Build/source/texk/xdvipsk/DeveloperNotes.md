@@ -1,4 +1,4 @@
-# xdvipsk (dvips 2023.1, web2c+kpathsea 6.3.6/dev) (TeXLive 2024) 2023.11.30
+# xdvipsk (dvips 2024.1, web2c+kpathsea 6.4.0) (TeXLive 2024) 2024.02.08
 
 ## New options
 

@@ -1985,6 +1985,8 @@ drawrule(integer rw, integer rh)
       rulex = rw;
       ruley = rh;
    }
+   if (lua_after_drawrule)
+      run_lua_after_drawrule(L, rw, rh);
 }
 
 /*
@@ -2078,6 +2080,22 @@ drawchar(chardesctype *c, int cc)
       rhh = hh + c->pixelwidth; /* rvv = rv */
    else
       rvv = vv + c->pixelwidth; /* rhh = rh */
+   if (lua_after_drawchar) {
+      if (curfnt->resfont->otftype) {
+         luamaptype *map, *current;
+         unsigned int *tounicode;
+         int tu_count;
+         map = LuaMap_cache_get(curfnt->resfont->luamap_idx);
+         HASH_FIND_INT(map, &(c->cid), current);
+         if (current != NULL) {
+            tu_count = current->tu_count;
+            tounicode = current->tounicode;
+         }
+         run_lua_after_drawchar(L, c, cc, c->cid, c->pixelwidth, rhh, rvv, dir, lastfont, tu_count, tounicode);
+      } else {
+         run_lua_after_drawchar(L, c, cc, c->cid, c->pixelwidth, rhh, rvv, dir, lastfont, 0, 0);
+      }
+   }
 }
 /*
  *   This routine sends out the document fonts comment.

@@ -26,6 +26,6 @@
 
 #include "cmap.h"
 
-extern int CMap_create_file(const char *map_path, const char *map_name, const char *map_ext, CMap *cmap);
+extern int CMap_create_file(const char *map_path, const char *map_name, const char *map_ext, CMap *cmap, int detectranges);
 
 #endif /*  _CMAP_WRITE_H_ */

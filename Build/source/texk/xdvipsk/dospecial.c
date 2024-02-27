@@ -31,59 +31,6 @@ struct bangspecial {
    char *actualstuff;
 } *bangspecials = NULL;
 
-#ifdef XDVIPSK
-#include "lua.h"
-#include "lauxlib.h"
-#include "lualib.h"
-extern lua_State *L;
-int run_lua_specials(const char* lua_func, char* p, Boolean lua_available)
-{
-   size_t l = 1;
-   const char* luares;
-   if (lua_available) {
-      lua_getglobal(L, lua_func);
-      lua_pushstring(L, (const char *) p);
-      if (lua_pcall(L, 1, 1, 0) == 0) {
-         int t = lua_type(L, -1);
-         switch (t) {
-            case LUA_TSTRING: {
-               luares = lua_tostring(L, -1);
-               l = lua_rawlen(L, -1);
-               if (luares != 0 && l > 0) {
-                  while (strcmp(p,luares) != 0) {
-                     if (nextstring + l >= maxstring)
-                        morestrings();
-                     if (nextstring + l >= maxstring)
-                        error("! out of string space");
-                     strcpy(nextstring, luares);
-                     p = nextstring;
-#ifdef DEBUG
-                     if (dd(D_SPECIAL))
-                        fprintf_str(stderr, "Preprocessing special with LUA: %s len=%zu\n", p, l);
-#endif
-                  }
-               } else {
-                  l = 0;
-               }
-               break;
-               }
-            case LUA_TBOOLEAN: {
-               if (lua_toboolean(L, -1) == 0)
-                  l = 0;
-               break;
-               }
-            default: {
-               l = 0;
-               break;
-               }
-         }
-         lua_pop(L, 1);
-      }
-   }
-   return l;
-}
-#endif
-
 void
 specerror(const char *s)
 {
@@ -358,7 +305,7 @@ GetKeyVal(char *str, int *tno) /* returns NULL if none found, else next scan poi
      /* str : starting point for scan */
      /* tno : table entry number of keyword, or -1 if keyword not found */
 {
-   unsigned char *s;
+   char *s;
    register int i;
    register char t;
 
@@ -483,7 +430,7 @@ predospecial(integer numbytes, Boolean scanning)
 #endif
 
 #ifdef XDVIPSK
-   l = run_lua_specials("prescan_specials", p, lua_prescan_specials);
+   l = run_lua_specials(L, "prescan_specials_callback", p, lua_prescan_specials);
    if (l == 0) return;
 #endif /* XDVIPSK */
 
@@ -856,7 +803,7 @@ if (HPS_FLAG && NEED_NEW_BOX) {
       fprintf_str(stderr, "Processing special: %s\n", p);
 #endif
 #ifdef XDVIPSK
-   l = run_lua_specials("scan_specials", p, lua_scan_specials);
+   l = run_lua_specials(L, "scan_specials_callback", p, lua_scan_specials);
    if (l == 0) return;
 
    if (VTEX_SPEC_MODE) {

@@ -1,6 +1,6 @@
 # Overview
 
-## *xdvipsk*: extended dvips (TeXLive 2023.1)
+## *xdvipsk*: extended dvips (TeXLive 2024)
 
 It has four base extensions:
 * one allows flexible inclusion of bitmap images
@@ -306,11 +306,33 @@ utility `make2unc`, which incorporate the cmaps into the `PDF` files.  The file
 name form is `*article*-cid*num*.tounicode`, where `*num*` is a font index in
 the `DVI` file and is used here to have distinct file names for distinct fonts.
 
-### `Lua` callbacks
+### `Lua` callbacks (experimental stuff)
 
 `xdvipsk` reads `lua` script file `xdvipsk.lua` if it is found by `kpse` and looks
-for two functions: `prescan_specials(p)` and `scan_specials(p)`. These functions
-are used for processing `dvi specials` in prescan and scan steps accordingly 
+for these lua functions:
+
+- `prescan_specials_callback(special, table)`
+> `special` - original special data, `table` with keys: `hh`, `vv`, `pagenum`
+
+- `scan_specials_callback(special, table)`
+> `special` - original special data, `table` with keys: `hh`, `vv`, `pagenum`
+
+- `after_prescan_callback(table)`
+> `table` with keys: `hpapersize`, `vpapersize`, `hoff`, `voff`, `actualdpi`, 
+>                    `vactualdpi`, `num`, `den`, `mag`, `totalpages`
+
+- `after_drawchar_callback(table)`
+> `table` with keys: `charcode`, `cid`, `pixelwidth`, `rhh`, `rvv`, `dir`, `lastfont`
+>                    `tounicode`
+
+- `after_drawrule_callback(table)`
+> `table` with keys: `hh`, `vv`, `dir`, `rw`, `rh`
+
+- `process_stack_callback(table)`
+> `table` with keys: `cmd`, `hh`, `vv`, `dir`
+
+Two functions: `prescan_specials_callback` and `scan_specials_callback`  
+are used for processing `dvi specials` in prescan and scan steps accordingly  
 before be processed by `xdvipsk` native mechanism. 
 
 Return values defines processing behaviour:
@@ -319,13 +341,15 @@ Return values defines processing behaviour:
   - true value means processing original `dvi special` in default way;
   - empty string or false value means skipping `dvi special`.
 
+Demo script file: `testdata/luacallbacks/xdvipsk.lua`
+
 Default `lua` script file can be changed by command line argument `-lua`
 or command `luascript` in `xdvipsk` config files. 
 
 ### External libraries 
 
 The main development and building of executables is
-done on a *MS Windows* workstation using the *Visual Studio 2010 IDE*. 
+moved on a *MS Windows* workstation to the *Visual Studio 2019 IDE*. 
 In parallel, we build the code on two more architectures: *Linux* and *macOS*.
 For these, we are quite close to the TeX Live build environment except for
 extra libraries: `libjpeg`, `libtiff` for `xdvipsk`,
@@ -333,4 +357,4 @@ and `libmupdf` for new utility `make2unc`.
 Other needed libraries are taken from TeX Live distributions.
 Latest `Windows` binaries are cross compiled with `mingw`.
 
-The current `xdvipsk` version is based on `dvips 2023.1`, `web2c + kpathsea 6.3.6/dev`, `TeXLive 2024`.
+The current `xdvipsk` version is based on `dvips 2024`, `web2c + kpathsea 6.4.0`, `TeXLive 2024`.

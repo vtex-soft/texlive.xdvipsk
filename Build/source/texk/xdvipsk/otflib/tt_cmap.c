@@ -1074,7 +1074,7 @@ create_ToUnicode_cmap (tt_cmap *ttcmap,
   }
 
   if (count > 0) {
-	  retval = CMap_create_file(cmap_path, cmap_name, cmap_ext,cmap);
+	  retval = CMap_create_file(cmap_path, cmap_name, cmap_ext,cmap, 0);
   }
   CMap_release(cmap);
 

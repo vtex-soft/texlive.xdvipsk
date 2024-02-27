@@ -99,7 +99,11 @@ case 135: /* put3 */
    charmove = 0;
    goto dochar;
 case 130: /* set3 */
+#ifndef XDVIPSK
    if (noptex) error("! synch");
+#else
+   if (noptex && noluatex) error("! synch");
+#endif /* XDVIPSK */
    mychar = dvibyte();
    mychar = (mychar << 8) + dvibyte();
    mychar = (mychar << 8) + dvibyte();
@@ -149,7 +153,7 @@ dochar:
    if (mychar<curfnt->maxchars)
       cd = &(curfnt->chardesc[mychar]);
 #else
-   if (mychar<curfnt->maxchars) {
+   if (mychar<curfnt->maxchars || (!noluatex && curfnt->resfont->otftype)) {
       cd = find_chardesc(curfnt, mychar);
       if (cd == NULL) {
         mychar = '?';
@@ -339,6 +343,8 @@ case 141: /* push */
    sp->hh = hh; sp->vv = vv; sp->h = h; sp->v = v;
    sp->w = w; sp->x = x; sp->y = y; sp->z = z; sp->dir = dir;
    if (++sp >= &stack[STACKSIZE]) error("! Out of stack space");
+   if (lua_process_stack)
+      run_lua_process_stack(L, (const char*) "push");
    goto beginloop;
 case 140: /* eop or end of virtual character */
    if (curpos == NULL) { /* eop */
@@ -363,6 +369,8 @@ case 142: /* pop */
    pushcount--;
   /* printf("pop %i\n", pushcount); */
 #endif
+   if (lua_process_stack)
+      run_lua_process_stack(L, (const char*) "pop");
    if (--sp < stack) error("! More pops than pushes");
 #ifdef HPS
    if (HPS_FLAG) {

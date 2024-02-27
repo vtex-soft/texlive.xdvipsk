@@ -223,7 +223,7 @@ int sfntload(fontdesctype *curfnt)
 			}
 		}
 		curfnt->resfont->cmap_fmt = ttcmap->format;
-		if ( ttcmap->format == 12 )
+		if ( ttcmap->format >= 12 )
 			no_of_chars = MAX_CODE;
 		else
 			no_of_chars = MAX_2BYTES_CODE;

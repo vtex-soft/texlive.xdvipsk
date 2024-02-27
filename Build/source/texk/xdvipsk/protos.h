@@ -503,4 +503,23 @@ extern FILE *tfmfile;
 /* global variables from loadfont.c */
 extern int bitmapfontseen ;
 
+#ifdef XDVIPSK
+/* global variables and prototypes for Lua callbacks*/
+#include "lua.h"
+extern lua_State *L;
+extern Boolean lua_prescan_specials;
+extern Boolean lua_scan_specials;
+extern Boolean lua_after_prescan;
+extern Boolean lua_after_drawchar;
+extern Boolean lua_after_drawrule;
+extern Boolean lua_process_stack;
+extern Boolean lua_callback_defined(lua_State *L, const char* lua_callback);
+extern lua_State *load_lua_scripts(const char* luascript);
+extern int run_lua_specials(lua_State *L, const char* lua_func, char* p, Boolean lua_available);
+extern void run_lua_after_prescan(lua_State *L);
+extern void run_lua_after_drawchar(lua_State *L, chardesctype *c, int cc, halfword cid, int c_pixelwidth, int rhh, int rvv, integer dir, int lastfont, int tu_count, unsigned int *tounicode);
+extern void run_lua_after_drawrule(lua_State *L, integer rw, integer rh);
+extern void run_lua_process_stack(lua_State *L, const char *cmd);
+#endif /* XDVIPSK */
+
 #endif

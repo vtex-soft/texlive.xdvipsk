@@ -146,8 +146,12 @@ case 255: /* pTeX's dir or undefined */
             break;
          }
 /* illegal commands */
+#ifndef XDVIPSK
 case 131: case 136: case 139: /* set4, put4, bop */
 case 247: case 248: case 249: /* pre, post, post_post */
+#else
+case 139: case 247: case 248: case 249: /* bop, pre, post, post_post */
+#endif /* XDVIPSK */
 case 250: case 251: case 252: case 253: case 254: /* undefined */
          sprintf(errbuf,
             "! DVI file contains unexpected command (%d)",cmd);
@@ -172,11 +176,24 @@ case 143: case 148: case 153: case 157: case 162: case 167:
 case 147: case 152: case 161: case 166: /* w0, x0, y0, z0 */
 case 138: case 141: case 142: /* nop, push, pop */
          break;
+#ifdef XDVIPSK
+case 131: case 136: /* set4, put4 */
+		 if (noptex && noluatex) {
+            sprintf(errbuf,
+               "! DVI file contains unexpected command (%d)",cmd);
+            error(errbuf);
+         }
+         mychar = dvibyte();
+         mychar = (mychar << 8) + dvibyte();
+         mychar = (mychar << 8) + dvibyte();
+         mychar = (mychar << 8) + dvibyte();
+         goto dochar;
+#endif /* XDVIPSK */
 case 130: case 135: /* set3, put3 */
 #ifndef XDVIPSK
          if (noptex) {
 #else
-		if (noptex && noluatex) {
+		 if (noptex && noluatex) {
 #endif /* XDVIPSK */
             sprintf(errbuf,
                "! DVI file contains unexpected pTeX command (%d)",cmd);
@@ -208,7 +225,11 @@ dochar:
          if (curfnt==NULL)
             error("! Bad DVI file: no font selected");
          if (mychar>=curfnt->maxchars) {
+#ifndef XDVIPSK
             if (!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) {
+#else
+            if ((!noptex && mychar<0x1000000 && curfnt->loaded == 2 && curfnt->kind == VF_PTEX) || !noluatex) {
+#endif /* XDVIPSK */
                /* fallback */
             } else {
                sprintf(errbuf,"! [scanpage] invalid char %d from font %.500s",

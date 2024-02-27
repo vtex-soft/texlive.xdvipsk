@@ -5,7 +5,7 @@
 #include "dvips.h" /* The copyright notice in that file is included too! */
 #else
 #include "xdvips.h" /* The copyright notice in that file is included too! */
-#define VERSION "2023.1"
+#define VERSION "2024.1"
 #define TL_VERSION "TeX Live 2024"
 #endif /* XDVIPSK */
 #ifdef KPATHSEA
@@ -86,6 +86,13 @@ FILE *generic_fsyscp_fopen(const char *filename, const char *mode)
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
+lua_State *L;
+Boolean lua_prescan_specials = 0;
+Boolean lua_scan_specials = 0;
+Boolean lua_after_prescan = 0;
+Boolean lua_after_drawchar = 0;
+Boolean lua_after_drawrule = 0;
+Boolean lua_process_stack = 0;
 #endif /* XDVIPSK */
 
 /*
@@ -183,9 +190,6 @@ Boolean noluatex = 0;        /* LuaTeX extensions are enabled */
 Boolean noToUnicode = 0;     /* ToUnicode Cmap file for OpenType font generation are enabled */
 Boolean TURBO_MODE = 0;      /* Write direct EPS files to PS stream */
 Boolean RESIZE_MODE = 0;     /* Enable emTeX graphics to rescale */
-Boolean lua_prescan_specials = 0;
-Boolean lua_scan_specials = 0;
-lua_State *L;
 #if defined(WIN32)
 char RESIZE_FILTER_BW = 'w';  /* Default rescale filter for BW emTeX graphics */
 char RESIZE_FILTER_Gray = 'w';/* Default rescale filter for Gray emTeX graphics */
@@ -598,7 +602,7 @@ concat(char *s1, char *s2)
   char *s = malloc(strlen(s1)+strlen(s2)+1);
   if (s == NULL) {
     fprintf(stderr, "Malloc failed to give %d bytes.\nAborting\n",
-	    strlen(s1)+strlen(s2)+1);
+            strlen(s1)+strlen(s2)+1);
     exit(1);
   }
   strcpy(s, s1);
@@ -924,7 +928,17 @@ void queryresizeargs(char *p)
    }
 }
 
-void load_lua_scripts(const char* luascript)
+Boolean
+lua_callback_defined(lua_State *L, const char* lua_callback)
+{
+   lua_getglobal(L, lua_callback);
+   Boolean callback_defined = lua_isfunction(L, 1);
+   lua_pop(L, 1);
+   return callback_defined;
+}
+
+lua_State *
+load_lua_scripts(const char* luascript)
 {
    L = luaL_newstate();
    char *luascriptfile = NULL;
@@ -950,21 +964,176 @@ void load_lua_scripts(const char* luascript)
           if (lua_pcall(L, 0, 0, 0) != 0) {
              fprintf(stderr, "Failed to load lua script file %s: %s", luascriptfile, lua_tostring(L, -1));
           } else {
-             lua_getglobal(L, "prescan_specials");
-             if lua_isfunction(L, 1) {
-                lua_prescan_specials = 1;
-                }
-             lua_pop(L, 1);
-             lua_getglobal(L, "scan_specials");
-             if lua_isfunction(L, 1) {
-                lua_scan_specials = 1;
-                }
-             lua_pop(L, 1);
+             lua_prescan_specials = lua_callback_defined(L, (const char*) "prescan_specials_callback");
+             lua_scan_specials = lua_callback_defined(L, (const char*) "scan_specials_callback");
+             lua_after_prescan = lua_callback_defined(L, (const char*) "after_prescan_callback");
+             lua_after_drawchar = lua_callback_defined(L, (const char*) "after_drawchar_callback");
+             lua_after_drawrule = lua_callback_defined(L, (const char*) "after_drawrule_callback");
+             lua_process_stack = lua_callback_defined(L, (const char*) "process_stack_callback");
           };
       };
       free(luascriptfile);
    }
+   return L;
 }
+
+int
+run_lua_specials(lua_State *L, const char* lua_func, char* p, Boolean lua_available)
+{
+   size_t l = 1;
+   const char* luares;
+   if (lua_available) {
+      lua_getglobal(L, lua_func);
+      lua_pushstring(L, (const char *) p);
+      lua_newtable(L);
+      lua_pushinteger(L, hh);
+      lua_setfield(L, -2,  (const char*) "hh");
+      lua_pushinteger(L, vv);
+      lua_setfield(L, -2,  (const char*) "vv");
+      lua_pushinteger(L, pagenum);
+      lua_setfield(L, -2,  (const char*) "pagenum");
+      if (lua_pcall(L, 2, 1, 0) != LUA_OK) {
+         fprintf_str(stderr, "error running function 'f': %s", lua_tostring(L, -1));
+      } else {
+         int t = lua_type(L, -1);
+         switch (t) {
+            case LUA_TSTRING: {
+               luares = lua_tostring(L, -1);
+               l = lua_rawlen(L, -1);
+               if (luares != 0 && l > 0) {
+                  while (strcmp(p,luares) != 0) {
+                     if (nextstring + l >= maxstring)
+                        morestrings();
+                     if (nextstring + l >= maxstring)
+                        error("! out of string space");
+                     strcpy(nextstring, luares);
+                     p = nextstring;
+#ifdef DEBUG
+                     if (dd(D_SPECIAL))
+                        fprintf_str(stderr, "Preprocessing special with LUA: %s len=%zu\n", p, l);
+#endif
+                  }
+               } else {
+                  l = 0;
+               }
+               break;
+               }
+            case LUA_TBOOLEAN: {
+               if (lua_toboolean(L, -1) == 0)
+                  l = 0;
+               break;
+               }
+            default: {
+               l = 0;
+               break;
+               }
+         }
+         lua_pop(L, 1);
+      }
+   }
+   return l;
+}
+
+void
+run_lua_after_prescan(lua_State *L)
+{
+   lua_getglobal(L, "after_prescan_callback");
+   lua_newtable(L);
+   lua_pushinteger(L, hpapersize);
+   lua_setfield(L, -2,  (const char*) "hpapersize");
+   lua_pushinteger(L, vpapersize);
+   lua_setfield(L, -2,  (const char*) "vpapersize");
+   lua_pushinteger(L, hoff);
+   lua_setfield(L, -2,  (const char*) "hoff");
+   lua_pushinteger(L, voff);
+   lua_setfield(L, -2,  (const char*) "voff");
+   lua_pushinteger(L, actualdpi);
+   lua_setfield(L, -2,  (const char*) "actualdpi");
+   lua_pushinteger(L, vactualdpi);
+   lua_setfield(L, -2,  (const char*) "vactualdpi");
+   lua_pushinteger(L, num);
+   lua_setfield(L, -2,  (const char*) "num");
+   lua_pushinteger(L, den);
+   lua_setfield(L, -2,  (const char*) "den");
+   lua_pushnumber(L, mag);
+   lua_setfield(L, -2,  (const char*) "mag");
+   lua_pushinteger(L, totalpages);
+   lua_setfield(L, -2,  (const char*) "totalpages");
+   if (lua_pcall(L, 1, 0, 0) != LUA_OK)
+      fprintf_str(stderr, "error running function 'f': %s", lua_tostring(L, -1));
+}
+
+void
+run_lua_after_drawchar(lua_State *L, chardesctype *c, int cc, halfword cid, int c_pixelwidth, int rhh, int rvv, int dir, int lastfont, int tu_count, unsigned int *tounicode)
+{
+   lua_getglobal(L, "after_drawchar_callback");
+   lua_newtable(L);
+   lua_pushinteger(L, cc);
+   lua_setfield(L, -2,  (const char*) "charcode");
+   lua_pushinteger(L, cid);
+   lua_setfield(L, -2,  (const char*) "cid");
+   lua_pushinteger(L, c_pixelwidth);
+   lua_setfield(L, -2,  (const char*) "pixelwidth");
+   lua_pushinteger(L, rhh);
+   lua_setfield(L, -2,  (const char*) "rhh");
+   lua_pushinteger(L, rvv);
+   lua_setfield(L, -2,  (const char*) "rvv");
+   lua_pushinteger(L, dir);
+   lua_setfield(L, -2,  (const char*) "dir");
+   lua_pushinteger(L, lastfont);
+   lua_setfield(L, -2,  (const char*) "lastfont");
+   lua_pushliteral(L, "tounicode");
+   if (tu_count > 0) {
+      lua_newtable(L);
+      int i;
+      for (i=0; i<tu_count; i++) {
+         lua_pushinteger(L, *(tounicode+i));
+         lua_rawseti(L, -2, i+1);
+      }
+   } else {
+      lua_pushnil(L);
+   }
+   lua_settable(L, -3);
+   if (lua_pcall(L, 1, 0, 0) != LUA_OK)
+      fprintf_str(stderr, "error running function 'f': %s", lua_tostring(L, -1));
+}
+
+void
+run_lua_process_stack(lua_State *L, const char *cmd)
+{
+   lua_getglobal(L, "process_stack_callback");
+   lua_newtable(L);
+   lua_pushstring(L, cmd);
+   lua_setfield(L, -2,  (const char*) "cmd");
+   lua_pushinteger(L, hh);
+   lua_setfield(L, -2,  (const char*) "hh");
+   lua_pushinteger(L, vv);
+   lua_setfield(L, -2,  (const char*) "vv");
+   lua_pushinteger(L, dir);
+   lua_setfield(L, -2,  (const char*) "dir");
+   if (lua_pcall(L, 1, 0, 0) != LUA_OK)
+      fprintf_str(stderr, "error running function 'f': %s", lua_tostring(L, -1));
+}
+
+void
+run_lua_after_drawrule(lua_State *L, integer rw, integer rh)
+{
+   lua_getglobal(L, "after_drawrule_callback");
+   lua_newtable(L);
+   lua_pushinteger(L, hh);
+   lua_setfield(L, -2,  (const char*) "hh");
+   lua_pushinteger(L, vv);
+   lua_setfield(L, -2,  (const char*) "vv");
+   lua_pushinteger(L, dir);
+   lua_setfield(L, -2,  (const char*) "dir");
+   lua_pushinteger(L, rw);
+   lua_setfield(L, -2,  (const char*) "rw");
+   lua_pushinteger(L, rh);
+   lua_setfield(L, -2,  (const char*) "rh");
+   if (lua_pcall(L, 1, 0, 0) != LUA_OK)
+      fprintf_str(stderr, "error running function 'f': %s", lua_tostring(L, -1));
+}
+
 #endif /* XDVIPSK */
 
 /*
@@ -1036,7 +1205,7 @@ For more information about these matters, see the files\n\
 named COPYING and dvips.h.\n\
 Primary author of Dvips: T. Rokicki.");
 #else
-        puts ("Copyright 2023 VTeX Ltd.\n\
+        puts ("Copyright 2024 VTeX Ltd.\n\
 There is NO warranty.  You may redistribute this software\n\
 under the terms of the GNU General Public License\n\
 and the xdvips copyright.\n\
@@ -1911,7 +2080,7 @@ default:
    }
    usesPSfonts = 0;
    usesOTFfonts = 0;
-   load_lua_scripts(luascript);
+   L = load_lua_scripts(luascript);
 #endif /* XDVIPSK */
 /*
  *   Now we do our main work.
@@ -1936,6 +2105,10 @@ default:
    if (dopprescan)
       pprescanpages();
    prescanpages();
+#ifdef XDVIPSK
+   if (lua_after_prescan)
+      run_lua_after_prescan(L);
+#endif /* XDVIPSK */
 #if defined MSDOS || defined OS2 || defined(ATARIST)
    if (mfjobfile != (FILE*)NULL) {
      char answer[5];

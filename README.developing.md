@@ -1,4 +1,4 @@
-# xdvipsk (dvips+lua 2023.1, web2c+kpathsea 6.3.6/dev) (TeXLive 2024)
+# xdvipsk (dvips+lua 2024, web2c+kpathsea 6.4.0) (TeXLive 2024)
 
 ## New options
 
@@ -76,8 +76,8 @@
   *  accepts font map `\special` commands with prefixes `mapfile` and `mapline`
      (`pdftex` primitive analoques)
 
-  *  `Lua` callbacks for `dvi` specials
-  
+  *  `Lua` callbacks for `dvi` specials (see `testdata/xdvipsk.lua` for demo)
+
 ## Dependencies
 
 ### The extra libraries necessary for graphic handling
