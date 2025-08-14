@@ -67,7 +67,7 @@
 //#include "mupdf/pdf/name-table.h"
 
 #define BANNER \
-"This is make2unc 1.1 Copyright 2016 - 2023 VTeX Ltd"
+"This is make2unc 1.1.1 Copyright 2016 - 2023 VTeX Ltd"
 #define BANNER2 "(www.vtex.lt)"
 #define OTFMAPFILEDIR ".xdvipsk/"
 
@@ -699,11 +699,11 @@ void AddUnicodeCmaps(fz_context *ctx, pdf_document *doc, pdf_obj* cmaps_array, c
 								if ((fntName.size() > 7) && (fntName.at(6) == '+'))
 									fntName = fntName.substr(7);
 								size_t pos = fntName.rfind("-TeX_Identity-H");
-								if (pos > 0)
+								if (pos != std::string::npos)
 									fntName = fntName.substr(0, pos);
 								else {
 									pos = fntName.rfind("-Identity-H");
-									if (pos > 0)
+									if (pos != std::string::npos)
 										fntName = fntName.substr(0, pos);
 								}
 								itcmap_obj = cmaps_obj_map.find(fntName);
@@ -753,10 +753,10 @@ int ModifyPdfForUnicodes(const std::string& name, const Options& options) {
 	std::string result(options.rez_name);
 	std::string src_path("");
 	size_t pos = source.rfind("\\");
-	if (pos == -1)
+	if (pos == std::string::npos)
 		pos = source.rfind("/");
 
-	if (pos > 0) {
+	if (pos != std::string::npos) {
 		src_path = source.substr(0, pos + 1);
 	}
 	src_path.append(OTFMAPFILEDIR);

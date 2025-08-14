@@ -1,0 +1,20 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{luafonts}[2019/06/27 v1.8 luatex opentype map]
+
+\newif\if@lua@fonts@debug
+\DeclareOption{debug}{\global\@lua@fonts@debugtrue}
+\ProcessOptions
+
+\RequirePackage{luatexbase}
+\RequireLuaModule{luafonts}
+
+\if@lua@fonts@debug
+    \directlua{config.luafonts.debug=true}
+\fi
+
+\directlua{%
+    luatexbase.add_to_callback('buildpage_filter', luafonts.buildpage_filter_callback, 'luafonts buildpage filter')%
+    }%
+
+\AtBeginDvi{\special{vtex:info.fonts.otf=1}}
+\endinput
